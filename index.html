@@ -735,7 +735,37 @@
             res.classList.remove('hidden');
         }
 
-        // 測試連線 (Ping) - 仿照自主學習上傳系統
+        // 自動反查 Google AI Studio 探索此金鑰真正支援的模型清單 (Auto-Discovery)
+        async function discoverValidGeminiModels(key) {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+            if (!res.ok) {
+                const txt = await res.text();
+                if (res.status === 400) {
+                    throw new Error("API Key 無效。請確認是否複製完整 (通常以 AIzaSy 開頭)。");
+                }
+                throw new Error(`查詢模型失敗 (HTTP ${res.status})`);
+            }
+            const data = await res.json();
+            const valid = data.models?.filter(m => m.supportedGenerationMethods?.includes("generateContent"));
+            if (!valid || valid.length === 0) {
+                throw new Error("您的 Google 專案尚未開通支援 generateContent 的模型。");
+            }
+            // 排序優選：2.0-flash > 1.5-flash > 1.5-pro > 其他 flash > 其他
+            valid.sort((a, b) => {
+                const score = (name) => {
+                    if (name.includes('2.0-flash')) return 10;
+                    if (name.includes('1.5-flash')) return 9;
+                    if (name.includes('1.5-pro')) return 8;
+                    if (name.includes('flash')) return 7;
+                    if (name.includes('pro')) return 6;
+                    return 1;
+                };
+                return score(b.name) - score(a.name);
+            });
+            return valid.map(m => m.name.replace(/^models\//, ''));
+        }
+
+        // 測試連線 (Ping) - 智慧動態模型匹配
         async function testApiKeyPing() {
             const key = document.getElementById('modal-apikey-input').value.trim();
             const resBox = document.getElementById('ping-result');
@@ -749,53 +779,63 @@
             }
 
             btn.disabled = true;
-            btn.innerHTML = "<i class='fas fa-spinner fa-spin mr-1'></i> 測試中...";
+            btn.innerHTML = "<i class='fas fa-spinner fa-spin mr-1'></i> 探索模型中...";
             resBox.className = "p-3 rounded-xl border bg-cyan-950/60 border-cyan-800 text-cyan-300 text-[11px]";
-            resBox.innerHTML = "<i class='fas fa-satellite-dish mr-1'></i> 正在連線 Google AI Studio 伺服器驗證模型存取權限...";
+            resBox.innerHTML = "<i class='fas fa-satellite-dish mr-1'></i> 正在向 Google 伺服器反查您專案支援的模型清單 (Auto-Discovery)...";
             resBox.classList.remove('hidden');
 
-            const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-latest'];
-            let successModel = null;
-            let lastErr = "";
+            try {
+                // 1. 動態探索可用模型
+                const models = await discoverValidGeminiModels(key);
+                console.log("🔍 成功探索到可用模型列表：", models);
 
-            for (const m of candidateModels) {
-                try {
-                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`;
-                    const resp = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: "Ping test. Return JSON: {\"status\":\"ok\"}" }] }]
-                        })
-                    });
+                let successModel = null;
+                let lastErr = "";
 
-                    if (resp.ok) {
-                        successModel = m;
-                        break;
-                    } else {
-                        const errText = await resp.text();
-                        lastErr = `HTTP ${resp.status}: ${errText.slice(0, 100)}`;
+                // 2. 測試前 3 個合適模型發送 Ping
+                for (const m of models.slice(0, 3)) {
+                    try {
+                        const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`;
+                        const resp = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{ parts: [{ text: "Ping test. Return JSON: {\"status\":\"ok\"}" }] }]
+                            })
+                        });
+
+                        if (resp.ok) {
+                            successModel = m;
+                            state.activeModel = m;
+                            localStorage.setItem('ART_SCANNER_ACTIVE_MODEL', m);
+                            break;
+                        } else {
+                            const errText = await resp.text();
+                            lastErr = `模型 ${m} 回應 HTTP ${resp.status}`;
+                        }
+                    } catch (netErr) {
+                        lastErr = netErr.message;
                     }
-                } catch (netErr) {
-                    lastErr = netErr.message;
                 }
-            }
 
-            btn.disabled = false;
-            btn.innerHTML = "<i class='fas fa-bolt text-amber-400'></i> <span>測試連線 (Ping)</span>";
-
-            if (successModel) {
-                resBox.className = "p-3 rounded-xl border bg-emerald-950/80 border-emerald-700 text-emerald-200 text-[11px]";
-                resBox.innerHTML = `
-                    <div class="font-bold text-emerald-300 mb-0.5"><i class="fas fa-check-circle mr-1"></i> 連線成功！</div>
-                    <span>成功連線至 Google <strong>${successModel}</strong> 模型！已具備高精度多模態視覺鑑別能力。請點擊右方「儲存並立即套用」。</span>
-                `;
-            } else {
+                if (successModel) {
+                    resBox.className = "p-3 rounded-xl border bg-emerald-950/80 border-emerald-700 text-emerald-200 text-[11px]";
+                    resBox.innerHTML = `
+                        <div class="font-bold text-emerald-300 mb-0.5"><i class="fas fa-check-circle mr-1"></i> 連線成功！</div>
+                        <span>已自動匹配並鎖定您金鑰支援的 <strong>${successModel}</strong> 視覺模型！具備高精度多模態鑑別能力。請點擊右方「儲存並立即套用」。</span>
+                    `;
+                } else {
+                    throw new Error(`無法連線至模型：${lastErr}`);
+                }
+            } catch (err) {
                 resBox.className = "p-3 rounded-xl border bg-rose-950/80 border-rose-700 text-rose-200 text-[11px]";
                 resBox.innerHTML = `
                     <div class="font-bold text-rose-300 mb-0.5"><i class="fas fa-triangle-exclamation mr-1"></i> 連線失敗</div>
-                    <span>${lastErr || '請檢查 API 金鑰是否有效或是否開啟權限。'}</span>
+                    <span>${err.message}</span>
                 `;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "<i class='fas fa-bolt text-amber-400'></i> <span>測試連線 (Ping)</span>";
             }
         }
 
@@ -1106,10 +1146,23 @@
                 }
             };
 
-            const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+            // 取得或動態探索可用模型列表
+            let candidateModels = [];
+            const savedActive = state.activeModel || localStorage.getItem('ART_SCANNER_ACTIVE_MODEL');
+            if (savedActive) candidateModels.push(savedActive);
+
+            try {
+                const discovered = await discoverValidGeminiModels(apiKey);
+                discovered.forEach(m => {
+                    if (!candidateModels.includes(m)) candidateModels.push(m);
+                });
+            } catch (e) {
+                if (candidateModels.length === 0) candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+            }
+
             let lastErr = null;
 
-            for (const m of models) {
+            for (const m of candidateModels) {
                 try {
                     const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`;
                     const resp = await fetch(url, {
@@ -1120,7 +1173,7 @@
 
                     if (!resp.ok) {
                         const errTxt = await resp.text();
-                        lastErr = new Error(`模型 ${m} 回應錯誤 HTTP ${resp.status}`);
+                        lastErr = new Error(`模型 ${m} 回應錯誤 HTTP ${resp.status}: ${errTxt.slice(0, 100)}`);
                         continue;
                     }
 
