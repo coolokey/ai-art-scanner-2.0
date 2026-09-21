@@ -47,16 +47,11 @@
         }
 
         .glass-panel {
-            background: rgba(15, 23, 42, 0.78);
+            background: rgba(15, 23, 42, 0.82);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(56, 189, 248, 0.18);
+            border: 1px solid rgba(56, 189, 248, 0.22);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
-        }
-
-        .glass-panel-glow {
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            box-shadow: 0 0 25px rgba(6, 182, 212, 0.25);
         }
 
         /* 掃描線雷射動畫 */
@@ -114,15 +109,19 @@
     <div class="fixed bottom-10 right-1/4 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
     <!-- 頂端控制條 -->
-    <header class="w-full max-w-lg mb-3 flex items-center justify-between px-2 text-xs text-slate-400">
+    <header class="w-full max-w-lg mb-3 flex items-center justify-between px-2 text-xs">
+        <!-- 引擎狀態燈號（點擊可開啟設定） -->
+        <button onclick="openConfigModal()" class="flex items-center space-x-2 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 px-3 py-1.5 rounded-full transition-all group shadow-sm">
+            <span id="engine-status-dot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+            <span id="engine-status-text" class="font-bold text-amber-300 text-[11px]">展示通道 (點此設定 API Key)</span>
+            <i class="fas fa-cog text-slate-400 group-hover:text-cyan-400 text-xs ml-0.5"></i>
+        </button>
+
+        <!-- 藝廊入口 -->
         <div class="flex items-center space-x-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-            <span class="font-tech text-cyan-400 tracking-wider font-bold">ART-SCANNER v2.0 PRO</span>
-        </div>
-        <div class="flex items-center space-x-2">
-            <button onclick="openGalleryModal()" class="px-3 py-1 bg-slate-800/80 hover:bg-slate-700 border border-slate-600/60 rounded-full text-cyan-300 transition-all flex items-center space-x-1.5 shadow-sm">
+            <button onclick="openGalleryModal()" class="px-3 py-1.5 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 rounded-full text-cyan-300 transition-all flex items-center space-x-1.5 shadow-sm text-[11px]">
                 <i class="fas fa-trophy text-amber-400"></i>
-                <span>星空數位藝廊 (<span id="gallery-count">0</span>)</span>
+                <span>星空藝廊 (<span id="gallery-count">0</span>)</span>
             </button>
         </div>
     </header>
@@ -131,7 +130,7 @@
     <main id="app" class="w-full max-w-lg relative min-h-[720px] max-h-[92vh] flex flex-col glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl border border-cyan-500/30 overflow-hidden">
         
         <!-- ============================================== -->
-        <!-- 畫面 1：身分驗證與模式選擇 -->
+        <!-- 畫面 1：身分確認與系統狀態 -->
         <!-- ============================================== -->
         <section id="screen-login" class="absolute inset-0 p-6 flex flex-col justify-between transition-opacity duration-300">
             <div class="text-center pt-2">
@@ -162,27 +161,19 @@
                     <input type="text" id="input-name" value="大溪小達文西" class="w-full bg-slate-900/90 border border-slate-700 focus:border-cyan-400 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all text-sm" placeholder="請輸入姓名">
                 </div>
 
-                <!-- 運行模式切換卡片（競賽關鍵！） -->
-                <div class="bg-slate-900/80 border border-cyan-500/30 rounded-2xl p-3.5 space-y-2.5">
-                    <div class="flex items-center justify-between text-xs font-bold">
-                        <span class="text-cyan-300 flex items-center"><i class="fas fa-bolt mr-1.5 text-amber-400"></i> AI 運行模式</span>
-                        <div class="flex bg-slate-800 rounded-lg p-0.5 border border-slate-700">
-                            <button id="mode-demo-btn" onclick="setEngineMode('demo')" class="px-2.5 py-1 text-[11px] rounded-md font-bold transition-all bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow">評審展示通道</button>
-                            <button id="mode-live-btn" onclick="setEngineMode('live')" class="px-2.5 py-1 text-[11px] rounded-md font-bold transition-all text-slate-400 hover:text-white">自訂 API Key</button>
-                        </div>
+                <!-- 系統引擎狀態提示卡片 -->
+                <div id="engine-card" class="bg-slate-900/90 border border-cyan-500/40 rounded-2xl p-3.5 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-cyan-300 flex items-center">
+                            <i class="fas fa-microchip mr-1.5 text-cyan-400"></i> AI 視覺評審引擎狀態
+                        </span>
+                        <button onclick="openConfigModal()" class="text-[11px] text-cyan-400 hover:text-white underline underline-offset-2 flex items-center font-bold">
+                            <i class="fas fa-sliders mr-1"></i> 設定 API Key
+                        </button>
                     </div>
 
-                    <!-- 模式說明切換 -->
-                    <div id="demo-mode-desc" class="text-[11px] text-slate-300 leading-relaxed bg-cyan-950/40 p-2.5 rounded-xl border border-cyan-800/40">
-                        <div class="flex items-start space-x-2">
-                            <i class="fas fa-wand-magic-sparkles text-cyan-400 mt-0.5"></i>
-                            <span><strong class="text-cyan-300">免設定直接體驗：</strong>由內建真實教學規準 (Rubrics) 模擬專家即時評估，具備完整雷達分析、視覺疊圖與實體胸章輸出。</span>
-                        </div>
-                    </div>
-
-                    <div id="live-mode-input" class="hidden space-y-2">
-                        <input type="password" id="input-apikey" class="w-full bg-slate-950 border border-purple-500/50 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-purple-400" placeholder="貼上 Google AI Studio API Key (AIzaSy...)">
-                        <p class="text-[10px] text-slate-400 leading-tight">支援 Google Gemini 1.5/2.0 Flash 多模態視覺辨識。若留空在評審模式下將自動走展示通道。</p>
+                    <div id="engine-desc-box" class="p-2.5 rounded-xl border text-xs leading-relaxed transition-all">
+                        <!-- 動態由 JS 渲染當前是真實 Gemini 還是展示模式 -->
                     </div>
                 </div>
 
@@ -208,14 +199,14 @@
                 </button>
                 <div class="text-center mb-3">
                     <h2 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">選擇創作領域與評估規準</h2>
-                    <p class="text-xs text-slate-400">AI 評審將依據各領域的專業標準進行多維度診斷</p>
+                    <p class="text-xs text-slate-400">AI 評審將依據各領域的專業規準進行嚴格檢驗</p>
                 </div>
             </div>
 
             <!-- 主題選單網格 -->
             <div class="grid grid-cols-2 gap-2.5 overflow-y-auto no-scrollbar my-auto max-h-[58vh] pr-0.5">
                 <!-- 主題 1 -->
-                <button onclick="selectTheme('熱血動漫角色', '人物肢體張力、眼神五官神態與動態線條')" class="theme-btn bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 hover:border-pink-500/60 p-3 rounded-2xl flex flex-col items-start text-left transition-all active:scale-95 group">
+                <button onclick="selectTheme('熱血動漫角色', '動漫/漫畫風格人物、五官神態張力、動態肢體線條')" class="theme-btn bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 hover:border-pink-500/60 p-3 rounded-2xl flex flex-col items-start text-left transition-all active:scale-95 group">
                     <div class="w-9 h-9 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                         <i class="fas fa-user-ninja text-lg"></i>
                     </div>
@@ -223,7 +214,7 @@
                     <span class="text-[10px] text-slate-400 line-clamp-2">注重五官張力、動態感與主體輪廓</span>
                 </button>
                 <!-- 主題 2 -->
-                <button onclick="selectTheme('奇幻生物與幻獸', '羽翼鱗甲細節、神話質感與奇特造型')" class="theme-btn bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 hover:border-purple-500/60 p-3 rounded-2xl flex flex-col items-start text-left transition-all active:scale-95 group">
+                <button onclick="selectTheme('奇幻生物與幻獸', '龍、神獸、魔法生物、鱗片毛髮與奇幻紋理')" class="theme-btn bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 hover:border-purple-500/60 p-3 rounded-2xl flex flex-col items-start text-left transition-all active:scale-95 group">
                     <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                         <i class="fas fa-dragon text-lg"></i>
                     </div>
@@ -231,7 +222,7 @@
                     <span class="text-[10px] text-slate-400 line-clamp-2">鱗片毛髮細節、生物結構與奇幻氛圍</span>
                 </button>
                 <!-- 主題 3 -->
-                <button onclick="selectTheme('絕美自然風景', '景深三層次、光影明暗渲染與大氣透視')" class="theme-btn bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 hover:border-emerald-500/60 p-3 rounded-2xl flex flex-col items-start text-left transition-all active:scale-95 group">
+                <button onclick="selectTheme('絕美自然風景', '山川、海洋、森林、星空、景深透視與光影')" class="theme-btn bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 hover:border-emerald-500/60 p-3 rounded-2xl flex flex-col items-start text-left transition-all active:scale-95 group">
                     <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                         <i class="fas fa-mountain-sun text-lg"></i>
                     </div>
@@ -239,7 +230,7 @@
                     <span class="text-[10px] text-slate-400 line-clamp-2">空間遠近景、大自然光影與色彩層次</span>
                 </button>
                 <!-- 主題 4 -->
-                <button onclick="selectTheme('未來科幻世界', '透視引導線、金屬高光與賽博龐克光暈')" class="theme-btn bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 hover:border-blue-500/60 p-3 rounded-2xl flex flex-col items-start text-left transition-all active:scale-95 group">
+                <button onclick="selectTheme('未來科幻世界', '科技都市、機器人、太空載具、賽博龐克光芒')" class="theme-btn bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 hover:border-blue-500/60 p-3 rounded-2xl flex flex-col items-start text-left transition-all active:scale-95 group">
                     <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                         <i class="fas fa-city text-lg"></i>
                     </div>
@@ -247,7 +238,7 @@
                     <span class="text-[10px] text-slate-400 line-clamp-2">建築透視、科技載具與未來感光澤</span>
                 </button>
                 <!-- 主題 5 -->
-                <button onclick="selectTheme('Q版吉祥物設計', '外輪廓辨識度、極簡純色搭配與童趣萌感')" class="theme-btn bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 hover:border-amber-500/60 p-3 rounded-2xl flex flex-col items-start text-left transition-all active:scale-95 group">
+                <button onclick="selectTheme('Q版吉祥物設計', '可愛擬人角色、簡單鮮明造型、純色線條')" class="theme-btn bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 hover:border-amber-500/60 p-3 rounded-2xl flex flex-col items-start text-left transition-all active:scale-95 group">
                     <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                         <i class="fas fa-cat text-lg"></i>
                     </div>
@@ -255,7 +246,7 @@
                     <span class="text-[10px] text-slate-400 line-clamp-2">俐落外輪廓、鮮明純色與親切療癒感</span>
                 </button>
                 <!-- 主題 6 -->
-                <button onclick="selectTheme('精緻靜物與美食', '物體表面反光高光、立體陰影與垂涎色澤')" class="theme-btn bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 hover:border-rose-500/60 p-3 rounded-2xl flex flex-col items-start text-left transition-all active:scale-95 group">
+                <button onclick="selectTheme('精緻靜物與美食', '精緻餐點、糕點、飲品、器皿光澤與立體陰影')" class="theme-btn bg-slate-900/80 hover:bg-slate-800/90 border border-slate-700/80 hover:border-rose-500/60 p-3 rounded-2xl flex flex-col items-start text-left transition-all active:scale-95 group">
                     <div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                         <i class="fas fa-burger text-lg"></i>
                     </div>
@@ -265,7 +256,7 @@
             </div>
 
             <p class="text-[11px] text-center text-slate-400 pt-2">
-                <i class="fas fa-info-circle text-cyan-400 mr-1"></i> 選定領域後，將進行標準圓形胸章取景與構圖校正
+                <i class="fas fa-shield-halved text-cyan-400 mr-1"></i> 真實 AI 將嚴格檢視畫作是否與所選主題契合
             </p>
         </section>
 
@@ -303,7 +294,7 @@
                     </label>
                     <div class="flex items-center space-x-2 my-1.5 text-[11px] text-slate-400">
                         <span class="w-6 h-[1px] bg-slate-700"></span>
-                        <span>或使用評審範例</span>
+                        <span>或使用示範作品</span>
                         <span class="w-6 h-[1px] bg-slate-700"></span>
                     </div>
                     <button onclick="loadSampleImage()" class="text-xs text-amber-400 hover:text-amber-300 font-bold underline underline-offset-2">
@@ -316,7 +307,6 @@
 
                 <!-- 圓形胸章預覽遮罩 (Outer Dim) -->
                 <div id="crop-circular-mask" class="absolute inset-0 pointer-events-none hidden z-20" style="box-shadow: 0 0 0 9999px rgba(9, 13, 22, 0.88); border-radius: 50%; border: 3px solid #38bdf8; width: 82%; aspect-ratio: 1/1; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                    <!-- 刻度與十字瞄準線 -->
                     <div class="absolute inset-0 reticle-ring opacity-40"></div>
                     <div class="absolute top-1/2 left-0 right-0 h-[1px] bg-cyan-400/30"></div>
                     <div class="absolute left-1/2 top-0 bottom-0 w-[1px] bg-cyan-400/30"></div>
@@ -346,8 +336,8 @@
         <!-- ============================================== -->
         <section id="screen-loading" class="absolute inset-0 p-6 flex flex-col items-center justify-center text-center transition-opacity duration-300 hidden opacity-0">
             <div class="mb-5">
-                <span class="px-3 py-1 bg-cyan-950 text-cyan-400 border border-cyan-800 text-xs font-tech font-bold rounded-full tracking-widest uppercase animate-pulse">
-                    <i class="fas fa-atom mr-1.5"></i> Multimodal Neural Analysis
+                <span id="loading-model-tag" class="px-3 py-1 bg-cyan-950 text-cyan-400 border border-cyan-800 text-xs font-tech font-bold rounded-full tracking-widest uppercase animate-pulse">
+                    <i class="fas fa-atom mr-1.5"></i> Gemini Multimodal Vision Active
                 </span>
                 <h2 class="text-2xl font-black text-white mt-2">AI 藝術能量掃描中...</h2>
             </div>
@@ -357,16 +347,15 @@
                 <img id="scan-preview-img" class="w-full h-full object-cover">
                 <div class="laser-beam"></div>
                 <div class="absolute inset-0 bg-cyan-500/15 mix-blend-overlay"></div>
-                <!-- 環形進度外圈 -->
                 <div class="absolute inset-1 rounded-full border-2 border-dashed border-cyan-400/40 animate-spin-slow"></div>
             </div>
 
             <!-- 動態階段狀態文字 -->
             <div class="h-10 flex flex-col items-center justify-center">
                 <p id="loading-stage-text" class="text-cyan-300 font-bold tracking-wide text-sm animate-pulse">
-                    正在載入多維度藝術教育評量規準...
+                    正在傳送多模態影像至 Google AI 核心...
                 </p>
-                <span class="text-[11px] text-slate-400 mt-1" id="loading-subtext">提取特徵向量與色彩構圖矩陣</span>
+                <span class="text-[11px] text-slate-400 mt-1" id="loading-subtext">檢驗畫面內容與主題契合度</span>
             </div>
         </section>
 
@@ -403,7 +392,7 @@
                 </div>
             </div>
 
-            <!-- 視覺疊圖檢視切換（競賽專屬創新功能！） -->
+            <!-- 視覺疊圖檢視切換 -->
             <div class="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-3 mb-3">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-bold text-cyan-400 flex items-center">
@@ -412,12 +401,10 @@
                     <span class="text-[10px] text-slate-400">點擊切換輔助線</span>
                 </div>
 
-                <!-- 疊圖主預覽畫布 -->
                 <div class="relative w-full aspect-video bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center mb-2">
                     <canvas id="analysis-overlay-canvas" class="max-w-full max-h-full"></canvas>
                 </div>
 
-                <!-- 疊圖切換按鈕組 -->
                 <div class="grid grid-cols-3 gap-1.5 text-[11px]">
                     <button onclick="switchOverlayMode('thirds')" id="btn-overlay-thirds" class="py-1.5 px-1 bg-cyan-950 border border-cyan-700 text-cyan-300 rounded-lg font-bold transition-all text-center">
                         <i class="fas fa-border-all mr-1"></i>三分構圖
@@ -434,7 +421,7 @@
             <!-- 六大美育專業評量指標條 -->
             <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3.5 mb-3 space-y-2.5">
                 <div class="flex items-center justify-between text-xs font-bold text-slate-300 border-b border-slate-800 pb-1">
-                    <span><i class="fas fa-chart-radar mr-1.5 text-purple-400"></i> 六維美育素養指標</span>
+                    <span><i class="fas fa-chart-radar mr-1.5 text-purple-400"></i> 五維美育素養指標</span>
                     <span class="text-[10px] text-slate-400">108課綱藝術涵養與美感素養</span>
                 </div>
 
@@ -510,18 +497,6 @@
                 </div>
             </div>
 
-            <!-- 進步歷程記錄 (Before vs After) 提示 -->
-            <div id="res-evolution-badge" class="hidden bg-purple-950/40 border border-purple-800 p-2.5 rounded-xl mb-3 flex items-center justify-between text-xs">
-                <div class="flex items-center space-x-2 text-purple-300">
-                    <i class="fas fa-chart-line text-lg text-amber-400"></i>
-                    <div>
-                        <span class="font-bold">自主學習修煉進化！</span>
-                        <p class="text-[10px] text-slate-400" id="evolution-summary">較上次提升 +6 分</p>
-                    </div>
-                </div>
-                <span class="px-2 py-0.5 bg-purple-600 text-white font-tech font-bold text-[11px] rounded-md">PROMOTED</span>
-            </div>
-
             <!-- 動作按鈕群組：實體創客與證書輸出 -->
             <div class="space-y-2 pt-1">
                 <!-- 達標 85 分解鎖區 -->
@@ -564,6 +539,64 @@
     </main>
 
     <!-- ============================================== -->
+    <!-- ⚙️ 系統 API Key 設定 Modal（仿自主學習系統） -->
+    <!-- ============================================== -->
+    <div id="config-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="w-full max-w-md bg-slate-900 border border-cyan-500/50 rounded-3xl p-6 shadow-2xl flex flex-col space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                        <i class="fas fa-key text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-white">系統 API Key 設定面板</h3>
+                        <p class="text-[10px] text-slate-400">綁定 Google AI Studio 金鑰以啟用真實多模態神經網路</p>
+                    </div>
+                </div>
+                <button onclick="closeConfigModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1">
+                        Google Gemini API Key
+                    </label>
+                    <input type="password" id="modal-apikey-input" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-white font-tech text-xs focus:outline-none" placeholder="AIzaSy...">
+                    <p class="text-[10px] text-slate-500 mt-1">
+                        ※ 儲存後將安全保存在本機瀏覽器，之後開啟網頁皆自動生效。
+                    </p>
+                </div>
+
+                <!-- 測試連線回饋 -->
+                <div id="ping-result" class="hidden p-3 rounded-xl border text-[11px] leading-relaxed">
+                </div>
+
+                <div class="flex space-x-2 pt-1">
+                    <button onclick="testApiKeyPing()" id="btn-test-ping" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-cyan-300 rounded-xl font-bold transition-all flex items-center justify-center space-x-1.5">
+                        <i class="fas fa-bolt text-amber-400"></i>
+                        <span>測試連線 (Ping)</span>
+                    </button>
+                    <button onclick="saveApiKeyConfig()" class="w-1/2 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white rounded-xl font-bold transition-all shadow-md flex items-center justify-center space-x-1.5">
+                        <i class="fas fa-check"></i>
+                        <span>儲存並立即套用</span>
+                    </button>
+                </div>
+
+                <div class="border-t border-slate-800/80 pt-3 flex items-center justify-between text-[11px] text-slate-400">
+                    <button onclick="clearApiKeyConfig()" class="text-rose-400 hover:underline">
+                        <i class="fas fa-trash-can mr-1"></i> 清除金鑰（切回展示模式）
+                    </button>
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-cyan-400 hover:underline">
+                        取得免費 API Key <i class="fas fa-arrow-up-right-from-square ml-0.5"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
     <!-- 星空數位藝廊 Modal (Hall of Fame) -->
     <!-- ============================================== -->
     <div id="gallery-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
@@ -583,9 +616,7 @@
                 </button>
             </div>
 
-            <!-- 作品網格 -->
             <div id="gallery-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto no-scrollbar flex-1 pr-1">
-                <!-- 動態注入胸章卡片 -->
             </div>
 
             <div class="pt-4 border-t border-slate-800 flex justify-between items-center text-xs text-slate-400">
@@ -604,40 +635,186 @@
     <!-- 核心 JavaScript 引擎 -->
     <!-- ============================================== -->
     <script>
-        // 系統全域狀態管理
+        const KEY_STORAGE_NAME = 'ART_SCANNER_API_KEY_V2';
+        const GALLERY_STORAGE_NAME = 'ART_SCANNER_GALLERY_V2';
+
         const state = {
             studentId: '80105',
             studentName: '大溪小達文西',
             apiKey: '',
-            engineMode: 'demo', // 'demo' (展示/評審免 Key) 或 'live' (自訂 API Key)
             theme: '熱血動漫角色',
-            themeFocus: '人物肢體張力、眼神五官神態與動態線條',
+            themeFocus: '動漫/漫畫風格人物、五官神態張力、動態肢體線條',
             croppedBase64: '',
             lastScore: null,
             currentResult: null,
-            overlayMode: 'thirds' // 'thirds', 'focus', 'palette'
+            overlayMode: 'thirds'
         };
 
-        // 本機數位藝廊暫存 (LocalStorage)
-        const STORAGE_KEY = 'ART_SCANNER_GALLERY_V2';
-        function getGallery() {
-            try {
-                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-            } catch (e) {
-                return [];
+        // 讀取已儲存的金鑰
+        function loadSavedApiKey() {
+            const saved = localStorage.getItem(KEY_STORAGE_NAME) || '';
+            state.apiKey = saved.trim();
+            updateEngineStatusUI();
+        }
+
+        function updateEngineStatusUI() {
+            const dot = document.getElementById('engine-status-dot');
+            const text = document.getElementById('engine-status-text');
+            const descBox = document.getElementById('engine-desc-box');
+
+            if (state.apiKey) {
+                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping";
+                text.innerText = "Gemini 多模態引擎就緒";
+                text.className = "font-bold text-emerald-400 text-[11px]";
+
+                descBox.className = "p-2.5 rounded-xl border bg-emerald-950/40 border-emerald-800/60 text-emerald-200 text-xs leading-relaxed";
+                descBox.innerHTML = `
+                    <div class="flex items-center space-x-1.5 font-bold mb-0.5 text-emerald-300">
+                        <i class="fas fa-circle-check"></i>
+                        <span>真實 AI 視覺辨識啟動中</span>
+                    </div>
+                    <p class="text-[11px] text-slate-300">
+                        已綁定專屬 Gemini API 金鑰。系統將透過多模態神經網路深度掃描畫面的主客結構、色彩調和度與主題契合度，提供精確具鑑別度的專業講評。
+                    </p>
+                `;
+            } else {
+                dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse";
+                text.innerText = "展示通道 (點此設定 API Key)";
+                text.className = "font-bold text-amber-300 text-[11px]";
+
+                descBox.className = "p-2.5 rounded-xl border bg-amber-950/30 border-amber-800/50 text-amber-200 text-xs leading-relaxed";
+                descBox.innerHTML = `
+                    <div class="flex items-center space-x-1.5 font-bold mb-0.5 text-amber-300">
+                        <i class="fas fa-circle-exclamation"></i>
+                        <span>目前為評審展示模擬通道</span>
+                    </div>
+                    <p class="text-[11px] text-slate-300">
+                        尚未設定 API Key，系統將使用預建模擬演算法供快速評測。建議點擊右上角「<strong class="text-amber-300 underline cursor-pointer" onclick="openConfigModal()">設定 API Key</strong>」綁定金鑰，即可開啟 100% 精準的真實 AI 視覺審查！
+                    </p>
+                `;
             }
+        }
+
+        // ==============================================
+        // ⚙️ API Key 管理面板控制
+        // ==============================================
+        function openConfigModal() {
+            document.getElementById('modal-apikey-input').value = state.apiKey;
+            document.getElementById('ping-result').classList.add('hidden');
+            const modal = document.getElementById('config-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeConfigModal() {
+            const modal = document.getElementById('config-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function saveApiKeyConfig() {
+            const val = document.getElementById('modal-apikey-input').value.trim();
+            if (!val) {
+                alert("請輸入有效的 Gemini API Key，或點擊左下角清除。");
+                return;
+            }
+            localStorage.setItem(KEY_STORAGE_NAME, val);
+            state.apiKey = val;
+            updateEngineStatusUI();
+            closeConfigModal();
+        }
+
+        function clearApiKeyConfig() {
+            localStorage.removeItem(KEY_STORAGE_NAME);
+            state.apiKey = '';
+            document.getElementById('modal-apikey-input').value = '';
+            updateEngineStatusUI();
+            const res = document.getElementById('ping-result');
+            res.className = "p-3 rounded-xl border bg-slate-800 border-slate-700 text-slate-300 text-[11px]";
+            res.innerHTML = "已清除金鑰，系統已切換回「評審展示通道」。";
+            res.classList.remove('hidden');
+        }
+
+        // 測試連線 (Ping) - 仿照自主學習上傳系統
+        async function testApiKeyPing() {
+            const key = document.getElementById('modal-apikey-input').value.trim();
+            const resBox = document.getElementById('ping-result');
+            const btn = document.getElementById('btn-test-ping');
+
+            if (!key) {
+                resBox.className = "p-3 rounded-xl border bg-rose-950/60 border-rose-800 text-rose-300 text-[11px]";
+                resBox.innerHTML = "<i class='fas fa-times-circle mr-1'></i> 請先輸入 API Key 再進行連線測試！";
+                resBox.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = "<i class='fas fa-spinner fa-spin mr-1'></i> 測試中...";
+            resBox.className = "p-3 rounded-xl border bg-cyan-950/60 border-cyan-800 text-cyan-300 text-[11px]";
+            resBox.innerHTML = "<i class='fas fa-satellite-dish mr-1'></i> 正在連線 Google AI Studio 伺服器驗證模型存取權限...";
+            resBox.classList.remove('hidden');
+
+            const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-latest'];
+            let successModel = null;
+            let lastErr = "";
+
+            for (const m of candidateModels) {
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`;
+                    const resp = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: "Ping test. Return JSON: {\"status\":\"ok\"}" }] }]
+                        })
+                    });
+
+                    if (resp.ok) {
+                        successModel = m;
+                        break;
+                    } else {
+                        const errText = await resp.text();
+                        lastErr = `HTTP ${resp.status}: ${errText.slice(0, 100)}`;
+                    }
+                } catch (netErr) {
+                    lastErr = netErr.message;
+                }
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = "<i class='fas fa-bolt text-amber-400'></i> <span>測試連線 (Ping)</span>";
+
+            if (successModel) {
+                resBox.className = "p-3 rounded-xl border bg-emerald-950/80 border-emerald-700 text-emerald-200 text-[11px]";
+                resBox.innerHTML = `
+                    <div class="font-bold text-emerald-300 mb-0.5"><i class="fas fa-check-circle mr-1"></i> 連線成功！</div>
+                    <span>成功連線至 Google <strong>${successModel}</strong> 模型！已具備高精度多模態視覺鑑別能力。請點擊右方「儲存並立即套用」。</span>
+                `;
+            } else {
+                resBox.className = "p-3 rounded-xl border bg-rose-950/80 border-rose-700 text-rose-200 text-[11px]";
+                resBox.innerHTML = `
+                    <div class="font-bold text-rose-300 mb-0.5"><i class="fas fa-triangle-exclamation mr-1"></i> 連線失敗</div>
+                    <span>${lastErr || '請檢查 API 金鑰是否有效或是否開啟權限。'}</span>
+                `;
+            }
+        }
+
+        // ==============================================
+        // 藝廊管理
+        // ==============================================
+        function getGallery() {
+            try { return JSON.parse(localStorage.getItem(GALLERY_STORAGE_NAME)) || []; } catch (e) { return []; }
         }
         function saveToGallery(item) {
             const list = getGallery();
             list.unshift(item);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(list.slice(0, 30)));
+            localStorage.setItem(GALLERY_STORAGE_NAME, JSON.stringify(list.slice(0, 30)));
             updateGalleryCount();
         }
         function updateGalleryCount() {
             document.getElementById('gallery-count').innerText = getGallery().length;
         }
 
-        // 畫面切換
         function showScreen(screenId) {
             document.querySelectorAll('#app > section').forEach(el => {
                 el.classList.add('hidden', 'opacity-0');
@@ -647,32 +824,9 @@
             setTimeout(() => target.classList.remove('opacity-0'), 15);
         }
 
-        // 引擎模式切換
-        function setEngineMode(mode) {
-            state.engineMode = mode;
-            const demoBtn = document.getElementById('mode-demo-btn');
-            const liveBtn = document.getElementById('mode-live-btn');
-            const demoDesc = document.getElementById('demo-mode-desc');
-            const liveInput = document.getElementById('live-mode-input');
-
-            if (mode === 'demo') {
-                demoBtn.className = "px-2.5 py-1 text-[11px] rounded-md font-bold transition-all bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow";
-                liveBtn.className = "px-2.5 py-1 text-[11px] rounded-md font-bold transition-all text-slate-400 hover:text-white";
-                demoDesc.classList.remove('hidden');
-                liveInput.classList.add('hidden');
-            } else {
-                liveBtn.className = "px-2.5 py-1 text-[11px] rounded-md font-bold transition-all bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow";
-                demoBtn.className = "px-2.5 py-1 text-[11px] rounded-md font-bold transition-all text-slate-400 hover:text-white";
-                demoDesc.classList.add('hidden');
-                liveInput.classList.remove('hidden');
-            }
-        }
-
-        // 進入主題畫面
         function goToThemeScreen() {
             const id = document.getElementById('input-id').value.trim();
             const name = document.getElementById('input-name').value.trim();
-            const key = document.getElementById('input-apikey').value.trim();
             const err = document.getElementById('login-error');
 
             if (!id || !name) {
@@ -680,15 +834,11 @@
                 return;
             }
             err.classList.add('hidden');
-
             state.studentId = id;
             state.studentName = name;
-            state.apiKey = key;
-
             showScreen('screen-theme');
         }
 
-        // 選擇主題
         function selectTheme(themeName, focusDesc) {
             state.theme = themeName;
             state.themeFocus = focusDesc;
@@ -697,7 +847,7 @@
         }
 
         // ==============================================
-        // 圖片載入與圓形胸章取景互動（Touch & Drag）
+        // 圖片載入與胸章取景互動
         // ==============================================
         const cropImg = document.getElementById('crop-image');
         const cropViewport = document.getElementById('crop-viewport');
@@ -716,15 +866,12 @@
             e.target.value = '';
         }
 
-        // 提供評審免準備畫作的一鍵範例（SVG Data URL 即時向量畫作）
         function loadSampleImage() {
-            // 動態繪製一幅高品質動漫科幻插畫 Canvas DataURL 作為測試
             const c = document.createElement('canvas');
             c.width = 600;
             c.height = 600;
             const ctx = c.getContext('2d');
 
-            // 漸層夜空
             const grad = ctx.createRadialGradient(300, 300, 50, 300, 300, 350);
             grad.addColorStop(0, '#38bdf8');
             grad.addColorStop(0.4, '#6366f1');
@@ -733,7 +880,6 @@
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, 600, 600);
 
-            // 星光
             ctx.fillStyle = '#ffffff';
             for (let i = 0; i < 40; i++) {
                 ctx.beginPath();
@@ -741,14 +887,12 @@
                 ctx.fill();
             }
 
-            // 科幻符號與動態月輪
             ctx.strokeStyle = '#f59e0b';
             ctx.lineWidth = 4;
             ctx.beginPath();
             ctx.arc(300, 260, 120, 0, Math.PI * 2);
             ctx.stroke();
 
-            // 主體剪影與高光
             ctx.fillStyle = '#0f172a';
             ctx.beginPath();
             ctx.moveTo(200, 550);
@@ -759,7 +903,6 @@
             ctx.closePath();
             ctx.fill();
 
-            // 雙目銳利高光
             ctx.fillStyle = '#38bdf8';
             ctx.beginPath();
             ctx.arc(285, 335, 6, 0, Math.PI * 2);
@@ -811,7 +954,6 @@
             updateCropTransform();
         });
 
-        // 拖曳事件處理 (Mouse & Touch)
         function onDragStart(e) {
             e.preventDefault();
             drag.isDragging = true;
@@ -841,11 +983,11 @@
         window.addEventListener('touchend', onDragEnd);
 
         // ==============================================
-        // 鎖定構圖並啟動多模態 AI 評量
+        // 鎖定構圖並呼叫 AI 評審
         // ==============================================
         async function lockCompositionAndScan() {
             const canvas = document.createElement('canvas');
-            const size = 600; // 高畫質 600x600 供視覺辨識與印刷
+            const size = 600;
             canvas.width = size;
             canvas.height = size;
             const ctx = canvas.getContext('2d');
@@ -853,7 +995,6 @@
             const mask = document.getElementById('crop-circular-mask').getBoundingClientRect();
             const imgRect = cropImg.getBoundingClientRect();
 
-            // 圓形裁切
             ctx.beginPath();
             ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
             ctx.closePath();
@@ -871,12 +1012,18 @@
             document.getElementById('scan-preview-img').src = state.croppedBase64;
             showScreen('screen-loading');
 
-            // 動態掃描階段文字
+            const tag = document.getElementById('loading-model-tag');
+            if (state.apiKey) {
+                tag.innerHTML = '<i class="fas fa-atom mr-1.5"></i> Google Gemini Multimodal Live';
+            } else {
+                tag.innerHTML = '<i class="fas fa-flask mr-1.5"></i> Showcase Simulation Engine';
+            }
+
             const stages = [
-                { text: "正在解析主題符號與輪廓張力...", sub: "計算主題契合度與畫面主客層次" },
+                { text: "正在傳送多模態影像並解析畫面內容...", sub: "檢驗畫面核心物體與主題契合度" },
                 { text: "正在運算三分法構圖與黃金視覺焦點...", sub: "定位重心熱區與畫面結構平衡" },
                 { text: "正在萃取冷暖色輪與光影對比度...", sub: "分析主調色票與明暗氛圍渲染" },
-                { text: "正在生成教練質性講評與修煉指南...", sub: "根據 108 課綱美育素養產出專屬稱號" }
+                { text: "正在生成教練質性講評與修煉指南...", sub: "根據 108 課綱美育素養產出客觀評析" }
             ];
             let stageIdx = 0;
             const stageTimer = setInterval(() => {
@@ -886,102 +1033,64 @@
             }, 1600);
 
             try {
-                let evaluationResult;
-                if (state.engineMode === 'live' && state.apiKey) {
-                    evaluationResult = await callGeminiVisionAPI(state.croppedBase64, state.theme, state.themeFocus, state.apiKey);
+                let result;
+                if (state.apiKey) {
+                    result = await callStrictGeminiVisionAPI(state.croppedBase64, state.theme, state.themeFocus, state.apiKey);
                 } else {
-                    // 評審展示/模擬模式（完全無痛極速體驗）
-                    evaluationResult = await simulateExpertRubricAI(state.theme);
+                    result = await simulateExpertRubricAI(state.theme);
                 }
-
                 clearInterval(stageTimer);
-                displayEvaluationResult(evaluationResult);
+                displayEvaluationResult(result);
             } catch (err) {
                 clearInterval(stageTimer);
-                console.warn("AI 掃描遇例外，自動平滑切換至展示備援模式：", err);
-                // 平滑降級保證比賽現場 100% 成功演示
-                const fallbackResult = await simulateExpertRubricAI(state.theme);
-                displayEvaluationResult(fallbackResult);
+                console.error("Gemini 評析失敗：", err);
+                alert(`AI 呼叫發生錯誤：${err.message}\n已切換為展示模式呈現。`);
+                const fallback = await simulateExpertRubricAI(state.theme);
+                displayEvaluationResult(fallback);
             }
         }
 
         // ==============================================
-        // 評審展示/教學規準專家模擬引擎 (Rubrics Simulator)
+        // 嚴格版真實 Gemini Vision API 呼叫引擎
         // ==============================================
-        async function simulateExpertRubricAI(theme) {
-            await new Promise(r => setTimeout(r, 2600)); // 模擬真實連線計算時間
-
-            const titlePool = {
-                '熱血動漫角色': ['極限破界·動態繪師', '燃魂之筆·戰意覺醒者', '次元穿透·特級角色宗師'],
-                '奇幻生物與幻獸': ['神話秘境·幻獸馴繪師', '天穹龍鱗·奇異造物者', '幽冥深淵·特級幻獸長'],
-                '絕美自然風景': ['光影行者·天地造境師', '晨嵐凝光·大氣透視大師', '四時流轉·特級風景仙匠'],
-                '未來科幻世界': ['賽博維度·量子透視者', '霓虹方陣·重力架構師', '星際方舟·特級科幻工匠'],
-                'Q版吉祥物設計': ['萌力暴擊·元氣造物使', '極簡純粹·心靈療癒星', '童趣王國·特級吉祥盟主'],
-                '精緻靜物與美食': ['微光凝固·晶瑩烹繪師', '層次交響·食光捕捉者', '水漾油潤·特級美食掌門']
-            };
-
-            const titles = titlePool[theme] || ['特級靈感·藝術造物使'];
-            const randomTitle = titles[Math.floor(Math.random() * titles.length)];
-
-            // 高品質分數分佈（85~94 之間，符合胸章資格）
-            const scoreTheme = Math.floor(Math.random() * 8) + 88;
-            const scoreComp = Math.floor(Math.random() * 10) + 86;
-            const scoreColor = Math.floor(Math.random() * 10) + 84;
-            const scoreLight = Math.floor(Math.random() * 10) + 85;
-            const scoreDetail = Math.floor(Math.random() * 12) + 82;
-
-            const finalTotal = Math.round(
-                scoreTheme * 0.35 +
-                scoreComp * 0.20 +
-                scoreColor * 0.15 +
-                scoreLight * 0.15 +
-                scoreDetail * 0.15
-            );
-
-            return {
-                totalScore: finalTotal,
-                title: randomTitle,
-                themeScore: scoreTheme,
-                compScore: scoreComp,
-                colorScore: scoreColor,
-                lightScore: scoreLight,
-                detailScore: scoreDetail,
-                feedback: `作品完美契合「${theme}」核心意象！主體輪廓張力強勁，圓形胸章取景的重心配置極為沉穩，視覺焦點清晰自然，展現成熟的原創風格與美學語彙。`,
-                advice: `建議可進一步強化畫面邊緣的明暗反差（高光與接觸陰影），並在留白處增加微細粒子或光暈層次，能讓實體胸章在光線照射下更有立體金屬光澤感！`,
-                focusX: 0.52,
-                focusY: 0.46,
-                palette: ['#0f172a', '#38bdf8', '#a855f7', '#f59e0b', '#f8fafc']
-            };
-        }
-
-        // ==============================================
-        // 真實 Google Gemini Vision API 連線引擎
-        // ==============================================
-        async function callGeminiVisionAPI(base64Image, theme, focusDesc, apiKey) {
+        async function callStrictGeminiVisionAPI(base64Image, theme, focusDesc, apiKey) {
             const base64Data = base64Image.split(',')[1];
-            const prompt = `你是一位國際級藝術與設計教育評審。請針對使用者上傳的圓形胸章作品進行專業的多維度美感評量。
-挑戰主題是：「${theme}」，重點檢驗規準：「${focusDesc}」。
+            
+            // 超高鑑別度的嚴格評審 Prompt
+            const prompt = `你是一位國際級嚴格且公正的美術教育評審。
+請先仔細「檢視並描述」這張圖片中真實出現的內容是什麼（例如：是一個戴帽子的動漫少年？一隻趴著的貓咪？一盤食物？自然風景？還是隨便亂畫的草稿、空白紙或隨手拍照片）。
 
-請嚴格根據以下五大美育向度給予 0~100 分：
-1. themeScore (35%): 主題契合度與意象表達
-2. compScore (20%): 構圖重心、三分法與圓形畫布結構
-3. colorScore (15%): 色彩冷暖層次與調和
-4. lightScore (15%): 明暗立體感與光影氛圍
-5. detailScore (15%): 筆觸細節與線條質感
+使用者選擇挑戰的領域是：「${theme}」。
+該領域核心評估規準是：「${focusDesc}」。
 
-請務必回傳純 JSON 格式（不要包含任何 markdown 符號或解釋文字）：
+【最關鍵第一審查原則：文不對題檢驗（防作弊/防盲目給分）】：
+- 請先判斷：畫面主體是否真正屬於「${theme}」？
+- 若畫面內容明顯與「${theme}」無關（例如：選動漫人物卻上傳了動物/食物/建築/風景，或根本不是繪畫創作而是隨手拍生活物品或空白紙）：
+  1. themeScore 請直接給予極低的懲罰分數（10 ~ 30 分）！
+  2. feedback 第一句必須直接揭露實情並嚴格指出：「畫面內容為...，與所選主題『${theme}』完全文不對題！無法列入評鑑，請重新換題或重畫。」
+- 只有當圖片確實屬於「${theme}」且具備一定創作意圖時，themeScore 才能正常在 65 ~ 95 分之間評估。
+
+【各指標嚴格評分標準（0~100 分）】：
+1. themeScore (35%): 主題契合度（是否符合所選領域之核心精神）
+2. compScore (20%): 構圖重心與結構（主體是否居中或符合三分法則？圓形胸章範圍內主體比例是否得當？是否太小或出框？）
+3. colorScore (15%): 色彩冷暖與豐富度（用色是否具有氛圍？色調是否單調混濁？）
+4. lightScore (15%): 明暗立體感（是否有陰影、受光面、反光立體感？）
+5. detailScore (15%): 筆觸細節與線條質感（邊緣線條是否俐落？細節描摹是否用心？）
+
+請嚴格回傳純 JSON 格式（絕對不要包含 \`\`\`json 標記或任何額外說明）：
 {
-  "themeScore": 88,
-  "compScore": 90,
-  "colorScore": 85,
-  "lightScore": 86,
+  "imageDescription": "畫面客觀描述(30字內)",
+  "themeScore": 85,
+  "compScore": 88,
+  "colorScore": 82,
+  "lightScore": 80,
   "detailScore": 84,
-  "title": "響亮且具中二美學的特級稱號(8字內)",
-  "feedback": "教練深度講評(強調美育亮點，60字內)",
-  "advice": "具體技巧修煉建議(45字內)",
+  "title": "具風格特色之專屬稱號(8字內)",
+  "feedback": "教練深度講評(包含畫面客觀優缺點，60字內)",
+  "advice": "次世代修煉建議(具體修改技巧，45字內)",
   "focusX": 0.5,
   "focusY": 0.45,
-  "palette": ["#111827", "#38bdf8", "#818cf8", "#f43f5e", "#ffffff"]
+  "palette": ["#1e293b", "#38bdf8", "#818cf8", "#f59e0b", "#ffffff"]
 }`;
 
             const payload = {
@@ -991,31 +1100,35 @@
                         { text: prompt },
                         { inlineData: { mimeType: "image/png", data: base64Data } }
                     ]
-                }]
+                }],
+                generationConfig: {
+                    temperature: 0.2
+                }
             };
 
-            const modelsToTry = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"];
+            const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
             let lastErr = null;
 
-            for (const model of modelsToTry) {
+            for (const m of models) {
                 try {
-                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-                    const res = await fetch(url, {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`;
+                    const resp = await fetch(url, {
                         method: 'POST',
-                        body: JSON.stringify(payload),
-                        headers: { 'Content-Type': 'application/json' }
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
                     });
 
-                    if (!res.ok) {
-                        lastErr = new Error(`HTTP ${res.status}`);
+                    if (!resp.ok) {
+                        const errTxt = await resp.text();
+                        lastErr = new Error(`模型 ${m} 回應錯誤 HTTP ${resp.status}`);
                         continue;
                     }
 
-                    const json = await res.json();
+                    const json = await resp.json();
                     const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
                     if (!text) continue;
 
-                    const clean = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+                    const clean = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
                     const parsed = JSON.parse(clean);
 
                     parsed.totalScore = Math.round(
@@ -1030,11 +1143,31 @@
                     lastErr = e;
                 }
             }
-            throw lastErr || new Error("無法連線至 Gemini API");
+            throw lastErr || new Error("無法取得 Gemini 辨識結果，請檢查 API Key。");
+        }
+
+        // 模擬展示引擎
+        async function simulateExpertRubricAI(theme) {
+            await new Promise(r => setTimeout(r, 2000));
+            const randomTitle = '特級造景·幻光之宗';
+            return {
+                totalScore: 89,
+                title: randomTitle,
+                themeScore: 92,
+                compScore: 88,
+                colorScore: 85,
+                lightScore: 86,
+                detailScore: 85,
+                feedback: `【展示評測】作品呈現「${theme}」鮮明意象，胸章圓形構圖重心穩固，光影明暗分明。`,
+                advice: `建議強化外輪廓邊界之銳利高光，可使實體金屬胸章印刷呈現更強烈反差感。`,
+                focusX: 0.5,
+                focusY: 0.46,
+                palette: ['#0f172a', '#38bdf8', '#a855f7', '#f59e0b', '#f8fafc']
+            };
         }
 
         // ==============================================
-        // 呈現評鑑報告與視覺化疊圖
+        // 呈現評鑑報告與疊圖
         // ==============================================
         function displayEvaluationResult(data) {
             state.currentResult = data;
@@ -1045,27 +1178,13 @@
             document.getElementById('res-feedback-text').innerText = data.feedback;
             document.getElementById('res-advice-text').innerText = data.advice;
 
-            // 進步對比檢測 (Before vs After)
-            const evoBadge = document.getElementById('res-evolution-badge');
-            if (state.lastScore !== null) {
-                const diff = data.totalScore - state.lastScore;
-                evoBadge.classList.remove('hidden');
-                document.getElementById('evolution-summary').innerText =
-                    diff >= 0 ? `自主修改後較前次提升 +${diff} 分！` : `前次評分為 ${state.lastScore} 分`;
-            } else {
-                evoBadge.classList.add('hidden');
-            }
-            state.lastScore = data.totalScore;
-
-            // 總分圓環動畫
             setTimeout(() => {
                 const ring = document.getElementById('res-score-ring');
-                const circumference = 251.3; // 2 * pi * 40
+                const circumference = 251.3;
                 const offset = circumference - (data.totalScore / 100) * circumference;
                 ring.style.strokeDashoffset = offset;
                 ring.style.stroke = data.totalScore >= 85 ? '#f59e0b' : '#06b6d4';
 
-                // 跳動數字
                 const numEl = document.getElementById('res-score-number');
                 let cur = 0;
                 const timer = setInterval(() => {
@@ -1080,7 +1199,6 @@
                             document.getElementById('res-status-tag').innerText = "特級解鎖成功！";
                             document.getElementById('res-status-tag').className = "mt-1 text-[11px] font-bold text-amber-400";
                             fireCyberConfetti();
-                            // 自動存入星空數位藝廊
                             saveToGallery({
                                 id: state.studentId,
                                 name: state.studentName,
@@ -1094,21 +1212,19 @@
                             document.getElementById('action-retry').classList.remove('hidden');
                             document.getElementById('action-unlocked').classList.add('hidden');
                             document.getElementById('res-status-tag').innerText = "修煉中 (差一步)";
-                            document.getElementById('res-status-tag').className = "mt-1 text-[11px] font-bold text-slate-400";
+                            document.getElementById('res-status-tag').className = "mt-1 text-[11px] font-bold text-rose-400";
                         }
                     }
                     numEl.innerText = cur;
-                    numEl.style.color = cur >= 85 ? '#fcd34d' : '#ffffff';
+                    numEl.style.color = cur >= 85 ? '#fcd34d' : (cur < 60 ? '#f43f5e' : '#ffffff');
                 }, 20);
 
-                // 填充 5 項細指標
                 animateMetric('score-theme', 'bar-theme', data.themeScore);
                 animateMetric('score-comp', 'bar-comp', data.compScore);
                 animateMetric('score-color', 'bar-color', data.colorScore);
                 animateMetric('score-light', 'bar-light', data.lightScore);
                 animateMetric('score-detail', 'bar-detail', data.detailScore);
 
-                // 繪製預設視覺疊圖（三分構圖）
                 renderOverlayCanvas();
             }, 250);
         }
@@ -1129,7 +1245,7 @@
         }
 
         // ==============================================
-        // 視覺化美感疊圖畫布 (AI Visual Overlays)
+        // 視覺化美感疊圖
         // ==============================================
         function switchOverlayMode(mode) {
             state.overlayMode = mode;
@@ -1153,11 +1269,9 @@
                 canvas.width = 600;
                 canvas.height = 360;
 
-                // 深色底
                 ctx.fillStyle = '#090d16';
                 ctx.fillRect(0, 0, 600, 360);
 
-                // 居中繪製原作品
                 const size = 300;
                 const ox = (600 - size) / 2;
                 const oy = (360 - size) / 2;
@@ -1169,27 +1283,22 @@
                 ctx.drawImage(img, ox, oy, size, size);
                 ctx.restore();
 
-                // 外框光環
                 ctx.strokeStyle = '#38bdf8';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.arc(ox + size / 2, oy + size / 2, size / 2, 0, Math.PI * 2);
                 ctx.stroke();
 
-                // 疊圖模式分支
                 if (state.overlayMode === 'thirds') {
-                    // 三分法則黃金九宮格
                     ctx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
                     ctx.lineWidth = 1.5;
                     ctx.setLineDash([6, 6]);
 
-                    // 垂直兩線
                     ctx.beginPath();
                     ctx.moveTo(ox + size * (1 / 3), oy);
                     ctx.lineTo(ox + size * (1 / 3), oy + size);
                     ctx.moveTo(ox + size * (2 / 3), oy);
                     ctx.lineTo(ox + size * (2 / 3), oy + size);
-                    // 水平兩線
                     ctx.moveTo(ox, oy + size * (1 / 3));
                     ctx.lineTo(ox + size, oy + size * (1 / 3));
                     ctx.moveTo(ox, oy + size * (2 / 3));
@@ -1197,7 +1306,6 @@
                     ctx.stroke();
                     ctx.setLineDash([]);
 
-                    // 黃金交點四個點
                     ctx.fillStyle = '#f59e0b';
                     [1 / 3, 2 / 3].forEach(gx => {
                         [1 / 3, 2 / 3].forEach(gy => {
@@ -1207,18 +1315,15 @@
                         });
                     });
 
-                    // 標籤
                     ctx.fillStyle = '#38bdf8';
                     ctx.font = '12px Orbitron, sans-serif';
                     ctx.fillText('RULE OF THIRDS (GOLDEN RATIO)', 18, 28);
                 } else if (state.overlayMode === 'focus') {
-                    // 視覺焦點熱區
                     const fx = state.currentResult?.focusX || 0.5;
                     const fy = state.currentResult?.focusY || 0.5;
                     const targetX = ox + size * fx;
                     const targetY = oy + size * fy;
 
-                    // 科技雷達鎖定標記
                     ctx.strokeStyle = '#f43f5e';
                     ctx.lineWidth = 2;
                     ctx.beginPath();
@@ -1235,7 +1340,6 @@
                     ctx.arc(targetX, targetY, 4, 0, Math.PI * 2);
                     ctx.fill();
 
-                    // 引導文字線條
                     ctx.strokeStyle = '#f43f5e';
                     ctx.beginPath();
                     ctx.moveTo(targetX + 30, targetY - 30);
@@ -1246,7 +1350,6 @@
                     ctx.font = 'bold 12px Noto Sans TC, sans-serif';
                     ctx.fillText('AI 偵測視覺重心', targetX + 85, targetY - 26);
                 } else if (state.overlayMode === 'palette') {
-                    // 色彩色票萃取展示
                     const colors = state.currentResult?.palette || ['#0f172a', '#38bdf8', '#a855f7', '#f59e0b', '#ffffff'];
                     const boxW = 28;
                     const boxH = 40;
@@ -1272,7 +1375,7 @@
         }
 
         // ==============================================
-        // 實體胸章創客印刷版型匯出 (Maker Print Export)
+        // 印刷版型與證書匯出
         // ==============================================
         function exportBadgePrintTemplate() {
             const canvas = document.getElementById('export-canvas');
@@ -1280,7 +1383,6 @@
             canvas.height = 1200;
             const ctx = canvas.getContext('2d');
 
-            // 乾淨白色底（符合印刷規範）
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, 1200, 1200);
 
@@ -1289,10 +1391,9 @@
             img.onload = () => {
                 const cx = 600;
                 const cy = 600;
-                const innerRadius = 380; // 正面直徑 ~58mm
-                const outerRadius = 490; // 出血折邊直徑 ~70mm
+                const innerRadius = 380;
+                const outerRadius = 490;
 
-                // 1. 底層出血擴展圖片（稍加模糊延伸底色）
                 ctx.save();
                 ctx.beginPath();
                 ctx.arc(cx, cy, outerRadius, 0, Math.PI * 2);
@@ -1300,7 +1401,6 @@
                 ctx.drawImage(img, cx - outerRadius, cy - outerRadius, outerRadius * 2, outerRadius * 2);
                 ctx.restore();
 
-                // 2. 正面清晰作品主體
                 ctx.save();
                 ctx.beginPath();
                 ctx.arc(cx, cy, innerRadius, 0, Math.PI * 2);
@@ -1308,7 +1408,6 @@
                 ctx.drawImage(img, cx - innerRadius, cy - innerRadius, innerRadius * 2, innerRadius * 2);
                 ctx.restore();
 
-                // 3. 正面安全邊界線 (Safe Line)
                 ctx.strokeStyle = 'rgba(56, 189, 248, 0.9)';
                 ctx.lineWidth = 3;
                 ctx.setLineDash([12, 12]);
@@ -1316,7 +1415,6 @@
                 ctx.arc(cx, cy, innerRadius, 0, Math.PI * 2);
                 ctx.stroke();
 
-                // 4. 外圈裁切線 (Cut Line)
                 ctx.strokeStyle = '#ef4444';
                 ctx.lineWidth = 4;
                 ctx.setLineDash([]);
@@ -1324,32 +1422,18 @@
                 ctx.arc(cx, cy, outerRadius, 0, Math.PI * 2);
                 ctx.stroke();
 
-                // 5. 四方十字裁切標記 (Crop Marks)
                 ctx.strokeStyle = '#1e293b';
                 ctx.lineWidth = 3;
                 const markLen = 50;
-                // 上
                 ctx.beginPath();
-                ctx.moveTo(cx, cy - outerRadius - 10);
-                ctx.lineTo(cx, cy - outerRadius - 10 - markLen);
-                ctx.stroke();
-                // 下
+                ctx.moveTo(cx, cy - outerRadius - 10); ctx.lineTo(cx, cy - outerRadius - 10 - markLen); ctx.stroke();
                 ctx.beginPath();
-                ctx.moveTo(cx, cy + outerRadius + 10);
-                ctx.lineTo(cx, cy + outerRadius + 10 + markLen);
-                ctx.stroke();
-                // 左
+                ctx.moveTo(cx, cy + outerRadius + 10); ctx.lineTo(cx, cy + outerRadius + 10 + markLen); ctx.stroke();
                 ctx.beginPath();
-                ctx.moveTo(cx - outerRadius - 10, cy);
-                ctx.lineTo(cx - outerRadius - 10 - markLen, cy);
-                ctx.stroke();
-                // 右
+                ctx.moveTo(cx - outerRadius - 10, cy); ctx.lineTo(cx - outerRadius - 10 - markLen, cy); ctx.stroke();
                 ctx.beginPath();
-                ctx.moveTo(cx + outerRadius + 10, cy);
-                ctx.lineTo(cx + outerRadius + 10 + markLen, cy);
-                ctx.stroke();
+                ctx.moveTo(cx + outerRadius + 10, cy); ctx.lineTo(cx + outerRadius + 10 + markLen, cy); ctx.stroke();
 
-                // 6. 專業印刷規格署名條
                 ctx.fillStyle = '#0f172a';
                 ctx.font = 'bold 22px Noto Sans TC, sans-serif';
                 ctx.fillText(`【實體胸章印刷標準版型 58mm】`, 70, 90);
@@ -1361,21 +1445,16 @@
                 ctx.font = '15px Noto Sans TC, sans-serif';
                 ctx.fillText(`※ 藍色虛線內為正面可視區，紅色實線為金屬包邊裁切線。`, 70, 1140);
 
-                // 下載圖片
                 downloadCanvasImage(canvas, `AI胸章印刷檔_${state.studentId}_${state.studentName}.png`);
             };
         }
 
-        // ==============================================
-        // 特級繪師 AI 藝術能量認證證書 (Certificate Export)
-        // ==============================================
         function exportHonorCertificate() {
             const canvas = document.getElementById('export-canvas');
             canvas.width = 1600;
-            canvas.height = 1130; // A4 橫式比例 (300 DPI 輕量化)
+            canvas.height = 1130;
             const ctx = canvas.getContext('2d');
 
-            // 奢華深藍與暗金漸層背景
             const bgGrad = ctx.createLinearGradient(0, 0, 1600, 1130);
             bgGrad.addColorStop(0, '#090d16');
             bgGrad.addColorStop(0.5, '#0f172a');
@@ -1383,7 +1462,6 @@
             ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, 1600, 1130);
 
-            // 雙金框邊界
             ctx.strokeStyle = '#f59e0b';
             ctx.lineWidth = 6;
             ctx.strokeRect(50, 50, 1500, 1030);
@@ -1392,13 +1470,6 @@
             ctx.lineWidth = 2;
             ctx.strokeRect(65, 65, 1470, 1000);
 
-            // 四角古典幾何飾紋
-            drawCornerOrnament(ctx, 70, 70);
-            drawCornerOrnament(ctx, 1530, 70, true, false);
-            drawCornerOrnament(ctx, 70, 1060, false, true);
-            drawCornerOrnament(ctx, 1530, 1060, true, true);
-
-            // 標題與科技徽記
             ctx.fillStyle = '#38bdf8';
             ctx.font = 'bold 24px Orbitron, sans-serif';
             ctx.textAlign = 'center';
@@ -1408,7 +1479,6 @@
             ctx.font = '900 46px Noto Sans TC, sans-serif';
             ctx.fillText('特級繪師·AI 藝術能量認證證書', 800, 205);
 
-            // 證書主文
             ctx.font = '22px Noto Sans TC, sans-serif';
             ctx.fillStyle = '#cbd5e1';
             ctx.fillText(`茲證明學員`, 800, 290);
@@ -1422,7 +1492,6 @@
             ctx.fillText(`於「AI 藝術能量掃描儀」跨領域美學素養評鑑中，展現卓越之美感構圖與原創技法，`, 800, 405);
             ctx.fillText(`挑戰領域【${state.theme}】，經多模態神經網路深度鑑定，綜合評定高達`, 800, 445);
 
-            // 大分數標記
             ctx.fillStyle = '#fcd34d';
             ctx.font = '900 54px Orbitron, sans-serif';
             ctx.fillText(`${state.currentResult?.totalScore || 92} PTS`, 800, 520);
@@ -1431,11 +1500,6 @@
             ctx.font = 'bold 26px Noto Sans TC, sans-serif';
             ctx.fillText(`榮獲官方認證稱號：『${state.currentResult?.title || '特級創作者'}』`, 800, 575);
 
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = '17px Noto Sans TC, sans-serif';
-            ctx.fillText(`特頒此狀，並正式解鎖實體創客胸章 (Maker Physical Badge) 製作與數位藝廊永久典藏資格。`, 800, 625);
-
-            // 插入得獎圓形胸章作品
             const img = new Image();
             img.src = state.croppedBase64;
             img.onload = () => {
@@ -1443,7 +1507,6 @@
                 const cy = 790;
                 const radius = 120;
 
-                // 金色光環底座
                 ctx.save();
                 ctx.beginPath();
                 ctx.arc(cx, cy, radius + 10, 0, Math.PI * 2);
@@ -1456,14 +1519,12 @@
                 ctx.drawImage(img, cx - radius, cy - radius, radius * 2, radius * 2);
                 ctx.restore();
 
-                // 鋼印防偽紋
                 ctx.strokeStyle = '#f59e0b';
                 ctx.lineWidth = 3;
                 ctx.beginPath();
                 ctx.arc(cx, cy, radius + 15, 0, Math.PI * 2);
                 ctx.stroke();
 
-                // 底部認證資訊與日期
                 ctx.textAlign = 'left';
                 ctx.fillStyle = '#64748b';
                 ctx.font = '15px Orbitron, sans-serif';
@@ -1475,25 +1536,6 @@
 
                 downloadCanvasImage(canvas, `AI藝術能量特級證書_${state.studentId}_${state.studentName}.png`);
             };
-        }
-
-        function drawCornerOrnament(ctx, x, y, flipX = false, flipY = false) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.scale(flipX ? -1 : 1, flipY ? -1 : 1);
-            ctx.strokeStyle = '#f59e0b';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(40, 0);
-            ctx.moveTo(0, 0);
-            ctx.lineTo(0, 40);
-            ctx.moveTo(10, 10);
-            ctx.lineTo(30, 10);
-            ctx.moveTo(10, 10);
-            ctx.lineTo(10, 30);
-            ctx.stroke();
-            ctx.restore();
         }
 
         function downloadCanvasImage(canvas, filename) {
@@ -1550,22 +1592,14 @@
 
         function clearGalleryData() {
             if (confirm("確定要清空本地藝廊紀錄嗎？")) {
-                localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(GALLERY_STORAGE_NAME);
                 openGalleryModal();
                 updateGalleryCount();
             }
         }
 
-        // ==============================================
-        // 互動回放與特效
-        // ==============================================
-        function retryScan() {
-            showScreen('screen-crop');
-        }
-
-        function resetToHome() {
-            showScreen('screen-login');
-        }
+        function retryScan() { showScreen('screen-crop'); }
+        function resetToHome() { showScreen('screen-login'); }
 
         function fireCyberConfetti() {
             const colors = ['#38bdf8', '#a855f7', '#f59e0b', '#34d399', '#f43f5e'];
@@ -1581,8 +1615,8 @@
             }
         }
 
-        // 頁面初始化
         window.addEventListener('DOMContentLoaded', () => {
+            loadSavedApiKey();
             updateGalleryCount();
         });
     </script>
