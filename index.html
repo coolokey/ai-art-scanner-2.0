@@ -801,7 +801,7 @@
             overlayMode: 'thirds'
         };
 
-        // 13 大主題結構化數據庫 (單一數據核心，支援網格與輪播雙檢視模式)
+        // 13 大主題結構化數據庫 (單一數據核心，支援網格與輪播雙檢視模式，各配置專屬溫潤柔和色彩)
         const THEMES_DATA = [
             {
                 id: 1,
@@ -811,7 +811,17 @@
                 icon: 'fa-user-ninja',
                 tags: ['眼神張力', '肢體動態'],
                 desc: '注重五官神態張力、動態感與主體俐落輪廓。',
-                focus: '動漫風格人物、眼神神態張力、動態肢體線條與輪廓'
+                focus: '動漫風格人物、眼神神態張力、動態肢體線條與輪廓',
+                color: {
+                    bg: '#fff5f5',
+                    border: '#fecaca',
+                    hoverBorder: '#f87171',
+                    badgeBg: '#fee2e2',
+                    badgeText: '#b91c1c',
+                    iconBg: '#fecaca',
+                    iconColor: '#dc2626',
+                    accentText: '#b91c1c'
+                }
             },
             {
                 id: 2,
@@ -821,7 +831,17 @@
                 icon: 'fa-dragon',
                 tags: ['羽翼鱗甲', '神話氣場'],
                 desc: '神獸、羽翼生物、鱗片毛髮與奇幻肌理描摹。',
-                focus: '奇幻生物造形、翅膀羽毛鱗片質感、超現實肌理與神韻'
+                focus: '奇幻生物造形、翅膀羽毛鱗片質感、超現實肌理與神韻',
+                color: {
+                    bg: '#faf5ff',
+                    border: '#e9d5ff',
+                    hoverBorder: '#c084fc',
+                    badgeBg: '#f3e8ff',
+                    badgeText: '#7e22ce',
+                    iconBg: '#e9d5ff',
+                    iconColor: '#9333ea',
+                    accentText: '#7e22ce'
+                }
             },
             {
                 id: 3,
@@ -831,7 +851,17 @@
                 icon: 'fa-mountain-sun',
                 tags: ['空間景深', '光影透視'],
                 desc: '山川、森林與大地，注重遠近景深與光影層次。',
-                focus: '山水自然風景、遠近空氣透視感、天地光影與冷暖色溫'
+                focus: '山水自然風景、遠近空氣透視感、天地光影與冷暖色溫',
+                color: {
+                    bg: '#f2f8f5',
+                    border: '#cfe3d7',
+                    hoverBorder: '#65a30d',
+                    badgeBg: '#e3efe7',
+                    badgeText: '#1b4d3e',
+                    iconBg: '#d1e7db',
+                    iconColor: '#2d6a4f',
+                    accentText: '#1b4d3e'
+                }
             },
             {
                 id: 4,
@@ -841,7 +871,17 @@
                 icon: 'fa-city',
                 tags: ['霓虹光暈', '機械結構'],
                 desc: '近未來都市與太空，冷暖霓虹反光與科技氛圍。',
-                focus: '科幻未來場景、金屬機械光澤、霓虹冷光與幾何透視'
+                focus: '科幻未來場景、金屬機械光澤、霓虹冷光與幾何透視',
+                color: {
+                    bg: '#f0fdfa',
+                    border: '#ccfbf1',
+                    hoverBorder: '#2dd4bf',
+                    badgeBg: '#ccfbf1',
+                    badgeText: '#0f766e',
+                    iconBg: '#99f6e4',
+                    iconColor: '#0d9488',
+                    accentText: '#0f766e'
+                }
             },
             {
                 id: 5,
@@ -851,7 +891,17 @@
                 icon: 'fa-ghost',
                 tags: ['圓潤簡約', '親和視覺'],
                 desc: '造形可愛簡練，圓形胸章高辨識度與親和力。',
-                focus: '圓潤簡約造形、可愛大眼表情、高識別度符號與親和力'
+                focus: '圓潤簡約造形、可愛大眼表情、高識別度符號與親和力',
+                color: {
+                    bg: '#fff1f2',
+                    border: '#fecdd3',
+                    hoverBorder: '#fb7185',
+                    badgeBg: '#ffe4e6',
+                    badgeText: '#be123c',
+                    iconBg: '#fecdd3',
+                    iconColor: '#e11d48',
+                    accentText: '#be123c'
+                }
             },
             {
                 id: 6,
@@ -861,7 +911,17 @@
                 icon: 'fa-burger',
                 tags: ['誘人光澤', '立體高光'],
                 desc: '美食甜點與靜物，強調油潤光感與色彩層次。',
-                focus: '食物油潤光澤、色彩鮮美感、材質高光與立體投影'
+                focus: '食物油潤光澤、色彩鮮美感、材質高光與立體投影',
+                color: {
+                    bg: '#fff7ed',
+                    border: '#fed7aa',
+                    hoverBorder: '#fb923c',
+                    badgeBg: '#ffedd5',
+                    badgeText: '#c2410c',
+                    iconBg: '#fed7aa',
+                    iconColor: '#ea580c',
+                    accentText: '#c2410c'
+                }
             },
             {
                 id: 7,
@@ -871,7 +931,17 @@
                 icon: 'fa-robot',
                 tags: ['鋼鐵結構', '透視張力'],
                 desc: '重型機甲與載具，剛硬幾何塊面與工業結構感。',
-                focus: '機械重裝結構、硬朗幾何透視、金屬邊界與工業精準度'
+                focus: '機械重裝結構、硬朗幾何透視、金屬邊界與工業精準度',
+                color: {
+                    bg: '#f8fafc',
+                    border: '#cbd5e1',
+                    hoverBorder: '#64748b',
+                    badgeBg: '#e2e8f0',
+                    badgeText: '#334155',
+                    iconBg: '#cbd5e1',
+                    iconColor: '#475569',
+                    accentText: '#334155'
+                }
             },
             {
                 id: 8,
@@ -881,7 +951,17 @@
                 icon: 'fa-feather-pointed',
                 tags: ['墨韻留白', '氣韻生動'],
                 desc: '傳統水墨意境，講究筆意濃淡乾濕與詩意留白。',
-                focus: '水墨線條筆意、濃淡乾濕層次、留白意境與東方傳統雅韻'
+                focus: '水墨線條筆意、濃淡乾濕層次、留白意境與東方傳統雅韻',
+                color: {
+                    bg: '#f5f7f4',
+                    border: '#d2ded2',
+                    hoverBorder: '#52796f',
+                    badgeBg: '#e2ece2',
+                    badgeText: '#2e4c38',
+                    iconBg: '#d0dfd2',
+                    iconColor: '#395e45',
+                    accentText: '#2e4c38'
+                }
             },
             {
                 id: 9,
@@ -891,7 +971,17 @@
                 icon: 'fa-gamepad',
                 tags: ['點陣美學', '懷舊色票'],
                 desc: '限定色票控制與邊緣俐落感，散發經典電玩情懷。',
-                focus: '像素點陣造形、有限色彩運用、幾何方塊秩序與懷舊感'
+                focus: '像素點陣造形、有限色彩運用、幾何方塊秩序與懷舊感',
+                color: {
+                    bg: '#f0fdf4',
+                    border: '#bbf7d0',
+                    hoverBorder: '#4ade80',
+                    badgeBg: '#dcfce7',
+                    badgeText: '#15803d',
+                    iconBg: '#bbf7d0',
+                    iconColor: '#16a34a',
+                    accentText: '#15803d'
+                }
             },
             {
                 id: 10,
@@ -901,7 +991,17 @@
                 icon: 'fa-spray-can',
                 tags: ['強烈撞色', '符號衝擊'],
                 desc: '大膽對比撞色，青年文化流行符號與線條張力。',
-                focus: '大膽鮮豔撞色、塗鴉字母形體、流行符號反差與視覺張力'
+                focus: '大膽鮮豔撞色、塗鴉字母形體、流行符號反差與視覺張力',
+                color: {
+                    bg: '#fefce8',
+                    border: '#fef08a',
+                    hoverBorder: '#eab308',
+                    badgeBg: '#fef9c3',
+                    badgeText: '#854d0e',
+                    iconBg: '#fef08a',
+                    iconColor: '#ca8a04',
+                    accentText: '#854d0e'
+                }
             },
             {
                 id: 11,
@@ -911,7 +1011,17 @@
                 icon: 'fa-book-open',
                 tags: ['溫暖手繪', '故事氛圍'],
                 desc: '手繪蠟筆顆粒感，柔和色調與溫馨童話敘事感。',
-                focus: '手繪蠟筆顆粒感、溫馨療癒氛圍、柔和色調與故事敘事性'
+                focus: '手繪蠟筆顆粒感、溫馨療癒氛圍、柔和色調與故事敘事性',
+                color: {
+                    bg: '#faf6f0',
+                    border: '#e8dcce',
+                    hoverBorder: '#a88365',
+                    badgeBg: '#f3ece2',
+                    badgeText: '#785336',
+                    iconBg: '#e5d7c7',
+                    iconColor: '#8c5e39',
+                    accentText: '#785336'
+                }
             },
             {
                 id: 12,
@@ -921,7 +1031,17 @@
                 icon: 'fa-shapes',
                 tags: ['空間錯覺', '造形韻律'],
                 desc: '歐普幾何線條秩序交錯，空間旋轉與形體純粹韻律。',
-                focus: '歐普藝術錯視、幾何線條秩序、空間重疊與純粹抽象造形'
+                focus: '歐普藝術錯視、幾何線條秩序、空間重疊與純粹抽象造形',
+                color: {
+                    bg: '#eff6ff',
+                    border: '#bfdbfe',
+                    hoverBorder: '#60a5fa',
+                    badgeBg: '#dbeafe',
+                    badgeText: '#1d4ed8',
+                    iconBg: '#bfdbfe',
+                    iconColor: '#2563eb',
+                    accentText: '#1d4ed8'
+                }
             },
             {
                 id: 13,
@@ -932,7 +1052,17 @@
                 tags: ['自由創作', '創作自述'],
                 desc: '自由命名你的創作主題，並用文字說明自己在畫什麼！',
                 focus: '創作者原創自訂主題，核心規準為評估畫面與創作者自述理念之契合度與表現力',
-                isCustom: true
+                isCustom: true,
+                color: {
+                    bg: '#fffbeb',
+                    border: '#fde68a',
+                    hoverBorder: '#f59e0b',
+                    badgeBg: '#fef3c7',
+                    badgeText: '#b45309',
+                    iconBg: '#fde68a',
+                    iconColor: '#d97706',
+                    accentText: '#b45309'
+                }
             }
         ];
 
@@ -1319,70 +1449,68 @@
                 ? THEMES_DATA 
                 : THEMES_DATA.filter(t => t.category === currentThemeCategory);
             
-            // 1. 渲染總覽網格模式 (Grid View)
+            // 1. 渲染總覽網格模式 (Grid View - 13 種溫潤柔和色彩區分)
             if (gridContainer) {
                 gridContainer.innerHTML = filtered.map(item => `
-                    <div onclick="selectTheme('${item.name}', '${item.focus}')" class="cursor-pointer group relative p-3 sm:p-3.5 rounded-2xl transition-all duration-200 flex flex-col justify-between ${
-                        item.isCustom 
-                            ? 'bg-[#fefce8] border-2 border-[#d97706] shadow-sm hover:shadow-md hover:bg-[#fef9c3]' 
-                            : 'bg-[#f7f9f2] border border-[#d4ded5] hover:border-[#24654d] hover:bg-[#eff5eb] hover:shadow-xs'
-                    }">
+                    <div onclick="selectTheme('${item.name}', '${item.focus}')" 
+                         class="cursor-pointer group relative p-3 sm:p-3.5 rounded-2xl transition-all duration-200 flex flex-col justify-between hover:shadow-md hover:-translate-y-0.5"
+                         style="background-color: ${item.color.bg}; border: 1.5px solid ${item.color.border};"
+                         onmouseenter="this.style.borderColor='${item.color.hoverBorder}'"
+                         onmouseleave="this.style.borderColor='${item.color.border}'">
                         <div>
                             <div class="flex items-center justify-between mb-2">
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                    item.isCustom ? 'bg-[#fef3c7] text-[#b45309] border border-[#f59e0b]/40' : 'bg-[#eff3e7] text-[#24654d]'
-                                }">${item.code}</span>
-                                <div class="w-8 h-8 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${
-                                    item.isCustom ? 'bg-[#fef3c7] text-[#d97706]' : 'bg-[#e4edb7] text-[#173e35]'
-                                }">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold shadow-2xs"
+                                      style="background-color: ${item.color.badgeBg}; color: ${item.color.badgeText};">
+                                    ${item.code}
+                                </span>
+                                <div class="w-8 h-8 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-2xs"
+                                     style="background-color: ${item.color.iconBg}; color: ${item.color.iconColor};">
                                     <i class="fas ${item.icon} text-sm"></i>
                                 </div>
                             </div>
-                            <h4 class="text-sm font-serif font-bold text-[#173e35] mb-1 group-hover:text-[#24654d] transition-colors">${item.name}</h4>
+                            <h4 class="text-sm font-serif font-bold text-[#173e35] mb-1 group-hover:opacity-85 transition-opacity">${item.name}</h4>
                             <div class="flex flex-wrap gap-1 mb-1.5">
-                                ${item.tags.map(t => `<span class="px-1.5 py-0.5 bg-white border border-[#d4ded5] text-[10px] text-[#5d7068] rounded">${t}</span>`).join('')}
+                                ${item.tags.map(t => `<span class="px-1.5 py-0.5 bg-white/90 border text-[10px] font-medium rounded" style="border-color: ${item.color.border}; color: ${item.color.badgeText};">${t}</span>`).join('')}
                             </div>
                             <p class="text-[11px] text-[#5d7068] leading-relaxed line-clamp-2">${item.desc}</p>
                         </div>
-                        <div class="mt-3 pt-2 border-t border-[#d4ded5]/60 flex items-center justify-between text-xs font-bold ${
-                            item.isCustom ? 'text-[#d97706]' : 'text-[#24654d]'
-                        }">
-                            <span>${item.isCustom ? '自由自訂創作' : '選定此向度'}</span>
+                        <div class="mt-3 pt-2 border-t flex items-center justify-between text-xs font-bold"
+                             style="border-color: ${item.color.border}; color: ${item.color.accentText};">
+                            <span>${item.isCustom ? '✨ 自由自訂創作' : '選定此向度'}</span>
                             <i class="fas fa-arrow-right text-[10px] transform group-hover:translate-x-1 transition-transform"></i>
                         </div>
                     </div>
                 `).join('');
             }
 
-            // 2. 渲染橫向輪播模式 (Carousel View - 寬度優化為可視多張)
+            // 2. 渲染橫向輪播模式 (Carousel View - 13 種溫潤柔和色彩區分)
             if (trackContainer) {
                 trackContainer.innerHTML = filtered.map(item => `
-                    <div onclick="selectTheme('${item.name}', '${item.focus}')" class="min-w-[190px] sm:min-w-[220px] max-w-[230px] snap-center cursor-pointer group p-3.5 sm:p-4 rounded-2xl transition-all duration-200 flex flex-col justify-between flex-shrink-0 ${
-                        item.isCustom 
-                            ? 'bg-[#fefce8] border-2 border-[#d97706] shadow-sm hover:bg-[#fef9c3]' 
-                            : 'bg-[#f7f9f2] border border-[#d4ded5] hover:border-[#24654d] hover:bg-[#eff5eb]'
-                    }">
+                    <div onclick="selectTheme('${item.name}', '${item.focus}')" 
+                         class="min-w-[190px] sm:min-w-[220px] max-w-[230px] snap-center cursor-pointer group p-3.5 sm:p-4 rounded-2xl transition-all duration-200 flex flex-col justify-between flex-shrink-0 hover:shadow-md hover:-translate-y-0.5"
+                         style="background-color: ${item.color.bg}; border: 1.5px solid ${item.color.border};"
+                         onmouseenter="this.style.borderColor='${item.color.hoverBorder}'"
+                         onmouseleave="this.style.borderColor='${item.color.border}'">
                         <div>
                             <div class="flex items-center justify-between mb-2.5">
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                    item.isCustom ? 'bg-[#fef3c7] text-[#b45309]' : 'bg-[#eff3e7] text-[#24654d]'
-                                }">${item.code}</span>
-                                <div class="w-8 h-8 rounded-xl flex items-center justify-center ${
-                                    item.isCustom ? 'bg-[#fef3c7] text-[#d97706]' : 'bg-[#e4edb7] text-[#173e35]'
-                                }">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold shadow-2xs"
+                                      style="background-color: ${item.color.badgeBg}; color: ${item.color.badgeText};">
+                                    ${item.code}
+                                </span>
+                                <div class="w-8 h-8 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-2xs"
+                                     style="background-color: ${item.color.iconBg}; color: ${item.color.iconColor};">
                                     <i class="fas ${item.icon} text-sm"></i>
                                 </div>
                             </div>
                             <h4 class="text-sm font-serif font-bold text-[#173e35] mb-1">${item.name}</h4>
                             <div class="flex flex-wrap gap-1 mb-1.5">
-                                ${item.tags.map(t => `<span class="px-1.5 py-0.5 bg-white border border-[#d4ded5] text-[10px] text-[#5d7068] rounded">${t}</span>`).join('')}
+                                ${item.tags.map(t => `<span class="px-1.5 py-0.5 bg-white/90 border text-[10px] font-medium rounded" style="border-color: ${item.color.border}; color: ${item.color.badgeText};">${t}</span>`).join('')}
                             </div>
                             <p class="text-[11px] text-[#5d7068] leading-relaxed line-clamp-2">${item.desc}</p>
                         </div>
-                        <div class="pt-2 border-t border-[#d4ded5] flex items-center justify-between text-xs font-bold ${
-                            item.isCustom ? 'text-[#d97706]' : 'text-[#24654d]'
-                        }">
-                            <span>${item.isCustom ? '自由自訂創作' : '選定此向度'}</span>
+                        <div class="pt-2 border-t flex items-center justify-between text-xs font-bold"
+                             style="border-color: ${item.color.border}; color: ${item.color.accentText};">
+                            <span>${item.isCustom ? '✨ 自由自訂創作' : '選定此向度'}</span>
                             <i class="fas fa-arrow-right text-[10px]"></i>
                         </div>
                     </div>
@@ -1443,10 +1571,14 @@
             const badge = document.getElementById('crop-theme-badge');
             const customGroup = document.getElementById('custom-theme-name-group');
             const customInput = document.getElementById('input-custom-theme');
+            const matchedTheme = THEMES_DATA.find(t => t.name === themeName);
 
             if (themeName === '學生自訂主題') {
                 badge.innerText = '✨ 自由自訂主題';
-                badge.className = "px-3 py-1 rounded-full bg-[#fef3c7] text-[#d97706] border border-[#f59e0b]/40 text-xs font-bold";
+                badge.style.backgroundColor = '#fef3c7';
+                badge.style.color = '#b45309';
+                badge.style.borderColor = '#fde68a';
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold border shadow-2xs";
                 customGroup.classList.remove('hidden');
                 if (customInput) {
                     customInput.value = '';
@@ -1454,7 +1586,16 @@
                 }
             } else {
                 badge.innerText = themeName;
-                badge.className = "px-3 py-1 rounded-full bg-[#eff3e7] text-[#24654d] border border-[#b7cfac] text-xs font-bold";
+                if (matchedTheme && matchedTheme.color) {
+                    badge.style.backgroundColor = matchedTheme.color.badgeBg;
+                    badge.style.color = matchedTheme.color.badgeText;
+                    badge.style.borderColor = matchedTheme.color.border;
+                } else {
+                    badge.style.backgroundColor = '#eff3e7';
+                    badge.style.color = '#24654d';
+                    badge.style.borderColor = '#b7cfac';
+                }
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold border shadow-2xs";
                 customGroup.classList.add('hidden');
             }
 
@@ -1850,7 +1991,19 @@
             const noteBox = document.getElementById('res-student-note-box');
             const noteText = document.getElementById('res-student-note-text');
             const themeBadge = document.getElementById('res-theme-display-badge');
-            if (themeBadge) themeBadge.innerText = state.theme;
+            if (themeBadge) {
+                themeBadge.innerText = state.theme;
+                const matchedTheme = THEMES_DATA.find(t => t.name === state.theme);
+                if (matchedTheme && matchedTheme.color) {
+                    themeBadge.style.backgroundColor = matchedTheme.color.badgeBg;
+                    themeBadge.style.color = matchedTheme.color.badgeText;
+                    themeBadge.style.borderColor = matchedTheme.color.border;
+                } else {
+                    themeBadge.style.backgroundColor = '#eff3e7';
+                    themeBadge.style.color = '#24654d';
+                    themeBadge.style.borderColor = '#b7cfac';
+                }
+            }
             if (state.studentNote) {
                 noteBox.classList.remove('hidden');
                 noteText.innerText = state.studentNote;
