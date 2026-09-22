@@ -179,6 +179,7 @@ function saveArtworkToDrive_(data) {
     studentId,
     studentName,
     theme,
+    data.studentNote || '',
     score,
     title,
     data.themeScore || 0,
@@ -218,7 +219,7 @@ function getOrCreateArtSheet_(rootFolder) {
     var s = ss.getActiveSheet();
     s.setName('獲獎作品總覽');
     s.appendRow([
-      '評鑑時間', '班級座號', '創作者姓名', '挑戰主題', '綜合總分', '認證稱號',
+      '評鑑時間', '班級座號', '創作者姓名', '挑戰主題', '學生創作理念(我在畫什麼)', '綜合總分', '認證稱號',
       '主題契合(35%)', '構圖重心(20%)', '色彩豐富(15%)', '明暗立體(15%)', '筆觸線條(15%)',
       '教練深度講評', '修煉建議', '胸章圖片雲端連結'
     ]);

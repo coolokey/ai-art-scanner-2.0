@@ -202,11 +202,11 @@
                     <div class="flex items-center space-x-1.5 bg-slate-900/90 border border-cyan-500/40 px-2.5 py-0.5 rounded-full text-[11px] font-tech text-cyan-300 font-bold">
                         <span id="theme-index-curr">1</span>
                         <span class="text-slate-500">/</span>
-                        <span class="text-slate-400">12</span>
+                        <span class="text-slate-400">13</span>
                     </div>
                 </div>
                 <div class="text-center mb-1">
-                    <h2 class="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">選擇創作領域 (12大向度)</h2>
+                    <h2 class="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-amber-300 to-blue-400">選擇創作領域 (12大向度 + 自訂主題)</h2>
                     <p class="text-[11px] text-cyan-300/80">👈 左右滑動切換主題，點擊卡片選定評估規準 👉</p>
                 </div>
             </div>
@@ -485,6 +485,28 @@
                         </button>
                     </div>
 
+                    <!-- 卡片 13：學生自訂主題 (自由創作) -->
+                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-gradient-to-b from-slate-900 via-slate-900 to-amber-950/40 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-5 flex flex-col justify-between shadow-xl shadow-amber-500/10 transition-all select-none group">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="px-2 py-0.5 bg-amber-950/90 border border-amber-600/80 text-amber-300 rounded-full text-[10px] font-tech font-bold">#13 自由自訂</span>
+                                <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-wand-magic-sparkles text-xl"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-base font-black text-white mb-1">學生自訂主題</h3>
+                            <div class="flex flex-wrap gap-1 mb-2">
+                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-amber-300 rounded">自由創作</span>
+                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-amber-300 rounded">創作自述</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed">自由命名專屬主題並寫下創作理念，讓 AI 深入理解你的心意，深度對照評析！</p>
+                        </div>
+                        <button type="button" onclick="selectTheme('學生自訂主題', '創作者原創自訂主題，核心規準為評估畫面與創作者自述理念之契合度與表現力')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
+                            <span>選擇自訂主題</span>
+                            <i class="fas fa-arrow-right text-[10px]"></i>
+                        </button>
+                    </div>
+
                 </div>
 
                 <!-- 右滑按鈕 -->
@@ -506,7 +528,7 @@
         <!-- ============================================== -->
         <!-- 畫面 3：高精準胸章取景器（Crop & Frame） -->
         <!-- ============================================== -->
-        <section id="screen-crop" class="absolute inset-0 p-5 sm:p-6 flex flex-col justify-between transition-opacity duration-300 hidden opacity-0">
+        <section id="screen-crop" class="absolute inset-0 p-4 sm:p-6 flex flex-col justify-between transition-opacity duration-300 hidden opacity-0 overflow-y-auto no-scrollbar space-y-3">
             <div class="flex items-center justify-between mb-1">
                 <button onclick="showScreen('screen-theme')" class="text-xs text-slate-400 hover:text-white flex items-center">
                     <i class="fas fa-chevron-left mr-1"></i> 改選主題
@@ -517,7 +539,7 @@
                 </button>
             </div>
 
-            <div class="text-center mb-2">
+            <div class="text-center mb-1">
                 <h3 class="text-base font-black text-white">胸章取景器與視覺校正</h3>
                 <p class="text-[11px] text-cyan-300/80">請拖曳並縮放畫作，使視覺焦點置於胸章圓圈內</p>
             </div>
@@ -563,13 +585,39 @@
             <input type="file" id="main-art-file-input" accept="image/*" class="hidden" onchange="handleImageFile(event)">
 
             <!-- 縮放與控制拉桿 -->
-            <div id="crop-controls" class="hidden my-2 px-3">
+            <div id="crop-controls" class="hidden my-1 px-3">
                 <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
                     <span><i class="fas fa-magnifying-glass-minus mr-1"></i>縮小</span>
                     <span class="text-cyan-400 font-tech font-bold" id="scale-indicator">100%</span>
                     <span>放大<i class="fas fa-magnifying-glass-plus ml-1"></i></span>
                 </div>
                 <input type="range" id="zoom-slider" min="0.4" max="3.0" step="0.05" value="1.0" class="w-full accent-cyan-400 h-1.5 bg-slate-800 rounded-lg cursor-pointer">
+            </div>
+
+            <!-- 學生創作自述與自訂主題區塊 (我在畫什麼) -->
+            <div id="student-statement-card" class="bg-slate-900/90 border border-cyan-500/40 rounded-2xl p-3.5 shadow-lg space-y-2.5 text-left">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+                    <label class="text-xs font-bold text-cyan-300 flex items-center">
+                        <i class="fas fa-pen-nib text-amber-400 mr-1.5"></i> 創作自述 ╳ 我在畫什麼
+                    </label>
+                    <span class="text-[10px] text-slate-400">供 AI 評審精準對照</span>
+                </div>
+
+                <!-- 若為自訂主題時，顯示主題名稱輸入欄 -->
+                <div id="custom-theme-name-group" class="hidden">
+                    <label class="block text-[11px] font-bold text-amber-300 mb-1 flex items-center">
+                        <i class="fas fa-tag mr-1"></i> 請為作品命名自訂主題：<span class="text-rose-400 ml-0.5">*</span>
+                    </label>
+                    <input type="text" id="input-custom-theme" class="w-full bg-slate-950 border border-amber-500/50 focus:border-amber-400 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none" placeholder="例如：星空樹屋、守護森林的機械獸、雨天公車站...">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] text-slate-300 mb-1 flex items-center justify-between">
+                        <span>說明畫作內容與你想表達的故事、感受或角色：</span>
+                        <span class="text-[10px] text-cyan-400/80">(建議填寫)</span>
+                    </label>
+                    <textarea id="input-student-statement" rows="2" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none resize-none leading-relaxed" placeholder="例如：我在畫一隻背著探險裝備的太空狐狸，正在觀察水晶洞窟。我想呈現神祕探索與明暗對比氛圍..."></textarea>
+                </div>
             </div>
 
             <!-- 送交 AI 鑑定按鈕 -->
@@ -727,6 +775,15 @@
                         <div id="bar-detail" class="bg-pink-400 h-1.5 rounded-full transition-all duration-700 w-0"></div>
                     </div>
                 </div>
+            </div>
+
+            <!-- 學生創作理念顯示卡 (若有填寫) -->
+            <div id="res-student-note-box" class="hidden bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3 mb-2 text-left">
+                <div class="flex items-center justify-between text-xs font-bold text-amber-300 mb-1">
+                    <span class="flex items-center"><i class="fas fa-quote-left mr-1.5 text-amber-400"></i> 創作者自述理念</span>
+                    <span id="res-theme-display-badge" class="px-2 py-0.5 rounded-full bg-slate-800 text-[10px] text-cyan-300 border border-cyan-800">主題</span>
+                </div>
+                <p id="res-student-note-text" class="text-[11px] text-slate-300 leading-relaxed italic pl-2 border-l-2 border-amber-400"></p>
             </div>
 
             <!-- 教練講評與修煉建議 -->
@@ -961,6 +1018,7 @@
             croppedBase64: '',
             lastScore: null,
             currentResult: null,
+            studentNote: '',
             overlayMode: 'thirds'
         };
 
@@ -1150,6 +1208,7 @@
                     studentId: state.studentId,
                     studentName: state.studentName,
                     theme: state.theme,
+                    studentNote: state.studentNote || '',
                     title: state.currentResult?.title || '特級繪師',
                     totalScore: state.currentResult?.totalScore || 0,
                     themeScore: state.currentResult?.themeScore || 0,
@@ -1342,7 +1401,25 @@
         function selectTheme(themeName, focusDesc) {
             state.theme = themeName;
             state.themeFocus = focusDesc;
-            document.getElementById('crop-theme-badge').innerText = themeName;
+
+            const badge = document.getElementById('crop-theme-badge');
+            const customGroup = document.getElementById('custom-theme-name-group');
+            const customInput = document.getElementById('input-custom-theme');
+
+            if (themeName === '學生自訂主題') {
+                badge.innerText = '✨ 自由自訂主題';
+                badge.className = "px-2.5 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-600 text-xs font-bold";
+                customGroup.classList.remove('hidden');
+                if (customInput) {
+                    customInput.value = '';
+                    setTimeout(() => customInput.focus(), 250);
+                }
+            } else {
+                badge.innerText = themeName;
+                badge.className = "px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 text-xs font-bold";
+                customGroup.classList.add('hidden');
+            }
+
             showScreen('screen-crop');
         }
 
@@ -1360,7 +1437,7 @@
             const cards = c.children;
             if (!cards.length) return;
             const cardW = (cards[0].offsetWidth || 260) + 12;
-            const idx = Math.min(12, Math.max(1, Math.round(c.scrollLeft / cardW) + 1));
+            const idx = Math.min(13, Math.max(1, Math.round(c.scrollLeft / cardW) + 1));
             const currEl = document.getElementById('theme-index-curr');
             if (currEl) currEl.innerText = idx;
             updateThemeDots(idx - 1);
@@ -1370,10 +1447,10 @@
             const container = document.getElementById('theme-dots');
             if (!container) return;
             if (!container.children.length) {
-                for (let i = 0; i < 12; i++) {
+                for (let i = 0; i < 13; i++) {
                     const dot = document.createElement('button');
                     dot.type = "button";
-                    dot.className = "w-2 h-2 rounded-full transition-all " + (i === activeIdx ? "bg-cyan-400 w-5" : "bg-slate-700");
+                    dot.className = "w-2 h-2 rounded-full transition-all " + (i === activeIdx ? (i === 12 ? "bg-amber-400 w-5" : "bg-cyan-400 w-5") : "bg-slate-700");
                     dot.onclick = () => {
                         const c = document.getElementById('theme-carousel');
                         if (!c) return;
@@ -1384,7 +1461,7 @@
                 }
             } else {
                 Array.from(container.children).forEach((dot, i) => {
-                    dot.className = "w-2 h-2 rounded-full transition-all " + (i === activeIdx ? "bg-cyan-400 w-5" : "bg-slate-700");
+                    dot.className = "w-2 h-2 rounded-full transition-all " + (i === activeIdx ? (i === 12 ? "bg-amber-400 w-5" : "bg-cyan-400 w-5") : "bg-slate-700");
                 });
             }
         }
@@ -1406,6 +1483,17 @@
                 el.value = '';
                 el.click();
             }
+        }
+
+        const customThemeInputEl = document.getElementById('input-custom-theme');
+        if (customThemeInputEl) {
+            customThemeInputEl.addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                const badge = document.getElementById('crop-theme-badge');
+                if (badge) {
+                    badge.innerText = val ? `自訂：${val}` : '✨ 自由自訂主題';
+                }
+            });
         }
 
         function handleImageFile(e) {
@@ -1540,6 +1628,17 @@
         // 鎖定構圖並呼叫 AI 評審
         // ==============================================
         async function lockCompositionAndScan() {
+            // 讀取自訂主題與學生自述
+            const customInput = document.getElementById('input-custom-theme');
+            if (state.theme === '學生自訂主題' || (customInput && customInput.value.trim())) {
+                const customName = customInput.value.trim();
+                state.theme = customName ? customName : '自由原創主題';
+                state.themeFocus = '創作者原創自訂主題，核心規準為評估畫面與創作者自述理念之契合度與表現力';
+            }
+
+            const statement = document.getElementById('input-student-statement')?.value.trim() || '';
+            state.studentNote = statement;
+
             const canvas = document.createElement('canvas');
             const size = 600;
             canvas.width = size;
@@ -1589,9 +1688,9 @@
             try {
                 let result;
                 if (state.apiKey) {
-                    result = await callStrictGeminiVisionAPI(state.croppedBase64, state.theme, state.themeFocus, state.apiKey);
+                    result = await callStrictGeminiVisionAPI(state.croppedBase64, state.theme, state.themeFocus, state.apiKey, state.studentNote);
                 } else {
-                    result = await simulateExpertRubricAI(state.theme);
+                    result = await simulateExpertRubricAI(state.theme, state.studentNote);
                 }
                 clearInterval(stageTimer);
                 displayEvaluationResult(result);
@@ -1599,7 +1698,7 @@
                 clearInterval(stageTimer);
                 console.error("Gemini 評析失敗：", err);
                 alert(`AI 呼叫發生錯誤：${err.message}\n已切換為展示模式呈現。`);
-                const fallback = await simulateExpertRubricAI(state.theme);
+                const fallback = await simulateExpertRubricAI(state.theme, state.studentNote);
                 displayEvaluationResult(fallback);
             }
         }
@@ -1607,25 +1706,27 @@
         // ==============================================
         // 嚴格版真實 Gemini Vision API 呼叫引擎
         // ==============================================
-        async function callStrictGeminiVisionAPI(base64Image, theme, focusDesc, apiKey) {
+        async function callStrictGeminiVisionAPI(base64Image, theme, focusDesc, apiKey, studentNote) {
             const base64Data = base64Image.split(',')[1];
             
+            const noteText = studentNote ? `\n【學生自述作品內容與創作理念（他在畫什麼）】：\n「${studentNote}」\n` : '';
+
             // 超高鑑別度的嚴格評審 Prompt
             const prompt = `你是一位國際級嚴格且公正的美術教育評審。
 請先仔細「檢視並描述」這張圖片中真實出現的內容是什麼（例如：是一個戴帽子的動漫少年？一隻趴著的貓咪？一盤食物？自然風景？還是隨便亂畫的草稿、空白紙或隨手拍照片）。
 
 使用者選擇挑戰的領域是：「${theme}」。
-該領域核心評估規準是：「${focusDesc}」。
+該領域核心評估規準是：「${focusDesc}」。${noteText}
 
-【最關鍵第一審查原則：文不對題檢驗（防作弊/防盲目給分）】：
-- 請先判斷：畫面主體是否真正屬於「${theme}」？
-- 若畫面內容明顯與「${theme}」無關（例如：選動漫人物卻上傳了動物/食物/建築/風景，或根本不是繪畫創作而是隨手拍生活物品或空白紙）：
+【最關鍵第一審查原則：文不對題與創作真實性檢驗（防作弊/防盲目給分）】：
+- 請先判斷：畫面主體是否真正屬於「${theme}」${studentNote ? `，且畫面是否呼應學生所自述「${studentNote}」的內容與創作意圖？` : '？'}
+- 若畫面內容明顯與「${theme}」無關${studentNote ? `，或與學生自述之「${studentNote}」完全不符` : ''}（例如：選動漫人物卻上傳了動物/食物/建築/風景，或根本不是繪畫創作而是隨手拍生活物品或空白紙）：
   1. themeScore 請直接給予極低的懲罰分數（10 ~ 30 分）！
-  2. feedback 第一句必須直接揭露實情並嚴格指出：「畫面內容為...，與所選主題『${theme}』完全文不對題！無法列入評鑑，請重新換題或重畫。」
-- 只有當圖片確實屬於「${theme}」且具備一定創作意圖時，themeScore 才能正常在 65 ~ 95 分之間評估。
+  2. feedback 第一句必須直接揭露實情並嚴格指出：「畫面內容為...，與所選主題『${theme}』${studentNote ? `及自述內容` : ''}完全文不對題！無法列入評鑑，請重新換題或重畫。」
+- 只有當圖片確實屬於「${theme}」且具備一定創作意圖時${studentNote ? `（並在畫面上能看到學生努力描摹其自述之構想）` : ''}，themeScore 才能正常在 65 ~ 95 分之間評估。
 
 【各指標嚴格評分標準（0~100 分）】：
-1. themeScore (35%): 主題契合度（是否符合所選領域之核心精神）
+1. themeScore (35%): 主題契合度（是否符合所選領域之核心精神${studentNote ? `，是否真實展現自述構想` : ''}）
 2. compScore (20%): 構圖重心與結構（主體是否居中或符合三分法則？圓形胸章範圍內主體比例是否得當？是否太小或出框？）
 3. colorScore (15%): 色彩冷暖與豐富度（用色是否具有氛圍？色調是否單調混濁？）
 4. lightScore (15%): 明暗立體感（是否有陰影、受光面、反光立體感？）
@@ -1640,12 +1741,13 @@
   "lightScore": 80,
   "detailScore": 84,
   "title": "具風格特色之專屬稱號(8字內)",
-  "feedback": "教練深度講評(包含畫面客觀優缺點，60字內)",
+  "feedback": "教練深度講評(${studentNote ? '請融合畫面客觀分析並給予學生自述理念具體回饋，' : '包含畫面客觀優缺點，'}60字內)",
   "advice": "次世代修煉建議(具體修改技巧，45字內)",
   "focusX": 0.5,
   "focusY": 0.45,
   "palette": ["#1e293b", "#38bdf8", "#818cf8", "#f59e0b", "#ffffff"]
 }`;
+
 
             const payload = {
                 contents: [{
@@ -1713,8 +1815,8 @@
             throw lastErr || new Error("無法取得 Gemini 辨識結果，請檢查 API Key。");
         }
 
-        // 模擬展示引擎 (支援 12 大主題各具風格特色之預設庫)
-        async function simulateExpertRubricAI(theme) {
+        // 模擬展示引擎 (支援 12 大主題 + 學生自訂原創主題各具風格特色之預設庫)
+        async function simulateExpertRubricAI(theme, studentNote) {
             await new Promise(r => setTimeout(r, 2000));
             
             const themeMap = {
@@ -1732,17 +1834,22 @@
                 '視覺錯視與幾何抽象': { title: '歐普秘境·幾何大師', desc: '黑白幾何交錯產生動態視覺律動，圖地反轉趣味深厚，幾何張力十足。' }
             };
 
-            const info = themeMap[theme] || { title: '特級美育·星界宗師', desc: `作品呈現「${theme}」鮮明意象，胸章圓形構圖重心穩固，光影明暗分明。` };
+            const isCustom = !themeMap[theme];
+            const noteSnippet = studentNote ? `，並細膩呼應了自述「${studentNote.slice(0, 18)}${studentNote.length > 18 ? '...' : ''}」之意境` : '';
+            const defaultDesc = isCustom 
+                ? `作品精采呈現自訂主題「${theme}」之原創構想${noteSnippet}，構圖重心穩固，極富想像力。`
+                : `${themeMap[theme].desc}${noteSnippet}`;
+            const title = isCustom ? '自由靈魂·造夢宗師' : themeMap[theme].title;
 
             return {
-                totalScore: 89,
-                title: info.title,
-                themeScore: 92,
-                compScore: 88,
-                colorScore: 85,
-                lightScore: 86,
-                detailScore: 85,
-                feedback: `【展示評測】${info.desc}`,
+                totalScore: 90,
+                title: title,
+                themeScore: 93,
+                compScore: 89,
+                colorScore: 88,
+                lightScore: 87,
+                detailScore: 88,
+                feedback: `【展示評測】${defaultDesc}`,
                 advice: `建議強化外輪廓邊界之銳利高光，可使實體金屬胸章印刷呈現更強烈反差感。`,
                 focusX: 0.5,
                 focusY: 0.46,
@@ -1761,6 +1868,18 @@
             document.getElementById('res-artist-title').innerText = data.title;
             document.getElementById('res-feedback-text').innerText = data.feedback;
             document.getElementById('res-advice-text').innerText = data.advice;
+
+            // 顯示學生自述理念卡片
+            const noteBox = document.getElementById('res-student-note-box');
+            const noteText = document.getElementById('res-student-note-text');
+            const themeBadge = document.getElementById('res-theme-display-badge');
+            if (themeBadge) themeBadge.innerText = state.theme;
+            if (state.studentNote) {
+                noteBox.classList.remove('hidden');
+                noteText.innerText = state.studentNote;
+            } else {
+                noteBox.classList.add('hidden');
+            }
 
             setTimeout(() => {
                 const ring = document.getElementById('res-score-ring');
@@ -1790,6 +1909,7 @@
                                 title: data.title,
                                 score: data.totalScore,
                                 image: state.croppedBase64,
+                                note: state.studentNote || '',
                                 date: new Date().toLocaleDateString('zh-TW')
                             });
                         } else {
@@ -2155,8 +2275,9 @@
                         </div>
                         <span class="text-xs font-bold text-white truncate max-w-full">${item.name}</span>
                         <span class="text-[10px] text-cyan-400 truncate max-w-full">${item.title}</span>
+                        ${item.note ? `<p class="text-[9px] text-amber-300/90 truncate max-w-full italic px-1">「${item.note}」</p>` : ''}
                         <div class="mt-1 flex items-center justify-between w-full text-[10px] text-slate-400 border-t border-slate-700/60 pt-1">
-                            <span>${item.theme}</span>
+                            <span class="truncate max-w-[85px]">${item.theme}</span>
                             <span class="font-tech font-bold text-amber-400">${item.score}分</span>
                         </div>
                     `;
