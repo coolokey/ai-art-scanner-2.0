@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI 藝術能量掃描儀 2.0 - 跨領域美育評量與創客系統</title>
+    <title>AI 藝術能量掃描儀｜大溪國中</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -11,18 +11,20 @@
             theme: {
                 extend: {
                     colors: {
-                        cyber: {
-                            dark: '#090d16',
-                            card: 'rgba(15, 23, 42, 0.75)',
-                            cyan: '#06b6d4',
-                            glow: '#38bdf8',
-                            purple: '#a855f7',
-                            gold: '#f59e0b'
-                        }
+                        ink: '#173e35',
+                        forest: '#24654d',
+                        'forest-dark': '#144333',
+                        muted: '#5d7068',
+                        paper: '#f7f5ed',
+                        limebg: '#e4edb7',
+                        line: '#d4ded5',
+                        card: '#fffefb',
+                        amberacc: '#d97706'
                     },
-                    animation: {
-                        'pulse-fast': 'pulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'spin-slow': 'spin 12s linear infinite'
+                    fontFamily: {
+                        serif: ['"Noto Serif TC"', 'Georgia', 'serif'],
+                        tech: ['Orbitron', 'sans-serif'],
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', '"Microsoft JhengHei"', 'sans-serif']
                     }
                 }
             }
@@ -30,37 +32,67 @@
     </script>
     <!-- FontAwesome 6 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Noto Sans TC & Orbitron -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+    <!-- Google Noto Serif TC & Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --ink: #173e35;
+            --muted: #5d7068;
+            --paper: #f7f5ed;
+            --line: #d4ded5;
+            --green: #24654d;
+            --lime: #e4edb7;
+            --accent: #d97706;
+            --card-bg: #fffefb;
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #090d16 65%, #030712 100%);
-            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", sans-serif;
+            background: var(--paper);
+            color: var(--ink);
             min-height: 100vh;
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
         }
 
+        .font-serif {
+            font-family: "Noto Serif TC", "PMingLiU", Georgia, serif;
+        }
+
         .font-tech {
-            font-family: 'Orbitron', 'Noto Sans TC', sans-serif;
+            font-family: 'Orbitron', -apple-system, sans-serif;
         }
 
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.82);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(56, 189, 248, 0.22);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+        /* 自主學習助教風格實體面板 */
+        .panel {
+            background: #fffefb;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 6px 6px 0 #e9ece2, 0 12px 30px rgba(23, 62, 53, 0.05);
         }
 
-        /* 掃描線雷射動畫 */
+        /* 經典標題下劃青檸螢光強調 */
+        h1 em, h2 em {
+            font-style: normal;
+            position: relative;
+            background: linear-gradient(transparent 70%, var(--lime) 70%);
+        }
+
+        /* 輸入框與按鈕焦點環 */
+        input:focus-visible, textarea:focus-visible, button:focus-visible {
+            outline: 3px solid #c7d88a;
+            outline-offset: 2px;
+        }
+
+        /* 掃描線雷射動畫 (優雅翡翠綠) */
         .laser-beam {
             position: absolute;
             width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, #38bdf8 20%, #ffffff 50%, #38bdf8 80%, transparent);
-            box-shadow: 0 0 20px #38bdf8, 0 0 40px #0284c7;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #34d399 20%, #ffffff 50%, #34d399 80%, transparent);
+            box-shadow: 0 0 16px #34d399, 0 0 32px #059669;
             animation: laserScan 2.2s infinite ease-in-out;
             z-index: 25;
         }
@@ -73,7 +105,7 @@
 
         /* 旋轉準星環 */
         .reticle-ring {
-            border: 2px dashed rgba(56, 189, 248, 0.5);
+            border: 2px dashed rgba(52, 211, 153, 0.6);
             border-radius: 50%;
             animation: spinRing 25s linear infinite;
         }
@@ -83,11 +115,11 @@
             to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        /* 碎紙花特效 */
+        /* 碎紙花慶祝特效 */
         .confetti-piece {
             position: fixed;
-            width: 10px;
-            height: 10px;
+            width: 9px;
+            height: 9px;
             pointer-events: none;
             z-index: 100;
         }
@@ -104,424 +136,170 @@
 </head>
 <body class="p-3 sm:p-6 flex flex-col items-center justify-center relative min-h-screen">
 
-    <!-- 背景科技光斑 -->
-    <div class="fixed top-10 left-1/4 w-96 h-96 bg-cyan-600/15 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="fixed bottom-10 right-1/4 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
+    <!-- 頂端導航條（自主學習典雅品牌風格） -->
+    <header class="w-full max-w-2xl sm:max-w-3xl mb-3 flex items-center justify-between px-1 text-xs">
+        <div class="flex items-center space-x-2.5">
+            <i class="not-italic bg-[#173e35] text-white font-serif px-2.5 py-1 rounded text-sm font-bold shadow-xs">AI</i>
+            <div class="flex items-center space-x-1.5">
+                <span class="font-serif font-bold text-base text-[#173e35] tracking-wider">大溪國中</span>
+                <span class="text-xs text-[#5d7068] tracking-wider hidden sm:inline">・自主學習 ╳ 藝術能量掃描儀</span>
+            </div>
+        </div>
 
-    <!-- 頂端控制條 -->
-    <header class="w-full max-w-lg mb-3 flex items-center justify-between px-2 text-xs">
-        <!-- 引擎狀態燈號（點擊可開啟設定） -->
-        <button onclick="openConfigModal()" class="flex items-center space-x-2 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 px-3 py-1.5 rounded-full transition-all group shadow-sm">
-            <span id="engine-status-dot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-            <span id="engine-status-text" class="font-bold text-amber-300 text-[11px]">展示通道 (點此設定 API Key)</span>
-            <i class="fas fa-cog text-slate-400 group-hover:text-cyan-400 text-xs ml-0.5"></i>
-        </button>
-
-        <!-- 藝廊入口 -->
         <div class="flex items-center space-x-2">
-            <button onclick="openGalleryModal()" class="px-3 py-1.5 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 rounded-full text-cyan-300 transition-all flex items-center space-x-1.5 shadow-sm text-[11px]">
-                <i class="fas fa-trophy text-amber-400"></i>
+            <!-- 引擎狀態燈號（點擊可開啟設定） -->
+            <button onclick="openConfigModal()" class="flex items-center space-x-1.5 bg-[#eff3e7] hover:bg-[#e4edb7] border border-[#b7cfac] px-3 py-1.5 rounded-full transition-all group shadow-xs">
+                <span id="engine-status-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                <span id="engine-status-text" class="font-bold text-[#24654d] text-[11px]">展示模式 (設定 Key)</span>
+                <i class="fas fa-sliders text-[#5d7068] group-hover:text-[#173e35] text-[10px] ml-0.5"></i>
+            </button>
+
+            <!-- 藝廊入口 -->
+            <button onclick="openGalleryModal()" class="px-3 py-1.5 bg-[#fffefb] hover:bg-[#f7f9f2] border border-[#d4ded5] rounded-full text-[#173e35] transition-all flex items-center space-x-1.5 shadow-xs text-[11px] font-bold">
+                <i class="fas fa-trophy text-[#d97706]"></i>
                 <span>星空藝廊 (<span id="gallery-count">0</span>)</span>
             </button>
         </div>
     </header>
 
-    <!-- 主容器：極致科技艙 -->
-    <main id="app" class="w-full max-w-lg relative min-h-[720px] max-h-[92vh] flex flex-col glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl border border-cyan-500/30 overflow-hidden">
+    <!-- 主容器：自主學習實體卡片面板 -->
+    <main id="app" class="w-full max-w-2xl sm:max-w-3xl relative min-h-[700px] max-h-[92vh] flex flex-col panel p-5 sm:p-8 overflow-hidden">
         
         <!-- ============================================== -->
-        <!-- 畫面 1：身分確認與系統狀態 -->
+        <!-- 畫面 1：身分確認與系統狀態 (Login) -->
         <!-- ============================================== -->
-        <section id="screen-login" class="absolute inset-0 p-6 flex flex-col justify-between transition-opacity duration-300">
+        <section id="screen-login" class="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between transition-opacity duration-300">
             <div class="text-center pt-2">
-                <div class="relative inline-block mb-3">
-                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-purple-600 p-0.5 shadow-lg shadow-cyan-500/40">
-                        <div class="w-full h-full bg-slate-900 rounded-2xl flex items-center justify-center">
-                            <i class="fas fa-palette text-3xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400"></i>
-                        </div>
-                    </div>
-                    <span class="absolute -bottom-1 -right-1 px-2 py-0.5 bg-amber-500 text-slate-950 font-black text-[10px] rounded-full font-tech tracking-wider uppercase">Maker 2.0</span>
+                <div class="inline-block px-3 py-1 bg-[#eff3e7] border border-[#b7cfac] rounded-full text-[11px] font-serif tracking-widest text-[#24654d] font-bold uppercase mb-2">
+                    SELF-DIRECTED LEARNING & ART MAKER
                 </div>
-                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white mb-1">AI 藝術能量掃描儀</h1>
-                <p class="text-xs sm:text-sm text-cyan-300/80">多模態智慧美感評量 ╳ 實體胸章創客系統</p>
+                <h1 class="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-[#173e35] mb-2 leading-tight">
+                    把你的創作靈感，<br><em>化為專屬實體胸章。</em>
+                </h1>
+                <p class="text-xs sm:text-sm text-[#5d7068] max-w-md mx-auto leading-relaxed">
+                    以 108 課綱美感素養為指引，結合多模態神經網路分析構圖、色彩與意境，達標 85 分即刻解鎖 58mm 胸章印刷版型與認證證書。
+                </p>
             </div>
 
-            <!-- 身分輸入 -->
-            <div class="space-y-3.5 my-auto overflow-y-auto no-scrollbar py-2">
-                <div>
-                    <label class="block text-xs font-bold text-cyan-400 mb-1 ml-1 flex items-center">
-                        <i class="fas fa-id-badge mr-1.5"></i> 班級與座號代號 (例: 80105)
-                    </label>
-                    <input type="text" id="input-id" value="80105" class="w-full bg-slate-900/90 border border-slate-700 focus:border-cyan-400 rounded-xl px-4 py-2.5 text-white font-tech focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all text-sm" placeholder="請輸入班級座號">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-cyan-400 mb-1 ml-1 flex items-center">
-                        <i class="fas fa-signature mr-1.5"></i> 創作者大名 / 筆名
-                    </label>
-                    <input type="text" id="input-name" value="大溪小達文西" class="w-full bg-slate-900/90 border border-slate-700 focus:border-cyan-400 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all text-sm" placeholder="請輸入姓名">
+            <!-- 身分輸入區 -->
+            <div class="space-y-3.5 my-auto overflow-y-auto no-scrollbar py-2 max-w-md mx-auto w-full">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-[#173e35] mb-1">
+                            <i class="fas fa-id-badge text-[#24654d] mr-1"></i> 班級座號 (例: 80105)
+                        </label>
+                        <input type="text" id="input-id" value="80105" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2.5 text-[#173e35] font-tech text-sm focus:outline-none transition-all" placeholder="請輸入班級座號">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#173e35] mb-1">
+                            <i class="fas fa-signature text-[#24654d] mr-1"></i> 創作者大名 / 筆名
+                        </label>
+                        <input type="text" id="input-name" value="大溪小達文西" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2.5 text-[#173e35] text-sm focus:outline-none transition-all" placeholder="請輸入姓名">
+                    </div>
                 </div>
 
-                <!-- 系統引擎狀態提示卡片 -->
-                <div id="engine-card" class="bg-slate-900/90 border border-cyan-500/40 rounded-2xl p-3.5 space-y-2">
+                <!-- 系統引擎狀態提示卡片 (自主學習狀態風格) -->
+                <div id="engine-card" class="bg-[#f7f9f2] border border-[#d4ded5] rounded-xl p-3.5 space-y-2">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-cyan-300 flex items-center">
-                            <i class="fas fa-microchip mr-1.5 text-cyan-400"></i> AI 視覺評審引擎狀態
+                        <span class="text-xs font-bold text-[#173e35] flex items-center">
+                            <i class="fas fa-microchip mr-1.5 text-[#24654d]"></i> AI 視覺評審引擎狀態
                         </span>
-                        <button onclick="openConfigModal()" class="text-[11px] text-cyan-400 hover:text-white underline underline-offset-2 flex items-center font-bold">
+                        <button onclick="openConfigModal()" class="text-[11px] text-[#24654d] hover:underline font-bold flex items-center">
                             <i class="fas fa-sliders mr-1"></i> 設定 API Key
                         </button>
                     </div>
 
-                    <div id="engine-desc-box" class="p-2.5 rounded-xl border text-xs leading-relaxed transition-all">
-                        <!-- 動態由 JS 渲染當前是真實 Gemini 還是展示模式 -->
+                    <div id="engine-desc-box" class="p-2.5 rounded-lg border text-xs leading-relaxed transition-all">
+                        <!-- 動態由 JS 渲染狀態 -->
                     </div>
                 </div>
 
-                <div id="login-error" class="hidden text-rose-400 text-xs text-center font-bold bg-rose-950/40 py-2 rounded-lg border border-rose-800/50">
-                    請輸入班級座號與姓名！
+                <div id="login-error" class="hidden text-rose-700 text-xs text-center font-bold bg-[#fff0ea] py-2 rounded-lg border border-[#a23b24]/40">
+                    請填寫完整的班級座號與創作者大名！
                 </div>
             </div>
 
             <!-- 啟動按鈕 -->
-            <button onclick="goToThemeScreen()" class="w-full py-3.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-bold rounded-2xl text-base shadow-lg shadow-cyan-500/25 active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
-                <span>進入掃描能量艙</span>
-                <i class="fas fa-arrow-right"></i>
-            </button>
+            <div class="max-w-md mx-auto w-full pt-2">
+                <button onclick="goToThemeScreen()" class="w-full py-3.5 bg-[#173e35] hover:bg-[#24654d] text-white font-bold rounded-xl text-sm shadow-md transition-all active:scale-[0.99] flex items-center justify-center space-x-2 tracking-wider">
+                    <span>前往選擇創作主題</span>
+                    <i class="fas fa-arrow-right text-xs"></i>
+                </button>
+            </div>
         </section>
 
         <!-- ============================================== -->
-        <!-- 畫面 2：十二大創作領域主題選擇（滑動式選單） -->
+        <!-- 畫面 2：十三大創作領域主題選擇（雙模式直觀選單） -->
         <!-- ============================================== -->
-        <section id="screen-theme" class="absolute inset-0 p-4 sm:p-6 flex flex-col justify-between transition-opacity duration-300 hidden opacity-0">
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <button onclick="showScreen('screen-login')" class="text-xs text-slate-400 hover:text-white flex items-center">
+        <section id="screen-theme" class="absolute inset-0 p-4 sm:p-6 flex flex-col justify-between transition-opacity duration-300 hidden opacity-0 overflow-y-auto no-scrollbar">
+            <!-- 頂端導航與分類標籤 -->
+            <div class="space-y-2 mb-2 flex-shrink-0">
+                <div class="flex items-center justify-between">
+                    <button onclick="showScreen('screen-login')" class="text-xs font-bold text-[#5d7068] hover:text-[#173e35] flex items-center transition-colors">
                         <i class="fas fa-chevron-left mr-1.5"></i> 返回身分設定
                     </button>
-                    <!-- 進度指示器 -->
-                    <div class="flex items-center space-x-1.5 bg-slate-900/90 border border-cyan-500/40 px-2.5 py-0.5 rounded-full text-[11px] font-tech text-cyan-300 font-bold">
-                        <span id="theme-index-curr">1</span>
-                        <span class="text-slate-500">/</span>
-                        <span class="text-slate-400">13</span>
+                    <!-- 檢視模式切換器 -->
+                    <div class="flex items-center bg-[#eff3e7] p-0.5 rounded-lg border border-[#d4ded5]">
+                        <button type="button" id="btn-view-grid" onclick="setThemeViewMode('grid')" class="px-2.5 py-1 text-[11px] font-bold rounded-md transition-all bg-[#173e35] text-white shadow-xs">
+                            <i class="fas fa-table-cells-large mr-1"></i>總覽網格
+                        </button>
+                        <button type="button" id="btn-view-carousel" onclick="setThemeViewMode('carousel')" class="px-2.5 py-1 text-[11px] font-bold rounded-md transition-all text-[#5d7068] hover:text-[#173e35]">
+                            <i class="fas fa-arrows-left-right mr-1"></i>橫向輪播
+                        </button>
                     </div>
                 </div>
-                <div class="text-center mb-1">
-                    <h2 class="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-amber-300 to-blue-400">選擇創作領域 (12大向度 + 自訂主題)</h2>
-                    <p class="text-[11px] text-cyan-300/80">👈 左右滑動切換主題，點擊卡片選定評估規準 👉</p>
+
+                <div class="text-center pt-1">
+                    <div class="text-[11px] font-serif tracking-widest text-[#24654d] uppercase font-bold">Step 01・Explore Themes</div>
+                    <h2 class="text-xl sm:text-2xl font-serif font-bold text-[#173e35] tracking-wide mt-0.5">
+                        選擇你的藝術創作領域
+                    </h2>
+                    <p class="text-xs text-[#5d7068] mt-0.5">收錄 12 大美感風格領域 ╳ 1 項自由原創自訂</p>
+                </div>
+
+                <!-- 快速分類標籤列 (Category Filter Pills) -->
+                <div class="flex items-center justify-center flex-wrap gap-1.5 pt-1" id="theme-filter-pills">
+                    <button type="button" onclick="filterThemes('all')" data-cat="all" class="theme-pill px-3 py-1 text-xs font-bold rounded-full transition-all bg-[#173e35] text-white shadow-xs">
+                        全部 (13)
+                    </button>
+                    <button type="button" onclick="filterThemes('anime')" data-cat="anime" class="theme-pill px-3 py-1 text-xs font-bold rounded-full transition-all bg-[#eff3e7] text-[#24654d] hover:bg-[#e4edb7]">
+                        動漫與神話
+                    </button>
+                    <button type="button" onclick="filterThemes('scene')" data-cat="scene" class="theme-pill px-3 py-1 text-xs font-bold rounded-full transition-all bg-[#eff3e7] text-[#24654d] hover:bg-[#e4edb7]">
+                        風景與空間
+                    </button>
+                    <button type="button" onclick="filterThemes('lifestyle')" data-cat="lifestyle" class="theme-pill px-3 py-1 text-xs font-bold rounded-full transition-all bg-[#eff3e7] text-[#24654d] hover:bg-[#e4edb7]">
+                        生活與潮流
+                    </button>
+                    <button type="button" onclick="filterThemes('custom')" data-cat="custom" class="theme-pill px-3 py-1 text-xs font-bold rounded-full transition-all bg-[#fef3c7] text-[#d97706] hover:bg-[#fde68a] border border-[#f59e0b]/40">
+                        <i class="fas fa-wand-magic-sparkles mr-1"></i>自由自訂
+                    </button>
                 </div>
             </div>
 
-            <!-- 滑動選單輪播容器 (Swipeable Slider) -->
-            <div class="relative w-full my-auto flex items-center">
-                <!-- 左滑按鈕 -->
-                <button type="button" onclick="slideThemes(-1)" class="absolute left-1 z-20 w-8 h-8 rounded-full bg-slate-900/90 border border-cyan-500/50 text-cyan-300 hover:text-white hover:bg-cyan-600 flex items-center justify-center shadow-lg transition-all active:scale-90">
-                    <i class="fas fa-chevron-left text-xs"></i>
-                </button>
-
-                <!-- 橫向卡片滑動軌道 (支援 Touch Swipe & Scroll Snap) -->
-                <div id="theme-carousel" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar w-full py-2 px-10 gap-3" onscroll="onThemeScroll()">
-                    
-                    <!-- 卡片 1 -->
-                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-slate-900/90 border-2 border-pink-500/50 hover:border-pink-400 rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all select-none group">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="px-2 py-0.5 bg-pink-950/80 border border-pink-700/60 text-pink-400 rounded-full text-[10px] font-tech font-bold">#01 動漫美學</span>
-                                <div class="w-10 h-10 rounded-2xl bg-pink-500/20 text-pink-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-user-ninja text-xl"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-base font-black text-white mb-1">熱血動漫角色</h3>
-                            <div class="flex flex-wrap gap-1 mb-2">
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-pink-300 rounded">眼神張力</span>
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-pink-300 rounded">肢體動態</span>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">注重五官張力、動態感與主體輪廓線描。</p>
-                        </div>
-                        <button type="button" onclick="selectTheme('熱血動漫角色', '動漫風格人物、眼神神態張力、動態肢體線條與輪廓')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
-                            <span>選定此領域</span>
-                            <i class="fas fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-
-                    <!-- 卡片 2 -->
-                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-slate-900/90 border-2 border-purple-500/50 hover:border-purple-400 rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all select-none group">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="px-2 py-0.5 bg-purple-950/80 border border-purple-700/60 text-purple-400 rounded-full text-[10px] font-tech font-bold">#02 神話幻想</span>
-                                <div class="w-10 h-10 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-dragon text-xl"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-base font-black text-white mb-1">奇幻生物與幻獸</h3>
-                            <div class="flex flex-wrap gap-1 mb-2">
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-purple-300 rounded">羽翼鱗甲</span>
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-purple-300 rounded">神話氣場</span>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">龍、神獸、魔法生物、鱗片毛髮與奇幻紋理。</p>
-                        </div>
-                        <button type="button" onclick="selectTheme('奇幻生物與幻獸', '龍、神獸、魔法生物、鱗片毛髮與奇幻紋理')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
-                            <span>選定此領域</span>
-                            <i class="fas fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-
-                    <!-- 卡片 3 -->
-                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-slate-900/90 border-2 border-emerald-500/50 hover:border-emerald-400 rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all select-none group">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="px-2 py-0.5 bg-emerald-950/80 border border-emerald-700/60 text-emerald-400 rounded-full text-[10px] font-tech font-bold">#03 大地景觀</span>
-                                <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-mountain-sun text-xl"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-base font-black text-white mb-1">絕美自然風景</h3>
-                            <div class="flex flex-wrap gap-1 mb-2">
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-emerald-300 rounded">空間透視</span>
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-emerald-300 rounded">大氣光影</span>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">山川、海洋、森林、星空、景深遠近與色彩層次。</p>
-                        </div>
-                        <button type="button" onclick="selectTheme('絕美自然風景', '山川、海洋、森林、星空、景深透視與光影')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
-                            <span>選定此領域</span>
-                            <i class="fas fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-
-                    <!-- 卡片 4 -->
-                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-slate-900/90 border-2 border-blue-500/50 hover:border-blue-400 rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all select-none group">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="px-2 py-0.5 bg-blue-950/80 border border-blue-700/60 text-blue-400 rounded-full text-[10px] font-tech font-bold">#04 賽博龐克</span>
-                                <div class="w-10 h-10 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-city text-xl"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-base font-black text-white mb-1">未來科幻世界</h3>
-                            <div class="flex flex-wrap gap-1 mb-2">
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-blue-300 rounded">高科技載具</span>
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-blue-300 rounded">霓虹光暈</span>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">科技都市建築、重力透視、太空船與金屬光澤。</p>
-                        </div>
-                        <button type="button" onclick="selectTheme('未來科幻世界', '科技都市、機器人、太空載具、賽博龐克光芒')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-400 hover:to-cyan-500 text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
-                            <span>選定此領域</span>
-                            <i class="fas fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-
-                    <!-- 卡片 5 -->
-                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-slate-900/90 border-2 border-amber-500/50 hover:border-amber-400 rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all select-none group">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="px-2 py-0.5 bg-amber-950/80 border border-amber-700/60 text-amber-400 rounded-full text-[10px] font-tech font-bold">#05 萌系吉祥物</span>
-                                <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-cat text-xl"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-base font-black text-white mb-1">Q版吉祥物設計</h3>
-                            <div class="flex flex-wrap gap-1 mb-2">
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-amber-300 rounded">外形輪廓</span>
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-amber-300 rounded">童趣萌感</span>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">俐落辨識度外輪廓、鮮明色塊、親切與療癒感。</p>
-                        </div>
-                        <button type="button" onclick="selectTheme('Q版吉祥物設計', '可愛擬人角色、簡單鮮明造型、純色線條')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 font-black rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
-                            <span>選定此領域</span>
-                            <i class="fas fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-
-                    <!-- 卡片 6 -->
-                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-slate-900/90 border-2 border-rose-500/50 hover:border-rose-400 rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all select-none group">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="px-2 py-0.5 bg-rose-950/80 border border-rose-700/60 text-rose-400 rounded-full text-[10px] font-tech font-bold">#06 美味佳餚</span>
-                                <div class="w-10 h-10 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-burger text-xl"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-base font-black text-white mb-1">精緻靜物與美食</h3>
-                            <div class="flex flex-wrap gap-1 mb-2">
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-rose-300 rounded">反光水潤</span>
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-rose-300 rounded">立體陰影</span>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">精緻餐點甜品、器皿反光高光與食物色彩食慾感。</p>
-                        </div>
-                        <button type="button" onclick="selectTheme('精緻靜物與美食', '精緻餐點、糕點、飲品、器皿光澤與立體陰影')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
-                            <span>選定此領域</span>
-                            <i class="fas fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-
-                    <!-- 卡片 7 -->
-                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-slate-900/90 border-2 border-slate-400/50 hover:border-slate-300 rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all select-none group">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="px-2 py-0.5 bg-slate-800 border border-slate-600 text-slate-300 rounded-full text-[10px] font-tech font-bold">#07 工業機甲</span>
-                                <div class="w-10 h-10 rounded-2xl bg-slate-700/50 text-slate-300 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-robot text-xl"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-base font-black text-white mb-1">超酷機械與載具</h3>
-                            <div class="flex flex-wrap gap-1 mb-2">
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">金屬反光</span>
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded">關節軸承</span>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">重工業機甲、齒輪精密零件、賽車與金屬結構硬度。</p>
-                        </div>
-                        <button type="button" onclick="selectTheme('超酷機械與載具', '重型機甲、機器人、工業載具、齒輪金屬質感與結構透視')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-slate-600 to-slate-800 hover:from-slate-500 hover:to-slate-700 text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
-                            <span>選定此領域</span>
-                            <i class="fas fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-
-                    <!-- 卡片 8 -->
-                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-slate-900/90 border-2 border-teal-500/50 hover:border-teal-400 rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all select-none group">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="px-2 py-0.5 bg-teal-950/80 border border-teal-700/60 text-teal-400 rounded-full text-[10px] font-tech font-bold">#08 東方韻味</span>
-                                <div class="w-10 h-10 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-paint-brush text-xl"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-base font-black text-white mb-1">傳統國風與水墨</h3>
-                            <div class="flex flex-wrap gap-1 mb-2">
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-teal-300 rounded">水墨留白</span>
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-teal-300 rounded">工筆線條</span>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">古典東方意境、墨色濃淡層次、筆鋒留白與典雅色調。</p>
-                        </div>
-                        <button type="button" onclick="selectTheme('傳統國風與水墨', '古典東方意境、水墨渲染留白、工筆線條與典雅色調')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
-                            <span>選定此領域</span>
-                            <i class="fas fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-
-                    <!-- 卡片 9 -->
-                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-slate-900/90 border-2 border-indigo-500/50 hover:border-indigo-400 rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all select-none group">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="px-2 py-0.5 bg-indigo-950/80 border border-indigo-700/60 text-indigo-400 rounded-full text-[10px] font-tech font-bold">#09 8-Bit電玩</span>
-                                <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-gamepad text-xl"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-base font-black text-white mb-1">復古像素遊戲風</h3>
-                            <div class="flex flex-wrap gap-1 mb-2">
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-indigo-300 rounded">像素點陣</span>
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-indigo-300 rounded">懷舊配色</span>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">幾何像素方塊、8位元色彩對比與復古街機遊戲美學。</p>
-                        </div>
-                        <button type="button" onclick="selectTheme('復古像素遊戲風', '8-bit像素顆粒感、復古點陣構成、限定色票調和與懷舊電玩風')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
-                            <span>選定此領域</span>
-                            <i class="fas fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-
-                    <!-- 卡片 10 -->
-                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-slate-900/90 border-2 border-yellow-500/50 hover:border-yellow-400 rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all select-none group">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="px-2 py-0.5 bg-yellow-950/80 border border-yellow-700/60 text-yellow-400 rounded-full text-[10px] font-tech font-bold">#10 普普潮流</span>
-                                <div class="w-10 h-10 rounded-2xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-spray-can text-xl"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-base font-black text-white mb-1">街頭潮流塗鴉 Pop</h3>
-                            <div class="flex flex-wrap gap-1 mb-2">
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-yellow-300 rounded">強烈撞色</span>
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-yellow-300 rounded">噴漆符號</span>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">普普藝術大膽撞色、塗鴉字體、標語符號與街頭噴漆感。</p>
-                        </div>
-                        <button type="button" onclick="selectTheme('街頭潮流塗鴉 Pop', '普普藝術大膽撞色、街頭塗鴉噴漆質感、潮流符號與視覺衝擊')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-slate-950 font-black rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
-                            <span>選定此領域</span>
-                            <i class="fas fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-
-                    <!-- 卡片 11 -->
-                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-slate-900/90 border-2 border-orange-500/50 hover:border-orange-400 rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all select-none group">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="px-2 py-0.5 bg-orange-950/80 border border-orange-700/60 text-orange-400 rounded-full text-[10px] font-tech font-bold">#11 故事繪本</span>
-                                <div class="w-10 h-10 rounded-2xl bg-orange-500/20 text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-book-open text-xl"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-base font-black text-white mb-1">童話繪本與療癒風</h3>
-                            <div class="flex flex-wrap gap-1 mb-2">
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-orange-300 rounded">溫暖筆觸</span>
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-orange-300 rounded">敘事情感</span>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">手繪溫度色調、森林動物童話感、繪本插畫故事敘述力。</p>
-                        </div>
-                        <button type="button" onclick="selectTheme('童話繪本與療癒風', '手繪溫暖色調、繪本插畫筆觸、故事敘事氛圍與心靈療癒感')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
-                            <span>選定此領域</span>
-                            <i class="fas fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-
-                    <!-- 卡片 12 -->
-                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-slate-900/90 border-2 border-cyan-500/50 hover:border-cyan-400 rounded-3xl p-5 flex flex-col justify-between shadow-xl transition-all select-none group">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="px-2 py-0.5 bg-cyan-950/80 border border-cyan-700/60 text-cyan-400 rounded-full text-[10px] font-tech font-bold">#12 歐普幾何</span>
-                                <div class="w-10 h-10 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-shapes text-xl"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-base font-black text-white mb-1">視覺錯視與幾何抽象</h3>
-                            <div class="flex flex-wrap gap-1 mb-2">
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-cyan-300 rounded">空間錯覺</span>
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-cyan-300 rounded">造形韻律</span>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">歐普藝術錯視、幾何線條交錯、空間旋轉與形體純粹律動。</p>
-                        </div>
-                        <button type="button" onclick="selectTheme('視覺錯視與幾何抽象', '歐普藝術錯視、幾何線條秩序、空間重疊與純粹抽象造形')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
-                            <span>選定此領域</span>
-                            <i class="fas fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-
-                    <!-- 卡片 13：學生自訂主題 (自由創作) -->
-                    <div class="min-w-[240px] sm:min-w-[270px] max-w-[280px] snap-center bg-gradient-to-b from-slate-900 via-slate-900 to-amber-950/40 border-2 border-amber-500/70 hover:border-amber-400 rounded-3xl p-5 flex flex-col justify-between shadow-xl shadow-amber-500/10 transition-all select-none group">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="px-2 py-0.5 bg-amber-950/90 border border-amber-600/80 text-amber-300 rounded-full text-[10px] font-tech font-bold">#13 自由自訂</span>
-                                <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fas fa-wand-magic-sparkles text-xl"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-base font-black text-white mb-1">學生自訂主題</h3>
-                            <div class="flex flex-wrap gap-1 mb-2">
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-amber-300 rounded">自由創作</span>
-                                <span class="px-1.5 py-0.5 bg-slate-800 text-[10px] text-amber-300 rounded">創作自述</span>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">自由命名專屬主題並寫下創作理念，讓 AI 深入理解你的心意，深度對照評析！</p>
-                        </div>
-                        <button type="button" onclick="selectTheme('學生自訂主題', '創作者原創自訂主題，核心規準為評估畫面與創作者自述理念之契合度與表現力')" class="mt-4 w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1">
-                            <span>選擇自訂主題</span>
-                            <i class="fas fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </div>
-
+            <!-- 主題展示區 (雙模式動態切換) -->
+            <div class="flex-1 my-2 min-h-0 flex flex-col justify-center">
+                <!-- 模式 A：總覽網格 (Grid View) -->
+                <div id="theme-grid-container" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 overflow-y-auto max-h-[440px] pr-1 no-scrollbar">
+                    <!-- 由 JS 動態依分類渲染卡片 -->
                 </div>
 
-                <!-- 右滑按鈕 -->
-                <button type="button" onclick="slideThemes(1)" class="absolute right-1 z-20 w-8 h-8 rounded-full bg-slate-900/90 border border-cyan-500/50 text-cyan-300 hover:text-white hover:bg-cyan-600 flex items-center justify-center shadow-lg transition-all active:scale-90">
-                    <i class="fas fa-chevron-right text-xs"></i>
-                </button>
+                <!-- 模式 B：橫向輪播 (Carousel View) -->
+                <div id="theme-carousel-container" class="hidden relative w-full items-center my-auto">
+                    <button type="button" onclick="slideThemes(-1)" class="absolute -left-1 z-20 w-8 h-8 rounded-full bg-white border border-[#d4ded5] text-[#173e35] hover:bg-[#eff3e7] flex items-center justify-center shadow-md transition-all active:scale-90">
+                        <i class="fas fa-chevron-left text-xs"></i>
+                    </button>
+                    <div id="theme-carousel-track" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar w-full py-2 px-9 gap-3" onscroll="onThemeScroll()">
+                        <!-- 由 JS 動態渲染多張可視的輪播卡片 -->
+                    </div>
+                    <button type="button" onclick="slideThemes(1)" class="absolute -right-1 z-20 w-8 h-8 rounded-full bg-white border border-[#d4ded5] text-[#173e35] hover:bg-[#eff3e7] flex items-center justify-center shadow-md transition-all active:scale-90">
+                        <i class="fas fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
             </div>
 
-            <!-- 下方滑動分頁圓點 (12 Dots) -->
-            <div id="theme-dots" class="flex items-center justify-center space-x-1.5 py-1">
-                <!-- 由 JS 動態生成 12 個圓點 -->
-            </div>
-
-            <p class="text-[11px] text-center text-slate-400 pt-1">
-                <i class="fas fa-shield-halved text-cyan-400 mr-1"></i> 選定主題後將啟動圓形胸章取景器並進行多模態評量
+            <p class="text-[11px] text-center text-[#5d7068] pt-1.5 border-t border-[#d4ded5] flex-shrink-0">
+                <i class="fas fa-circle-check text-[#24654d] mr-1"></i> 點擊任一主題即可選定並進入 58mm 胸章取景器
             </p>
         </section>
 
@@ -530,41 +308,41 @@
         <!-- ============================================== -->
         <section id="screen-crop" class="absolute inset-0 p-4 sm:p-6 flex flex-col justify-between transition-opacity duration-300 hidden opacity-0 overflow-y-auto no-scrollbar space-y-3">
             <div class="flex items-center justify-between mb-1">
-                <button onclick="showScreen('screen-theme')" class="text-xs text-slate-400 hover:text-white flex items-center">
+                <button onclick="showScreen('screen-theme')" class="text-xs font-bold text-[#5d7068] hover:text-[#173e35] flex items-center">
                     <i class="fas fa-chevron-left mr-1"></i> 改選主題
                 </button>
-                <span id="crop-theme-badge" class="px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 text-xs font-bold">主題</span>
-                <button id="btn-reupload" type="button" onclick="triggerNativeFileInput()" class="hidden text-xs text-cyan-400 hover:text-white cursor-pointer transition-colors flex items-center">
-                    <i class="fas fa-sync-alt mr-1"></i>換圖
+                <span id="crop-theme-badge" class="px-3 py-1 rounded-full bg-[#eff3e7] text-[#24654d] border border-[#b7cfac] text-xs font-bold">主題</span>
+                <button id="btn-reupload" type="button" onclick="triggerNativeFileInput()" class="hidden text-xs text-[#24654d] hover:underline font-bold cursor-pointer transition-colors flex items-center">
+                    <i class="fas fa-sync-alt mr-1"></i>更換圖檔
                 </button>
             </div>
 
             <div class="text-center mb-1">
-                <h3 class="text-base font-black text-white">胸章取景器與視覺校正</h3>
-                <p class="text-[11px] text-cyan-300/80">請拖曳並縮放畫作，使視覺焦點置於胸章圓圈內</p>
+                <h3 class="text-base font-serif font-bold text-[#173e35]">58mm 胸章取景與視覺校正</h3>
+                <p class="text-xs text-[#5d7068]">請拖曳並縮放畫作，使視覺核心置於胸章圓圈之內</p>
             </div>
 
-            <!-- 取景畫布互動區 (touch-action controlled) -->
-            <div class="relative w-full aspect-square max-w-[340px] mx-auto bg-slate-950 rounded-2xl overflow-hidden border-2 border-cyan-500/40 shadow-inner flex items-center justify-center select-none" id="crop-viewport">
+            <!-- 取景畫布互動區 (典雅松墨底以利對比) -->
+            <div class="relative w-full aspect-square max-w-[320px] mx-auto bg-[#0f211c] rounded-2xl overflow-hidden border-2 border-[#24654d]/50 shadow-inner flex items-center justify-center select-none" id="crop-viewport">
                 
                 <!-- 預設提示上傳區 -->
-                <div id="upload-prompt" class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center z-30 pointer-events-auto">
-                    <div class="w-16 h-16 rounded-2xl bg-cyan-500/15 border border-cyan-500/40 flex items-center justify-center text-cyan-400 mb-3 animate-bounce">
+                <div id="upload-prompt" class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center z-30 pointer-events-auto bg-[#f7f9f2]">
+                    <div class="w-16 h-16 rounded-2xl bg-[#eff3e7] border border-[#b7cfac] flex items-center justify-center text-[#24654d] mb-3">
                         <i class="fas fa-cloud-arrow-up text-2xl"></i>
                     </div>
                     
                     <!-- 行動載具友善之實體點擊按鈕 -->
-                    <button type="button" onclick="triggerNativeFileInput()" class="cursor-pointer px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold rounded-xl shadow-md transition-all active:scale-95 mb-2 flex items-center space-x-1.5">
+                    <button type="button" onclick="triggerNativeFileInput()" class="cursor-pointer px-5 py-2.5 bg-[#173e35] hover:bg-[#24654d] text-white text-xs font-bold rounded-xl shadow-md transition-all active:scale-95 mb-2 flex items-center space-x-1.5">
                         <i class="fas fa-camera text-sm"></i>
                         <span>拍照或從相簿選取畫作</span>
                     </button>
 
-                    <div class="flex items-center space-x-2 my-1.5 text-[11px] text-slate-400">
-                        <span class="w-6 h-[1px] bg-slate-700"></span>
+                    <div class="flex items-center space-x-2 my-1.5 text-[11px] text-[#5d7068]">
+                        <span class="w-6 h-[1px] bg-[#d4ded5]"></span>
                         <span>或使用示範作品</span>
-                        <span class="w-6 h-[1px] bg-slate-700"></span>
+                        <span class="w-6 h-[1px] bg-[#d4ded5]"></span>
                     </div>
-                    <button type="button" onclick="loadSampleImage()" class="text-xs text-amber-400 hover:text-amber-300 font-bold underline underline-offset-2">
+                    <button type="button" onclick="loadSampleImage()" class="text-xs text-[#d97706] hover:underline font-bold">
                         <i class="fas fa-sparkles mr-1"></i> 一鍵載入示範作品
                     </button>
                 </div>
@@ -573,11 +351,11 @@
                 <img id="crop-image" class="absolute top-0 left-0 hidden cursor-move pointer-events-none select-none" draggable="false">
 
                 <!-- 圓形胸章預覽遮罩 (Outer Dim) -->
-                <div id="crop-circular-mask" class="absolute inset-0 pointer-events-none hidden z-20" style="box-shadow: 0 0 0 9999px rgba(9, 13, 22, 0.88); border-radius: 50%; border: 3px solid #38bdf8; width: 82%; aspect-ratio: 1/1; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                <div id="crop-circular-mask" class="absolute inset-0 pointer-events-none hidden z-20" style="box-shadow: 0 0 0 9999px rgba(15, 33, 28, 0.88); border-radius: 50%; border: 3px solid #34d399; width: 82%; aspect-ratio: 1/1; top: 50%; left: 50%; transform: translate(-50%, -50%);">
                     <div class="absolute inset-0 reticle-ring opacity-40"></div>
-                    <div class="absolute top-1/2 left-0 right-0 h-[1px] bg-cyan-400/30"></div>
-                    <div class="absolute left-1/2 top-0 bottom-0 w-[1px] bg-cyan-400/30"></div>
-                    <span class="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] font-tech text-cyan-400/80 bg-slate-950/70 px-1.5 py-0.2 rounded">58mm BADGE</span>
+                    <div class="absolute top-1/2 left-0 right-0 h-[1px] bg-emerald-400/30"></div>
+                    <div class="absolute left-1/2 top-0 bottom-0 w-[1px] bg-emerald-400/30"></div>
+                    <span class="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] font-tech text-emerald-300 bg-slate-950/80 px-1.5 py-0.5 rounded">58mm BADGE</span>
                 </div>
             </div>
 
@@ -585,46 +363,48 @@
             <input type="file" id="main-art-file-input" accept="image/*" class="hidden" onchange="handleImageFile(event)">
 
             <!-- 縮放與控制拉桿 -->
-            <div id="crop-controls" class="hidden my-1 px-3">
-                <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+            <div id="crop-controls" class="hidden my-1 px-3 max-w-[320px] mx-auto w-full">
+                <div class="flex items-center justify-between text-xs text-[#5d7068] mb-1 font-bold">
                     <span><i class="fas fa-magnifying-glass-minus mr-1"></i>縮小</span>
-                    <span class="text-cyan-400 font-tech font-bold" id="scale-indicator">100%</span>
+                    <span class="text-[#24654d] font-tech" id="scale-indicator">100%</span>
                     <span>放大<i class="fas fa-magnifying-glass-plus ml-1"></i></span>
                 </div>
-                <input type="range" id="zoom-slider" min="0.4" max="3.0" step="0.05" value="1.0" class="w-full accent-cyan-400 h-1.5 bg-slate-800 rounded-lg cursor-pointer">
+                <input type="range" id="zoom-slider" min="0.4" max="3.0" step="0.05" value="1.0" class="w-full accent-[#24654d] h-1.5 bg-[#d4ded5] rounded-lg cursor-pointer">
             </div>
 
             <!-- 學生創作自述與自訂主題區塊 (我在畫什麼) -->
-            <div id="student-statement-card" class="bg-slate-900/90 border border-cyan-500/40 rounded-2xl p-3.5 shadow-lg space-y-2.5 text-left">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
-                    <label class="text-xs font-bold text-cyan-300 flex items-center">
-                        <i class="fas fa-pen-nib text-amber-400 mr-1.5"></i> 創作自述 ╳ 我在畫什麼
+            <div id="student-statement-card" class="bg-[#f7f9f2] border border-[#d4ded5] rounded-xl p-3.5 space-y-2 text-left max-w-md mx-auto w-full">
+                <div class="flex items-center justify-between border-b border-[#d4ded5] pb-1.5">
+                    <label class="text-xs font-bold text-[#173e35] flex items-center">
+                        <i class="fas fa-pen-nib text-[#d97706] mr-1.5"></i> 創作自述 ╳ 我在畫什麼
                     </label>
-                    <span class="text-[10px] text-slate-400">供 AI 評審精準對照</span>
+                    <span class="text-[10px] text-[#5d7068]">供 AI 評審精準對照</span>
                 </div>
 
                 <!-- 若為自訂主題時，顯示主題名稱輸入欄 -->
                 <div id="custom-theme-name-group" class="hidden">
-                    <label class="block text-[11px] font-bold text-amber-300 mb-1 flex items-center">
-                        <i class="fas fa-tag mr-1"></i> 請為作品命名自訂主題：<span class="text-rose-400 ml-0.5">*</span>
+                    <label class="block text-[11px] font-bold text-[#d97706] mb-1 flex items-center">
+                        <i class="fas fa-tag mr-1"></i> 請為作品命名自訂主題：<span class="text-rose-500 ml-0.5">*</span>
                     </label>
-                    <input type="text" id="input-custom-theme" class="w-full bg-slate-950 border border-amber-500/50 focus:border-amber-400 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none" placeholder="例如：星空樹屋、守護森林的機械獸、雨天公車站...">
+                    <input type="text" id="input-custom-theme" class="w-full bg-white border border-[#d97706]/60 focus:border-[#d97706] rounded-lg px-3 py-2 text-xs text-[#173e35] placeholder-[#5d7068]/60 focus:outline-none" placeholder="例如：星空樹屋、守護森林的機械獸、雨天公車站...">
                 </div>
 
                 <div>
-                    <label class="block text-[11px] text-slate-300 mb-1 flex items-center justify-between">
+                    <label class="block text-[11px] text-[#173e35] mb-1 flex items-center justify-between">
                         <span>說明畫作內容與你想表達的故事、感受或角色：</span>
-                        <span class="text-[10px] text-cyan-400/80">(建議填寫)</span>
+                        <span class="text-[10px] text-[#24654d] font-bold">(建議填寫)</span>
                     </label>
-                    <textarea id="input-student-statement" rows="2" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none resize-none leading-relaxed" placeholder="例如：我在畫一隻背著探險裝備的太空狐狸，正在觀察水晶洞窟。我想呈現神祕探索與明暗對比氛圍..."></textarea>
+                    <textarea id="input-student-statement" rows="2" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg p-2.5 text-xs text-[#173e35] placeholder-[#5d7068]/60 focus:outline-none resize-none leading-relaxed" placeholder="例如：我在畫一隻背著探險裝備的太空狐狸，正在觀察水晶洞窟。我想呈現神祕探索與明暗對比氛圍..."></textarea>
                 </div>
             </div>
 
             <!-- 送交 AI 鑑定按鈕 -->
-            <button id="btn-submit-scan" onclick="lockCompositionAndScan()" class="hidden w-full py-3.5 bg-gradient-to-r from-purple-500 via-pink-600 to-amber-500 hover:from-purple-400 hover:to-pink-500 text-white font-bold rounded-2xl text-base shadow-lg shadow-pink-500/25 active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
-                <i class="fas fa-microchip text-lg"></i>
-                <span>鎖定構圖 ╳ 啟動多模態 AI 能量評估</span>
-            </button>
+            <div class="max-w-md mx-auto w-full pt-1">
+                <button id="btn-submit-scan" onclick="lockCompositionAndScan()" class="hidden w-full py-3.5 bg-gradient-to-r from-[#173e35] via-[#24654d] to-[#d97706] text-white font-bold rounded-xl text-sm shadow-md active:scale-[0.99] transition-all flex items-center justify-center space-x-2">
+                    <i class="fas fa-microchip text-base"></i>
+                    <span>鎖定構圖 ╳ 啟動多模態 AI 能量評估</span>
+                </button>
+            </div>
         </section>
 
         <!-- ============================================== -->
@@ -632,173 +412,172 @@
         <!-- ============================================== -->
         <section id="screen-loading" class="absolute inset-0 p-6 flex flex-col items-center justify-center text-center transition-opacity duration-300 hidden opacity-0">
             <div class="mb-5">
-                <span id="loading-model-tag" class="px-3 py-1 bg-cyan-950 text-cyan-400 border border-cyan-800 text-xs font-tech font-bold rounded-full tracking-widest uppercase animate-pulse">
+                <span id="loading-model-tag" class="px-3 py-1 bg-[#eff3e7] text-[#24654d] border border-[#b7cfac] text-xs font-serif font-bold rounded-full tracking-wider uppercase">
                     <i class="fas fa-atom mr-1.5"></i> Gemini Multimodal Vision Active
                 </span>
-                <h2 class="text-2xl font-black text-white mt-2">AI 藝術能量掃描中...</h2>
+                <h2 class="text-2xl font-serif font-bold text-[#173e35] mt-2">AI 藝術能量掃描中...</h2>
             </div>
 
-            <!-- 掃描全像投影儀 -->
-            <div class="relative w-52 h-52 rounded-full overflow-hidden border-4 border-cyan-400 shadow-[0_0_40px_rgba(6,182,212,0.55)] mb-6 bg-slate-950">
+            <!-- 掃描投影儀 -->
+            <div class="relative w-48 h-48 rounded-full overflow-hidden border-4 border-[#24654d] shadow-lg mb-6 bg-[#0f211c]">
                 <img id="scan-preview-img" class="w-full h-full object-cover">
                 <div class="laser-beam"></div>
-                <div class="absolute inset-0 bg-cyan-500/15 mix-blend-overlay"></div>
-                <div class="absolute inset-1 rounded-full border-2 border-dashed border-cyan-400/40 animate-spin-slow"></div>
+                <div class="absolute inset-0 bg-[#24654d]/10 mix-blend-overlay"></div>
+                <div class="absolute inset-1 rounded-full border-2 border-dashed border-[#34d399]/40 animate-spin-slow"></div>
             </div>
 
             <!-- 動態階段狀態文字 -->
             <div class="h-10 flex flex-col items-center justify-center">
-                <p id="loading-stage-text" class="text-cyan-300 font-bold tracking-wide text-sm animate-pulse">
+                <p id="loading-stage-text" class="text-[#24654d] font-bold tracking-wide text-sm">
                     正在傳送多模態影像至 Google AI 核心...
                 </p>
-                <span class="text-[11px] text-slate-400 mt-1" id="loading-subtext">檢驗畫面內容與主題契合度</span>
+                <span class="text-xs text-[#5d7068] mt-1" id="loading-subtext">檢驗畫面內容與主題契合度</span>
             </div>
         </section>
 
         <!-- ============================================== -->
         <!-- 畫面 5：綜合評量診斷與進階分析（Result） -->
         <!-- ============================================== -->
-        <section id="screen-result" class="absolute inset-0 p-5 flex flex-col justify-between transition-opacity duration-300 hidden opacity-0 overflow-y-auto no-scrollbar">
+        <section id="screen-result" class="absolute inset-0 p-4 sm:p-6 flex flex-col justify-between transition-opacity duration-300 hidden opacity-0 overflow-y-auto no-scrollbar space-y-3">
             
             <!-- 上半部：徽章頭像 + 綜合總分環 -->
-            <div class="flex items-center justify-between bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3.5 mb-3 shadow-lg">
+            <div class="flex items-center justify-between bg-[#f7f9f2] border border-[#d4ded5] rounded-2xl p-4 shadow-xs">
                 <!-- 稱號與圓形胸章預覽 -->
-                <div class="flex flex-col items-center w-1/2 pr-2 border-r border-slate-800">
-                    <span class="text-[10px] text-cyan-400 font-bold uppercase tracking-wider mb-0.5">獲得特級稱號</span>
-                    <h3 id="res-artist-title" class="text-sm sm:text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-orange-400 to-pink-400 text-center leading-tight mb-2">
+                <div class="flex flex-col items-center w-1/2 pr-2 border-r border-[#d4ded5]">
+                    <span class="text-[10px] text-[#5d7068] font-bold uppercase tracking-wider mb-0.5">榮獲官方認證稱號</span>
+                    <h3 id="res-artist-title" class="text-base font-serif font-bold text-[#173e35] text-center leading-tight mb-2">
                         星界光之大師
                     </h3>
-                    <div class="relative w-24 h-24 rounded-full border-2 border-amber-400 shadow-lg shadow-amber-500/20 overflow-hidden group">
+                    <div class="relative w-24 h-24 rounded-full border-2 border-[#d97706] shadow-md overflow-hidden">
                         <img id="res-badge-img" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-60"></div>
                     </div>
                 </div>
 
                 <!-- 綜合評定能量環 -->
                 <div class="relative w-1/2 flex flex-col items-center pl-2">
                     <svg class="w-24 h-24 transform -rotate-90">
-                        <circle cx="48" cy="48" r="40" stroke="#1e293b" stroke-width="8" fill="none" />
-                        <circle id="res-score-ring" cx="48" cy="48" r="40" stroke="#06b6d4" stroke-width="8" fill="none" stroke-dasharray="251.3" stroke-dashoffset="251.3" class="transition-all duration-1000 ease-out" />
+                        <circle cx="48" cy="48" r="40" stroke="#e2e8dc" stroke-width="8" fill="none" />
+                        <circle id="res-score-ring" cx="48" cy="48" r="40" stroke="#24654d" stroke-width="8" fill="none" stroke-dasharray="251.3" stroke-dashoffset="251.3" class="transition-all duration-1000 ease-out" />
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <span class="text-[10px] text-slate-400">綜合能量</span>
-                        <span id="res-score-number" class="text-3xl font-black font-tech text-white">0</span>
+                        <span class="text-[10px] text-[#5d7068]">綜合能量</span>
+                        <span id="res-score-number" class="text-3xl font-tech font-bold text-[#173e35]">0</span>
                     </div>
-                    <span id="res-status-tag" class="mt-1 text-[11px] font-bold text-cyan-300">鑑定完成</span>
+                    <span id="res-status-tag" class="mt-1 text-xs font-bold text-[#24654d]">鑑定完成</span>
                 </div>
             </div>
 
             <!-- 視覺疊圖檢視切換 -->
-            <div class="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-3 mb-3">
+            <div class="bg-[#f7f9f2] border border-[#d4ded5] rounded-2xl p-3.5">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-cyan-400 flex items-center">
-                        <i class="fas fa-eye mr-1.5"></i> AI 視覺化美感疊圖診斷
+                    <span class="text-xs font-bold text-[#173e35] flex items-center">
+                        <i class="fas fa-eye mr-1.5 text-[#24654d]"></i> AI 視覺化美感疊圖診斷
                     </span>
-                    <span class="text-[10px] text-slate-400">點擊切換輔助線</span>
+                    <span class="text-[10px] text-[#5d7068]">點擊切換輔助線</span>
                 </div>
 
-                <div class="relative w-full aspect-video bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center mb-2">
+                <div class="relative w-full aspect-video bg-[#0f211c] rounded-xl overflow-hidden border border-[#d4ded5] flex items-center justify-center mb-2">
                     <canvas id="analysis-overlay-canvas" class="max-w-full max-h-full"></canvas>
                 </div>
 
-                <div class="grid grid-cols-3 gap-1.5 text-[11px]">
-                    <button onclick="switchOverlayMode('thirds')" id="btn-overlay-thirds" class="py-1.5 px-1 bg-cyan-950 border border-cyan-700 text-cyan-300 rounded-lg font-bold transition-all text-center">
+                <div class="grid grid-cols-3 gap-2 text-xs">
+                    <button onclick="switchOverlayMode('thirds')" id="btn-overlay-thirds" class="py-1.5 px-1 bg-[#173e35] text-white rounded-lg font-bold transition-all text-center">
                         <i class="fas fa-border-all mr-1"></i>三分構圖
                     </button>
-                    <button onclick="switchOverlayMode('focus')" id="btn-overlay-focus" class="py-1.5 px-1 bg-slate-800 border border-slate-700 text-slate-300 hover:text-white rounded-lg font-bold transition-all text-center">
+                    <button onclick="switchOverlayMode('focus')" id="btn-overlay-focus" class="py-1.5 px-1 bg-white border border-[#d4ded5] text-[#5d7068] hover:text-[#173e35] rounded-lg font-bold transition-all text-center">
                         <i class="fas fa-crosshairs mr-1"></i>焦點熱區
                     </button>
-                    <button onclick="switchOverlayMode('palette')" id="btn-overlay-palette" class="py-1.5 px-1 bg-slate-800 border border-slate-700 text-slate-300 hover:text-white rounded-lg font-bold transition-all text-center">
+                    <button onclick="switchOverlayMode('palette')" id="btn-overlay-palette" class="py-1.5 px-1 bg-white border border-[#d4ded5] text-[#5d7068] hover:text-[#173e35] rounded-lg font-bold transition-all text-center">
                         <i class="fas fa-swatchbook mr-1"></i>色彩色票
                     </button>
                 </div>
             </div>
 
-            <!-- 六大美育專業評量指標條 -->
-            <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3.5 mb-3 space-y-2.5">
-                <div class="flex items-center justify-between text-xs font-bold text-slate-300 border-b border-slate-800 pb-1">
-                    <span><i class="fas fa-chart-radar mr-1.5 text-purple-400"></i> 五維美育素養指標</span>
-                    <span class="text-[10px] text-slate-400">108課綱藝術涵養與美感素養</span>
+            <!-- 五維美育素養指標條 -->
+            <div class="bg-[#f7f9f2] border border-[#d4ded5] rounded-2xl p-4 space-y-2.5">
+                <div class="flex items-center justify-between text-xs font-bold text-[#173e35] border-b border-[#d4ded5] pb-1.5">
+                    <span><i class="fas fa-chart-radar mr-1.5 text-[#24654d]"></i> 五維美育素養指標</span>
+                    <span class="text-[10px] text-[#5d7068]">108課綱藝術涵養評估</span>
                 </div>
 
                 <!-- 指標 1 -->
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-cyan-300 font-bold">1. 主題契合與符號語意 (35%)</span>
-                        <span id="score-theme" class="text-white font-tech font-bold">0</span>
+                        <span class="text-[#173e35] font-bold">1. 主題契合與符號語意 (35%)</span>
+                        <span id="score-theme" class="text-[#24654d] font-tech font-bold">0</span>
                     </div>
-                    <div class="w-full bg-slate-800 rounded-full h-1.5">
-                        <div id="bar-theme" class="bg-cyan-400 h-1.5 rounded-full transition-all duration-700 w-0"></div>
+                    <div class="w-full bg-[#e2e8dc] rounded-full h-1.5">
+                        <div id="bar-theme" class="bg-[#24654d] h-1.5 rounded-full transition-all duration-700 w-0"></div>
                     </div>
                 </div>
 
                 <!-- 指標 2 -->
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-purple-300 font-bold">2. 構圖重心與結構張力 (20%)</span>
-                        <span id="score-comp" class="text-white font-tech font-bold">0</span>
+                        <span class="text-[#173e35] font-bold">2. 構圖重心與結構張力 (20%)</span>
+                        <span id="score-comp" class="text-[#24654d] font-tech font-bold">0</span>
                     </div>
-                    <div class="w-full bg-slate-800 rounded-full h-1.5">
-                        <div id="bar-comp" class="bg-purple-400 h-1.5 rounded-full transition-all duration-700 w-0"></div>
+                    <div class="w-full bg-[#e2e8dc] rounded-full h-1.5">
+                        <div id="bar-comp" class="bg-[#10b981] h-1.5 rounded-full transition-all duration-700 w-0"></div>
                     </div>
                 </div>
 
                 <!-- 指標 3 -->
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-emerald-300 font-bold">3. 色彩冷暖與豐富度 (15%)</span>
-                        <span id="score-color" class="text-white font-tech font-bold">0</span>
+                        <span class="text-[#173e35] font-bold">3. 色彩冷暖與豐富度 (15%)</span>
+                        <span id="score-color" class="text-[#24654d] font-tech font-bold">0</span>
                     </div>
-                    <div class="w-full bg-slate-800 rounded-full h-1.5">
-                        <div id="bar-color" class="bg-emerald-400 h-1.5 rounded-full transition-all duration-700 w-0"></div>
+                    <div class="w-full bg-[#e2e8dc] rounded-full h-1.5">
+                        <div id="bar-color" class="bg-[#059669] h-1.5 rounded-full transition-all duration-700 w-0"></div>
                     </div>
                 </div>
 
                 <!-- 指標 4 -->
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-amber-300 font-bold">4. 明暗立體與光影層次 (15%)</span>
-                        <span id="score-light" class="text-white font-tech font-bold">0</span>
+                        <span class="text-[#173e35] font-bold">4. 明暗立體與光影層次 (15%)</span>
+                        <span id="score-light" class="text-[#24654d] font-tech font-bold">0</span>
                     </div>
-                    <div class="w-full bg-slate-800 rounded-full h-1.5">
-                        <div id="bar-light" class="bg-amber-400 h-1.5 rounded-full transition-all duration-700 w-0"></div>
+                    <div class="w-full bg-[#e2e8dc] rounded-full h-1.5">
+                        <div id="bar-light" class="bg-[#d97706] h-1.5 rounded-full transition-all duration-700 w-0"></div>
                     </div>
                 </div>
 
                 <!-- 指標 5 -->
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-pink-300 font-bold">5. 筆觸細節與線條質感 (15%)</span>
-                        <span id="score-detail" class="text-white font-tech font-bold">0</span>
+                        <span class="text-[#173e35] font-bold">5. 筆觸細節與線條質感 (15%)</span>
+                        <span id="score-detail" class="text-[#24654d] font-tech font-bold">0</span>
                     </div>
-                    <div class="w-full bg-slate-800 rounded-full h-1.5">
-                        <div id="bar-detail" class="bg-pink-400 h-1.5 rounded-full transition-all duration-700 w-0"></div>
+                    <div class="w-full bg-[#e2e8dc] rounded-full h-1.5">
+                        <div id="bar-detail" class="bg-[#7c3aed] h-1.5 rounded-full transition-all duration-700 w-0"></div>
                     </div>
                 </div>
             </div>
 
             <!-- 學生創作理念顯示卡 (若有填寫) -->
-            <div id="res-student-note-box" class="hidden bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3 mb-2 text-left">
-                <div class="flex items-center justify-between text-xs font-bold text-amber-300 mb-1">
-                    <span class="flex items-center"><i class="fas fa-quote-left mr-1.5 text-amber-400"></i> 創作者自述理念</span>
-                    <span id="res-theme-display-badge" class="px-2 py-0.5 rounded-full bg-slate-800 text-[10px] text-cyan-300 border border-cyan-800">主題</span>
+            <div id="res-student-note-box" class="hidden bg-[#fff] border border-[#d4ded5] rounded-xl p-3.5 text-left shadow-xs">
+                <div class="flex items-center justify-between text-xs font-bold text-[#d97706] mb-1">
+                    <span class="flex items-center"><i class="fas fa-quote-left mr-1.5"></i> 創作者自述理念</span>
+                    <span id="res-theme-display-badge" class="px-2 py-0.5 rounded-full bg-[#eff3e7] text-[10px] text-[#24654d] border border-[#b7cfac]">主題</span>
                 </div>
-                <p id="res-student-note-text" class="text-[11px] text-slate-300 leading-relaxed italic pl-2 border-l-2 border-amber-400"></p>
+                <p id="res-student-note-text" class="text-xs text-[#173e35] leading-relaxed italic pl-2 border-l-2 border-[#d97706]"></p>
             </div>
 
-            <!-- 教練講評與修煉建議 -->
-            <div class="space-y-2 mb-3 text-xs">
-                <div class="bg-slate-900/90 border-l-4 border-cyan-400 p-3 rounded-r-xl">
-                    <span class="font-bold text-cyan-300 flex items-center mb-1">
+            <!-- 教練講評與修煉建議 (自主學習經典卡片風格) -->
+            <div class="space-y-2 text-xs">
+                <div class="bg-[#eff3e7] border-l-4 border-[#24654d] p-3.5 rounded-r-xl shadow-xs">
+                    <span class="font-bold text-[#24654d] flex items-center mb-1 text-xs">
                         <i class="fas fa-comment-dots mr-1.5"></i> AI 藝術教練深度講評
                     </span>
-                    <p id="res-feedback-text" class="text-slate-200 leading-relaxed text-[11px]"></p>
+                    <p id="res-feedback-text" class="text-[#173e35] leading-relaxed text-xs"></p>
                 </div>
-                <div class="bg-slate-900/90 border-l-4 border-amber-400 p-3 rounded-r-xl">
-                    <span class="font-bold text-amber-300 flex items-center mb-1">
+                <div class="bg-[#fdfaf3] border-l-4 border-[#d97706] p-3.5 rounded-r-xl shadow-xs">
+                    <span class="font-bold text-[#d97706] flex items-center mb-1 text-xs">
                         <i class="fas fa-lightbulb mr-1.5"></i> 次世代畫技修煉指南
                     </span>
-                    <p id="res-advice-text" class="text-slate-200 leading-relaxed text-[11px]"></p>
+                    <p id="res-advice-text" class="text-[#173e35] leading-relaxed text-xs"></p>
                 </div>
             </div>
 
@@ -806,25 +585,25 @@
             <div class="space-y-2 pt-1">
                 <!-- 達標 85 分解鎖區 -->
                 <div id="action-unlocked" class="hidden space-y-2">
-                    <div class="text-center bg-amber-950/40 border border-amber-500/50 py-1.5 rounded-xl text-amber-300 font-bold text-xs flex items-center justify-center space-x-1.5 animate-pulse">
-                        <i class="fas fa-trophy text-amber-400"></i>
+                    <div class="text-center bg-[#edf5e7] border border-[#b7cfac] py-2 rounded-xl text-[#24654d] font-bold text-xs flex items-center justify-center space-x-1.5">
+                        <i class="fas fa-trophy text-[#d97706]"></i>
                         <span>恭喜解鎖「實體胸章製作」與「雲端存檔」資格！</span>
                     </div>
 
-                    <!-- ☁️ 雲端存檔按鈕（全新亮點！） -->
-                    <button id="btn-cloud-upload" onclick="uploadArtworkToCloud()" class="w-full py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold rounded-xl text-xs shadow-lg shadow-cyan-500/25 transition-all active:scale-95 flex items-center justify-center space-x-2">
-                        <i class="fas fa-cloud-arrow-up text-base text-amber-300"></i>
-                        <span id="cloud-upload-btn-text">上傳成果至 Google 雲端空間 (獨立資料夾)</span>
+                    <!-- ☁️ 雲端存檔按鈕 -->
+                    <button id="btn-cloud-upload" onclick="uploadArtworkToCloud()" class="w-full py-3 bg-[#d97706] hover:bg-[#b45309] text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-2">
+                        <i class="fas fa-cloud-arrow-up text-sm"></i>
+                        <span id="cloud-upload-btn-text">上傳成果至 Google 雲端空間 (獨立專屬資料夾)</span>
                     </button>
 
-                    <div id="cloud-upload-status" class="hidden p-2.5 rounded-xl border text-[11px] leading-relaxed text-center"></div>
+                    <div id="cloud-upload-status" class="hidden p-2.5 rounded-xl border text-xs leading-relaxed text-center"></div>
 
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="exportBadgePrintTemplate()" class="py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1.5">
+                        <button onclick="exportBadgePrintTemplate()" class="py-3 bg-[#173e35] hover:bg-[#24654d] text-white font-bold rounded-xl text-xs shadow-xs transition-all active:scale-95 flex items-center justify-center space-x-1.5">
                             <i class="fas fa-print"></i>
                             <span>匯出胸章印刷檔</span>
                         </button>
-                        <button onclick="exportHonorCertificate()" class="py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1.5">
+                        <button onclick="exportHonorCertificate()" class="py-3 bg-[#24654d] hover:bg-[#144333] text-white font-bold rounded-xl text-xs shadow-xs transition-all active:scale-95 flex items-center justify-center space-x-1.5">
                             <i class="fas fa-certificate"></i>
                             <span>生成特級證書</span>
                         </button>
@@ -833,19 +612,19 @@
 
                 <!-- 未達標重試區 -->
                 <div id="action-retry" class="hidden space-y-2">
-                    <p class="text-center text-xs text-slate-400">
+                    <p class="text-center text-xs text-[#5d7068]">
                         差一點點就解鎖實體胸章資格（需 85 分），請參考建議修煉後再挑戰！
                     </p>
-                    <button onclick="retryScan()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition-all active:scale-95 flex items-center justify-center space-x-2">
+                    <button onclick="retryScan()" class="w-full py-3 bg-[#173e35] hover:bg-[#24654d] text-white font-bold rounded-xl text-xs transition-all active:scale-95 flex items-center justify-center space-x-2">
                         <i class="fas fa-rotate-left"></i>
-                        <span>回到畫布進行二次迭代修改</span>
+                        <span>回到取景框調整或換圖再測</span>
                     </button>
                 </div>
 
                 <!-- 返回首頁按鈕 -->
-                <button onclick="resetToHome()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl text-xs transition-all flex items-center justify-center space-x-1">
+                <button onclick="resetToHome()" class="w-full py-2.5 bg-white hover:bg-[#f7f9f2] border border-[#d4ded5] text-[#5d7068] hover:text-[#173e35] rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1">
                     <i class="fas fa-home"></i>
-                    <span>存檔並返回首頁</span>
+                    <span>返回首頁</span>
                 </button>
             </div>
         </section>
@@ -855,27 +634,27 @@
     <!-- ============================================== -->
     <!-- 🔒 管理員身分密碼驗證 Modal -->
     <!-- ============================================== -->
-    <div id="password-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-        <div class="w-full max-w-sm bg-slate-900 border border-cyan-500/50 rounded-3xl p-6 shadow-2xl flex flex-col space-y-4">
+    <div id="password-modal" class="fixed inset-0 bg-[#173e35]/65 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="w-full max-w-sm bg-[#fffefb] border border-[#d4ded5] rounded-2xl p-6 shadow-2xl flex flex-col space-y-4">
             <div class="text-center">
-                <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto mb-2">
+                <div class="w-12 h-12 rounded-2xl bg-[#eff3e7] text-[#24654d] flex items-center justify-center mx-auto mb-2">
                     <i class="fas fa-shield-halved text-xl"></i>
                 </div>
-                <h3 class="text-base font-black text-white">管理權限驗證</h3>
-                <p class="text-[11px] text-slate-400">僅教師與系統管理者可設定 API Key 與雲端空間</p>
+                <h3 class="text-base font-serif font-bold text-[#173e35]">管理權限驗證</h3>
+                <p class="text-xs text-[#5d7068]">僅教師與系統管理者可設定 API Key 與雲端空間</p>
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-300 mb-1 ml-1">請輸入管理密碼</label>
-                <input type="password" id="input-admin-password" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-4 py-2.5 text-white text-center tracking-widest font-mono text-sm focus:outline-none" placeholder="預設 admin888">
-                <p id="password-error" class="hidden text-rose-400 text-[11px] text-center mt-1 font-bold">密碼錯誤，請重新輸入！</p>
+                <label class="block text-xs font-bold text-[#173e35] mb-1 ml-1">請輸入管理密碼</label>
+                <input type="password" id="input-admin-password" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-xl px-4 py-2.5 text-[#173e35] text-center tracking-widest font-mono text-sm focus:outline-none" placeholder="預設 admin888">
+                <p id="password-error" class="hidden text-rose-700 text-xs text-center mt-1 font-bold">密碼錯誤，請重新輸入！</p>
             </div>
 
             <div class="flex space-x-2 pt-1">
-                <button onclick="closePasswordModal()" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold text-xs transition-all">
+                <button onclick="closePasswordModal()" class="w-1/2 py-2.5 bg-[#f7f9f2] hover:bg-[#e4edb7] text-[#5d7068] hover:text-[#173e35] rounded-xl font-bold text-xs transition-all">
                     取消
                 </button>
-                <button onclick="submitAdminPassword()" class="w-1/2 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white rounded-xl font-bold text-xs shadow-md transition-all">
+                <button onclick="submitAdminPassword()" class="w-1/2 py-2.5 bg-[#173e35] hover:bg-[#24654d] text-white rounded-xl font-bold text-xs shadow-xs transition-all">
                     驗證解鎖
                 </button>
             </div>
@@ -885,19 +664,19 @@
     <!-- ============================================== -->
     <!-- ⚙️ 系統管理設定 Modal（需密碼解鎖） -->
     <!-- ============================================== -->
-    <div id="config-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-        <div class="w-full max-w-md bg-slate-900 border border-cyan-500/50 rounded-3xl p-6 shadow-2xl flex flex-col space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div id="config-modal" class="fixed inset-0 bg-[#173e35]/65 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="w-full max-w-md bg-[#fffefb] border border-[#d4ded5] rounded-2xl p-6 shadow-2xl flex flex-col space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+            <div class="flex items-center justify-between border-b border-[#d4ded5] pb-3">
                 <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-lg bg-[#eff3e7] text-[#24654d] flex items-center justify-center">
                         <i class="fas fa-sliders text-sm"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-black text-white">系統後台管理面板</h3>
-                        <p class="text-[10px] text-slate-400">配置 Gemini API Key 與獨立 Google 雲端儲存空間</p>
+                        <h3 class="text-base font-serif font-bold text-[#173e35]">系統後台管理面板</h3>
+                        <p class="text-[10px] text-[#5d7068]">配置 Gemini API Key 與獨立 Google 雲端儲存空間</p>
                     </div>
                 </div>
-                <button onclick="closeConfigModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                <button onclick="closeConfigModal()" class="w-8 h-8 rounded-full bg-[#f7f9f2] text-[#5d7068] hover:text-[#173e35] flex items-center justify-center">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -905,14 +684,14 @@
             <div class="space-y-3.5 text-xs">
                 <!-- 1. Gemini API Key -->
                 <div>
-                    <label class="block text-slate-300 font-bold mb-1 flex items-center justify-between">
-                        <span><i class="fas fa-key text-cyan-400 mr-1"></i> Google Gemini API Key</span>
-                        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-cyan-400 hover:underline text-[10px]">取得金鑰 <i class="fas fa-arrow-up-right-from-square"></i></a>
+                    <label class="block text-[#173e35] font-bold mb-1 flex items-center justify-between">
+                        <span><i class="fas fa-key text-[#24654d] mr-1"></i> Google Gemini API Key</span>
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[#24654d] hover:underline text-[10px]">取得金鑰 <i class="fas fa-arrow-up-right-from-square"></i></a>
                     </label>
-                    <input type="password" id="modal-apikey-input" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2 text-white font-tech text-xs focus:outline-none" placeholder="AIzaSy...">
+                    <input type="password" id="modal-apikey-input" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2 text-[#173e35] font-tech text-xs focus:outline-none" placeholder="AIzaSy...">
                     <div class="flex items-center justify-between mt-1">
-                        <p class="text-[10px] text-slate-500">儲存後本機安全加密保存，學生開啟即用。</p>
-                        <button onclick="testApiKeyPing()" id="btn-test-ping" class="text-[11px] text-amber-400 hover:text-amber-300 font-bold flex items-center">
+                        <p class="text-[10px] text-[#5d7068]">儲存後本機安全加密保存，學生開啟即用。</p>
+                        <button onclick="testApiKeyPing()" id="btn-test-ping" class="text-[11px] text-[#d97706] hover:underline font-bold flex items-center">
                             <i class="fas fa-bolt mr-1"></i>測試連線 (Ping)
                         </button>
                     </div>
@@ -921,47 +700,47 @@
 
                 <!-- 2. Google 雲端硬碟收件資料夾 ID (全新獨立) -->
                 <div>
-                    <label class="block text-slate-300 font-bold mb-1">
-                        <i class="fab fa-google-drive text-emerald-400 mr-1"></i> Google 雲端專屬收件資料夾 ID
+                    <label class="block text-[#173e35] font-bold mb-1">
+                        <i class="fab fa-google-drive text-[#24654d] mr-1"></i> Google 雲端專屬收件資料夾 ID
                     </label>
-                    <input type="text" id="modal-folder-input" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2 text-white font-tech text-xs focus:outline-none" placeholder="例如：1a2b3c4d5e6f... (網址 /folders/ 後段英數)">
-                    <p class="text-[10px] text-slate-400 mt-1">
+                    <input type="text" id="modal-folder-input" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2 text-[#173e35] font-tech text-xs focus:outline-none" placeholder="例如：1a2b3c4d5e6f... (網址 /folders/ 後段英數)">
+                    <p class="text-[10px] text-[#5d7068] mt-1">
                         ※ 請在 Google Drive 建立一個<strong>全新的專用資料夾</strong>（如「AI藝術胸章成果庫」），完全與之前的自主學習作業分開！
                     </p>
                 </div>
 
                 <!-- 3. Google Apps Script 後端網址 (GAS URL) -->
                 <div>
-                    <label class="block text-slate-300 font-bold mb-1">
-                        <i class="fas fa-server text-purple-400 mr-1"></i> 獨立 Apps Script 網頁應用程式網址 (選填)
+                    <label class="block text-[#173e35] font-bold mb-1">
+                        <i class="fas fa-server text-[#7c3aed] mr-1"></i> 獨立 Apps Script 網頁應用程式網址 (選填)
                     </label>
-                    <input type="text" id="modal-gas-input" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2 text-white text-xs focus:outline-none" placeholder="https://script.google.com/macros/s/.../exec">
-                    <p class="text-[10px] text-slate-400 mt-1">
+                    <input type="text" id="modal-gas-input" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2 text-[#173e35] text-xs focus:outline-none" placeholder="https://script.google.com/macros/s/.../exec">
+                    <p class="text-[10px] text-[#5d7068] mt-1">
                         ※ 若部署了本專案專屬的 `Code.gs`，填入此處即可實現全自動雲端存檔與 Google 試算表總表登記。
                     </p>
                 </div>
 
                 <!-- 4. 變更管理密碼 -->
-                <div class="border-t border-slate-800/80 pt-2.5">
-                    <label class="block text-slate-300 font-bold mb-1">
-                        <i class="fas fa-lock text-rose-400 mr-1"></i> 變更管理密碼
+                <div class="border-t border-[#d4ded5] pt-2.5">
+                    <label class="block text-[#173e35] font-bold mb-1">
+                        <i class="fas fa-lock text-rose-600 mr-1"></i> 變更管理密碼
                     </label>
-                    <input type="password" id="modal-new-pwd-input" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2 text-white text-xs focus:outline-none" placeholder="若不修改請留空 (預設為 admin888)">
+                    <input type="password" id="modal-new-pwd-input" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2 text-[#173e35] text-xs focus:outline-none" placeholder="若不修改請留空 (預設為 admin888)">
                 </div>
 
                 <!-- 儲存按鈕 -->
                 <div class="pt-1">
-                    <button onclick="saveAdminSettings()" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white rounded-xl font-bold transition-all shadow-md flex items-center justify-center space-x-1.5">
+                    <button onclick="saveAdminSettings()" class="w-full py-3 bg-[#173e35] hover:bg-[#24654d] text-white rounded-xl font-bold transition-all shadow-xs flex items-center justify-center space-x-1.5">
                         <i class="fas fa-check"></i>
                         <span>儲存所有管理設定並立即生效</span>
                     </button>
                 </div>
 
-                <div class="border-t border-slate-800/80 pt-2 flex items-center justify-between text-[11px] text-slate-400">
-                    <button onclick="clearAllSettings()" class="text-rose-400 hover:underline">
+                <div class="border-t border-[#d4ded5] pt-2 flex items-center justify-between text-[11px] text-[#5d7068]">
+                    <button onclick="clearAllSettings()" class="text-rose-600 hover:underline">
                         <i class="fas fa-trash-can mr-1"></i> 還原為出廠預設
                     </button>
-                    <span class="text-slate-500">Version 2.0 Pro</span>
+                    <span class="text-[#5d7068]">Version 2.0 Academic Pro</span>
                 </div>
             </div>
         </div>
@@ -970,19 +749,19 @@
     <!-- ============================================== -->
     <!-- 星空數位藝廊 Modal (Hall of Fame) -->
     <!-- ============================================== -->
-    <div id="gallery-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-        <div class="w-full max-w-2xl bg-slate-900 border border-cyan-500/40 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[88vh]">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+    <div id="gallery-modal" class="fixed inset-0 bg-[#173e35]/65 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="w-full max-w-2xl bg-[#fffefb] border border-[#d4ded5] rounded-2xl p-6 shadow-2xl flex flex-col max-h-[88vh]">
+            <div class="flex items-center justify-between border-b border-[#d4ded5] pb-3 mb-4">
                 <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-lg bg-[#fef3c7] text-[#d97706] flex items-center justify-center">
                         <i class="fas fa-award text-base"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-black text-white">星空數位藝廊 ╳ 班級胸章榮譽榜</h3>
-                        <p class="text-[10px] text-slate-400">匯集通過 AI 嚴選認證的 85+ 特級繪師原創作品</p>
+                        <h3 class="text-base font-serif font-bold text-[#173e35]">星空數位藝廊 ╳ 班級胸章榮譽榜</h3>
+                        <p class="text-[10px] text-[#5d7068]">匯集通過 AI 嚴選認證的 85+ 特級原創胸章作品</p>
                     </div>
                 </div>
-                <button onclick="closeGalleryModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                <button onclick="closeGalleryModal()" class="w-8 h-8 rounded-full bg-[#f7f9f2] text-[#5d7068] hover:text-[#173e35] flex items-center justify-center">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -990,9 +769,9 @@
             <div id="gallery-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto no-scrollbar flex-1 pr-1">
             </div>
 
-            <div class="pt-4 border-t border-slate-800 flex justify-between items-center text-xs text-slate-400">
-                <span>點擊作品可檢視評語與創客胸章</span>
-                <button onclick="clearGalleryData()" class="text-slate-500 hover:text-rose-400 text-[11px]">
+            <div class="pt-4 border-t border-[#d4ded5] flex justify-between items-center text-xs text-[#5d7068]">
+                <span>點擊作品可檢視創客胸章與自述</span>
+                <button onclick="clearGalleryData()" class="text-rose-600 hover:underline text-[11px]">
                     <i class="fas fa-trash-can mr-1"></i> 清空本地藝廊
                 </button>
             </div>
@@ -1014,13 +793,151 @@
             studentName: '大溪小達文西',
             apiKey: '',
             theme: '熱血動漫角色',
-            themeFocus: '動漫/漫畫風格人物、五官神態張力、動態肢體線條',
+            themeFocus: '動漫風格人物、眼神神態張力、動態肢體線條與輪廓',
             croppedBase64: '',
             lastScore: null,
             currentResult: null,
             studentNote: '',
             overlayMode: 'thirds'
         };
+
+        // 13 大主題結構化數據庫 (單一數據核心，支援網格與輪播雙檢視模式)
+        const THEMES_DATA = [
+            {
+                id: 1,
+                code: '#01 動漫美學',
+                name: '熱血動漫角色',
+                category: 'anime',
+                icon: 'fa-user-ninja',
+                tags: ['眼神張力', '肢體動態'],
+                desc: '注重五官神態張力、動態感與主體俐落輪廓。',
+                focus: '動漫風格人物、眼神神態張力、動態肢體線條與輪廓'
+            },
+            {
+                id: 2,
+                code: '#02 神話幻想',
+                name: '奇幻生物與幻獸',
+                category: 'anime',
+                icon: 'fa-dragon',
+                tags: ['羽翼鱗甲', '神話氣場'],
+                desc: '神獸、羽翼生物、鱗片毛髮與奇幻肌理描摹。',
+                focus: '奇幻生物造形、翅膀羽毛鱗片質感、超現實肌理與神韻'
+            },
+            {
+                id: 3,
+                code: '#03 大地景觀',
+                name: '絕美自然風景',
+                category: 'scene',
+                icon: 'fa-mountain-sun',
+                tags: ['空間景深', '光影透視'],
+                desc: '山川、森林與大地，注重遠近景深與光影層次。',
+                focus: '山水自然風景、遠近空氣透視感、天地光影與冷暖色溫'
+            },
+            {
+                id: 4,
+                code: '#04 賽博龐克',
+                name: '未來科幻世界',
+                category: 'scene',
+                icon: 'fa-city',
+                tags: ['霓虹光暈', '機械結構'],
+                desc: '近未來都市與太空，冷暖霓虹反光與科技氛圍。',
+                focus: '科幻未來場景、金屬機械光澤、霓虹冷光與幾何透視'
+            },
+            {
+                id: 5,
+                code: '#05 萌系吉祥物',
+                name: 'Q版吉祥物設計',
+                category: 'anime',
+                icon: 'fa-ghost',
+                tags: ['圓潤簡約', '親和視覺'],
+                desc: '造形可愛簡練，圓形胸章高辨識度與親和力。',
+                focus: '圓潤簡約造形、可愛大眼表情、高識別度符號與親和力'
+            },
+            {
+                id: 6,
+                code: '#06 美味佳餚',
+                name: '精緻靜物與美食',
+                category: 'lifestyle',
+                icon: 'fa-burger',
+                tags: ['誘人光澤', '立體高光'],
+                desc: '美食甜點與靜物，強調油潤光感與色彩層次。',
+                focus: '食物油潤光澤、色彩鮮美感、材質高光與立體投影'
+            },
+            {
+                id: 7,
+                code: '#07 工業機甲',
+                name: '超酷機械與載具',
+                category: 'lifestyle',
+                icon: 'fa-robot',
+                tags: ['鋼鐵結構', '透視張力'],
+                desc: '重型機甲與載具，剛硬幾何塊面與工業結構感。',
+                focus: '機械重裝結構、硬朗幾何透視、金屬邊界與工業精準度'
+            },
+            {
+                id: 8,
+                code: '#08 東方韻味',
+                name: '傳統國風與水墨',
+                category: 'lifestyle',
+                icon: 'fa-feather-pointed',
+                tags: ['墨韻留白', '氣韻生動'],
+                desc: '傳統水墨意境，講究筆意濃淡乾濕與詩意留白。',
+                focus: '水墨線條筆意、濃淡乾濕層次、留白意境與東方傳統雅韻'
+            },
+            {
+                id: 9,
+                code: '#09 8-Bit電玩',
+                name: '復古像素遊戲風',
+                category: 'lifestyle',
+                icon: 'fa-gamepad',
+                tags: ['點陣美學', '懷舊色票'],
+                desc: '限定色票控制與邊緣俐落感，散發經典電玩情懷。',
+                focus: '像素點陣造形、有限色彩運用、幾何方塊秩序與懷舊感'
+            },
+            {
+                id: 10,
+                code: '#10 普普潮流',
+                name: '街頭潮流塗鴉 Pop',
+                category: 'lifestyle',
+                icon: 'fa-spray-can',
+                tags: ['強烈撞色', '符號衝擊'],
+                desc: '大膽對比撞色，青年文化流行符號與線條張力。',
+                focus: '大膽鮮豔撞色、塗鴉字母形體、流行符號反差與視覺張力'
+            },
+            {
+                id: 11,
+                code: '#11 故事繪本',
+                name: '童話繪本與療癒風',
+                category: 'lifestyle',
+                icon: 'fa-book-open',
+                tags: ['溫暖手繪', '故事氛圍'],
+                desc: '手繪蠟筆顆粒感，柔和色調與溫馨童話敘事感。',
+                focus: '手繪蠟筆顆粒感、溫馨療癒氛圍、柔和色調與故事敘事性'
+            },
+            {
+                id: 12,
+                code: '#12 歐普幾何',
+                name: '視覺錯視與幾何抽象',
+                category: 'scene',
+                icon: 'fa-shapes',
+                tags: ['空間錯覺', '造形韻律'],
+                desc: '歐普幾何線條秩序交錯，空間旋轉與形體純粹韻律。',
+                focus: '歐普藝術錯視、幾何線條秩序、空間重疊與純粹抽象造形'
+            },
+            {
+                id: 13,
+                code: '#13 自由自訂',
+                name: '學生自訂主題',
+                category: 'custom',
+                icon: 'fa-wand-magic-sparkles',
+                tags: ['自由創作', '創作自述'],
+                desc: '自由命名你的創作主題，並用文字說明自己在畫什麼！',
+                focus: '創作者原創自訂主題，核心規準為評估畫面與創作者自述理念之契合度與表現力',
+                isCustom: true
+            }
+        ];
+
+        let currentThemeViewMode = 'grid'; // 'grid' (總覽網格) or 'carousel' (橫向輪播)
+        let currentThemeCategory = 'all';
 
         // 讀取已儲存的金鑰
         function loadSavedApiKey() {
@@ -1035,33 +952,33 @@
             const descBox = document.getElementById('engine-desc-box');
 
             if (state.apiKey) {
-                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping";
+                dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-ping";
                 text.innerText = "Gemini 多模態引擎就緒";
-                text.className = "font-bold text-emerald-400 text-[11px]";
+                text.className = "font-bold text-[#24654d] text-[11px]";
 
-                descBox.className = "p-2.5 rounded-xl border bg-emerald-950/40 border-emerald-800/60 text-emerald-200 text-xs leading-relaxed";
+                descBox.className = "p-2.5 rounded-lg border bg-[#eff3e7] border-[#b7cfac] text-[#173e35] text-xs leading-relaxed";
                 descBox.innerHTML = `
-                    <div class="flex items-center space-x-1.5 font-bold mb-0.5 text-emerald-300">
+                    <div class="flex items-center space-x-1.5 font-bold mb-0.5 text-[#24654d]">
                         <i class="fas fa-circle-check"></i>
                         <span>真實 AI 視覺辨識啟動中</span>
                     </div>
-                    <p class="text-[11px] text-slate-300">
-                        已綁定專屬 Gemini API 金鑰。系統將透過多模態神經網路深度掃描畫面的主客結構、色彩調和度與主題契合度，提供精確具鑑別度的專業講評。
+                    <p class="text-[11px] text-[#5d7068]">
+                        已綁定專屬 Gemini API 金鑰。系統將透過多模態神經網路深度掃描畫面的主客結構、色彩調和度與主題契合度，提供客觀具鑑別度的專業美感講評。
                     </p>
                 `;
             } else {
-                dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse";
-                text.innerText = "展示通道 (點此設定 API Key)";
-                text.className = "font-bold text-amber-300 text-[11px]";
+                dot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+                text.innerText = "展示模式 (設定 Key)";
+                text.className = "font-bold text-[#b45309] text-[11px]";
 
-                descBox.className = "p-2.5 rounded-xl border bg-amber-950/30 border-amber-800/50 text-amber-200 text-xs leading-relaxed";
+                descBox.className = "p-2.5 rounded-lg border bg-[#fffbeb] border-[#fde68a] text-[#92400e] text-xs leading-relaxed";
                 descBox.innerHTML = `
-                    <div class="flex items-center space-x-1.5 font-bold mb-0.5 text-amber-300">
+                    <div class="flex items-center space-x-1.5 font-bold mb-0.5 text-[#b45309]">
                         <i class="fas fa-circle-exclamation"></i>
-                        <span>目前為評審展示模擬通道</span>
+                        <span>評審與教學展示模擬通道</span>
                     </div>
-                    <p class="text-[11px] text-slate-300">
-                        尚未設定 API Key，系統將使用預建模擬演算法供快速評測。建議點擊右上角「<strong class="text-amber-300 underline cursor-pointer" onclick="openConfigModal()">設定 API Key</strong>」綁定金鑰，即可開啟 100% 精準的真實 AI 視覺審查！
+                    <p class="text-[11px] text-[#78350f]">
+                        尚未設定 API Key，系統現正使用展示通道供即時體驗。建議點擊右上角「<strong class="underline cursor-pointer" onclick="openConfigModal()">設定 API Key</strong>」綁定金鑰，即可開啟 100% 精準的真實 AI 視覺審查！
                     </p>
                 `;
             }
@@ -1107,7 +1024,6 @@
             }
         }
 
-        // 支援鍵盤 Enter 鍵提交密碼
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !document.getElementById('password-modal').classList.contains('hidden')) {
                 submitAdminPassword();
@@ -1182,14 +1098,14 @@
             const gasUrl = localStorage.getItem('ART_SCANNER_GAS_URL_V2') || '';
 
             if (!gasUrl) {
-                statusBox.className = "p-3 rounded-xl border bg-amber-950/60 border-amber-700 text-amber-200 text-xs text-left";
+                statusBox.className = "p-3 rounded-xl border bg-[#fffbeb] border-[#fde68a] text-[#92400e] text-xs text-left";
                 statusBox.innerHTML = `
-                    <div class="font-bold text-amber-300 mb-1"><i class="fas fa-info-circle mr-1"></i> 尚未配置雲端後端網址</div>
-                    <p class="text-[11px] text-slate-300 mb-2">
+                    <div class="font-bold text-[#b45309] mb-1"><i class="fas fa-info-circle mr-1"></i> 尚未配置雲端後端網址</div>
+                    <p class="text-[11px] text-[#78350f] mb-2">
                         請老師點擊右上角「⚙️ 系統設定」，輸入管理密碼解鎖後，填入專屬的 <strong>Google Apps Script 網頁應用程式網址</strong> 與 <strong>Google 雲端收件資料夾 ID</strong>，即可一鍵上傳！
                     </p>
                     <div class="text-right">
-                        <button onclick="openConfigModal()" class="px-2.5 py-1 bg-amber-500 text-slate-950 font-bold rounded-lg text-[11px]">前往設定</button>
+                        <button onclick="openConfigModal()" class="px-2.5 py-1 bg-[#d97706] text-white font-bold rounded-lg text-[11px]">前往設定</button>
                     </div>
                 `;
                 statusBox.classList.remove('hidden');
@@ -1198,7 +1114,7 @@
 
             btn.disabled = true;
             btnText.innerText = "正在傳輸胸章作品至 Google 雲端硬碟...";
-            statusBox.className = "p-3 rounded-xl border bg-cyan-950/60 border-cyan-800 text-cyan-300 text-xs text-center";
+            statusBox.className = "p-3 rounded-xl border bg-[#eff3e7] border-[#b7cfac] text-[#24654d] text-xs text-center";
             statusBox.innerHTML = "<i class='fas fa-spinner fa-spin mr-1.5'></i> 正在安全存檔至 Google 雲端專用資料夾並登記總表...";
             statusBox.classList.remove('hidden');
 
@@ -1228,25 +1144,25 @@
 
                 const json = await res.json();
                 if (json.success) {
-                    statusBox.className = "p-3 rounded-xl border bg-emerald-950/80 border-emerald-700 text-emerald-200 text-xs text-center";
+                    statusBox.className = "p-3 rounded-xl border bg-[#eff3e7] border-[#b7cfac] text-[#173e35] text-xs text-center";
                     statusBox.innerHTML = `
-                        <div class="font-bold text-emerald-300 text-sm mb-1"><i class="fas fa-check-circle mr-1"></i> 雲端存檔成功！</div>
-                        <p class="text-[11px] text-slate-300 mb-2">
+                        <div class="font-bold text-[#24654d] text-sm mb-1"><i class="fas fa-check-circle mr-1"></i> 雲端存檔成功！</div>
+                        <p class="text-[11px] text-[#5d7068] mb-2">
                             作品已成功保存在 Google 雲端專用資料夾，並已自動登記至「AI藝術能量成果彙整總表」！
                         </p>
-                        <a href="${json.data.fileUrl}" target="_blank" class="inline-block px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-xs transition-all">
+                        <a href="${json.data.fileUrl}" target="_blank" class="inline-block px-3 py-1.5 bg-[#24654d] hover:bg-[#144333] text-white font-bold rounded-lg text-xs transition-all">
                             <i class="fab fa-google-drive mr-1"></i> 開啟雲端胸章圖檔
                         </a>
                     `;
-                    btn.className = "w-full py-3.5 bg-slate-800 text-emerald-400 font-bold rounded-xl text-xs flex items-center justify-center space-x-2 border border-emerald-500/40";
+                    btn.className = "w-full py-3.5 bg-[#eff3e7] text-[#24654d] font-bold rounded-xl text-xs flex items-center justify-center space-x-2 border border-[#b7cfac]";
                     btnText.innerText = "✅ 已完成 Google 雲端空間存檔！";
                 } else {
                     throw new Error(json.error || '雲端儲存失敗');
                 }
             } catch (e) {
-                statusBox.className = "p-3 rounded-xl border bg-rose-950/80 border-rose-700 text-rose-200 text-xs text-center";
+                statusBox.className = "p-3 rounded-xl border bg-[#fff0ea] border-[#a23b24]/40 text-[#852e1e] text-xs text-center";
                 statusBox.innerHTML = `
-                    <div class="font-bold text-rose-300 mb-1"><i class="fas fa-times-circle mr-1"></i> 上傳失敗</div>
+                    <div class="font-bold mb-1"><i class="fas fa-times-circle mr-1"></i> 上傳失敗</div>
                     <p class="text-[11px]">${e.message}</p>
                 `;
                 btn.disabled = false;
@@ -1254,11 +1170,10 @@
             }
         }
 
-        // 自動反查 Google AI Studio 探索此金鑰真正支援的模型清單 (Auto-Discovery)
+        // 自動反查 Google AI Studio 探索可用模型清單 (Auto-Discovery)
         async function discoverValidGeminiModels(key) {
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
             if (!res.ok) {
-                const txt = await res.text();
                 if (res.status === 400) {
                     throw new Error("API Key 無效。請確認是否複製完整 (通常以 AIzaSy 開頭)。");
                 }
@@ -1269,7 +1184,6 @@
             if (!valid || valid.length === 0) {
                 throw new Error("您的 Google 專案尚未開通支援 generateContent 的模型。");
             }
-            // 排序優選：2.0-flash > 1.5-flash > 1.5-pro > 其他 flash > 其他
             valid.sort((a, b) => {
                 const score = (name) => {
                     if (name.includes('2.0-flash')) return 10;
@@ -1284,14 +1198,14 @@
             return valid.map(m => m.name.replace(/^models\//, ''));
         }
 
-        // 測試連線 (Ping) - 智慧動態模型匹配
+        // 測試連線 (Ping)
         async function testApiKeyPing() {
             const key = document.getElementById('modal-apikey-input').value.trim();
             const resBox = document.getElementById('ping-result');
             const btn = document.getElementById('btn-test-ping');
 
             if (!key) {
-                resBox.className = "p-3 rounded-xl border bg-rose-950/60 border-rose-800 text-rose-300 text-[11px]";
+                resBox.className = "p-3 rounded-xl border bg-[#fff0ea] border-[#a23b24]/40 text-[#852e1e] text-[11px]";
                 resBox.innerHTML = "<i class='fas fa-times-circle mr-1'></i> 請先輸入 API Key 再進行連線測試！";
                 resBox.classList.remove('hidden');
                 return;
@@ -1299,19 +1213,15 @@
 
             btn.disabled = true;
             btn.innerHTML = "<i class='fas fa-spinner fa-spin mr-1'></i> 探索模型中...";
-            resBox.className = "p-3 rounded-xl border bg-cyan-950/60 border-cyan-800 text-cyan-300 text-[11px]";
-            resBox.innerHTML = "<i class='fas fa-satellite-dish mr-1'></i> 正在向 Google 伺服器反查您專案支援的模型清單 (Auto-Discovery)...";
+            resBox.className = "p-3 rounded-xl border bg-[#eff3e7] border-[#b7cfac] text-[#24654d] text-[11px]";
+            resBox.innerHTML = "<i class='fas fa-satellite-dish mr-1'></i> 正在向 Google 伺服器反查模型清單...";
             resBox.classList.remove('hidden');
 
             try {
-                // 1. 動態探索可用模型
                 const models = await discoverValidGeminiModels(key);
-                console.log("🔍 成功探索到可用模型列表：", models);
-
                 let successModel = null;
                 let lastErr = "";
 
-                // 2. 測試前 3 個合適模型發送 Ping
                 for (const m of models.slice(0, 3)) {
                     try {
                         const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`;
@@ -1329,7 +1239,6 @@
                             localStorage.setItem('ART_SCANNER_ACTIVE_MODEL', m);
                             break;
                         } else {
-                            const errText = await resp.text();
                             lastErr = `模型 ${m} 回應 HTTP ${resp.status}`;
                         }
                     } catch (netErr) {
@@ -1338,23 +1247,23 @@
                 }
 
                 if (successModel) {
-                    resBox.className = "p-3 rounded-xl border bg-emerald-950/80 border-emerald-700 text-emerald-200 text-[11px]";
+                    resBox.className = "p-3 rounded-xl border bg-[#eff3e7] border-[#b7cfac] text-[#173e35] text-[11px]";
                     resBox.innerHTML = `
-                        <div class="font-bold text-emerald-300 mb-0.5"><i class="fas fa-check-circle mr-1"></i> 連線成功！</div>
-                        <span>已自動匹配並鎖定您金鑰支援的 <strong>${successModel}</strong> 視覺模型！具備高精度多模態鑑別能力。請點擊右方「儲存並立即套用」。</span>
+                        <div class="font-bold text-[#24654d] mb-0.5"><i class="fas fa-check-circle mr-1"></i> 連線成功！</div>
+                        <span>已自動匹配並鎖定您支援的 <strong>${successModel}</strong> 視覺模型！具備高精度多模態鑑別能力。請點擊「儲存設定」。</span>
                     `;
                 } else {
                     throw new Error(`無法連線至模型：${lastErr}`);
                 }
             } catch (err) {
-                resBox.className = "p-3 rounded-xl border bg-rose-950/80 border-rose-700 text-rose-200 text-[11px]";
+                resBox.className = "p-3 rounded-xl border bg-[#fff0ea] border-[#a23b24]/40 text-[#852e1e] text-[11px]";
                 resBox.innerHTML = `
-                    <div class="font-bold text-rose-300 mb-0.5"><i class="fas fa-triangle-exclamation mr-1"></i> 連線失敗</div>
+                    <div class="font-bold mb-0.5"><i class="fas fa-triangle-exclamation mr-1"></i> 連線失敗</div>
                     <span>${err.message}</span>
                 `;
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = "<i class='fas fa-bolt text-amber-400'></i> <span>測試連線 (Ping)</span>";
+                btn.innerHTML = "<i class='fas fa-bolt text-[#d97706] mr-1'></i> <span>測試連線 (Ping)</span>";
             }
         }
 
@@ -1395,8 +1304,137 @@
             err.classList.add('hidden');
             state.studentId = id;
             state.studentName = name;
+            renderThemes();
             showScreen('screen-theme');
         }
+
+        // ==============================================
+        // 🎨 13 大主題動態選單系統（雙模式：總覽網格 ⇄ 橫向輪播）
+        // ==============================================
+        function renderThemes() {
+            const gridContainer = document.getElementById('theme-grid-container');
+            const trackContainer = document.getElementById('theme-carousel-track');
+            
+            const filtered = currentThemeCategory === 'all' 
+                ? THEMES_DATA 
+                : THEMES_DATA.filter(t => t.category === currentThemeCategory);
+            
+            // 1. 渲染總覽網格模式 (Grid View)
+            if (gridContainer) {
+                gridContainer.innerHTML = filtered.map(item => `
+                    <div onclick="selectTheme('${item.name}', '${item.focus}')" class="cursor-pointer group relative p-3 sm:p-3.5 rounded-2xl transition-all duration-200 flex flex-col justify-between ${
+                        item.isCustom 
+                            ? 'bg-[#fefce8] border-2 border-[#d97706] shadow-sm hover:shadow-md hover:bg-[#fef9c3]' 
+                            : 'bg-[#f7f9f2] border border-[#d4ded5] hover:border-[#24654d] hover:bg-[#eff5eb] hover:shadow-xs'
+                    }">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                    item.isCustom ? 'bg-[#fef3c7] text-[#b45309] border border-[#f59e0b]/40' : 'bg-[#eff3e7] text-[#24654d]'
+                                }">${item.code}</span>
+                                <div class="w-8 h-8 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${
+                                    item.isCustom ? 'bg-[#fef3c7] text-[#d97706]' : 'bg-[#e4edb7] text-[#173e35]'
+                                }">
+                                    <i class="fas ${item.icon} text-sm"></i>
+                                </div>
+                            </div>
+                            <h4 class="text-sm font-serif font-bold text-[#173e35] mb-1 group-hover:text-[#24654d] transition-colors">${item.name}</h4>
+                            <div class="flex flex-wrap gap-1 mb-1.5">
+                                ${item.tags.map(t => `<span class="px-1.5 py-0.5 bg-white border border-[#d4ded5] text-[10px] text-[#5d7068] rounded">${t}</span>`).join('')}
+                            </div>
+                            <p class="text-[11px] text-[#5d7068] leading-relaxed line-clamp-2">${item.desc}</p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-[#d4ded5]/60 flex items-center justify-between text-xs font-bold ${
+                            item.isCustom ? 'text-[#d97706]' : 'text-[#24654d]'
+                        }">
+                            <span>${item.isCustom ? '自由自訂創作' : '選定此向度'}</span>
+                            <i class="fas fa-arrow-right text-[10px] transform group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // 2. 渲染橫向輪播模式 (Carousel View - 寬度優化為可視多張)
+            if (trackContainer) {
+                trackContainer.innerHTML = filtered.map(item => `
+                    <div onclick="selectTheme('${item.name}', '${item.focus}')" class="min-w-[190px] sm:min-w-[220px] max-w-[230px] snap-center cursor-pointer group p-3.5 sm:p-4 rounded-2xl transition-all duration-200 flex flex-col justify-between flex-shrink-0 ${
+                        item.isCustom 
+                            ? 'bg-[#fefce8] border-2 border-[#d97706] shadow-sm hover:bg-[#fef9c3]' 
+                            : 'bg-[#f7f9f2] border border-[#d4ded5] hover:border-[#24654d] hover:bg-[#eff5eb]'
+                    }">
+                        <div>
+                            <div class="flex items-center justify-between mb-2.5">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                    item.isCustom ? 'bg-[#fef3c7] text-[#b45309]' : 'bg-[#eff3e7] text-[#24654d]'
+                                }">${item.code}</span>
+                                <div class="w-8 h-8 rounded-xl flex items-center justify-center ${
+                                    item.isCustom ? 'bg-[#fef3c7] text-[#d97706]' : 'bg-[#e4edb7] text-[#173e35]'
+                                }">
+                                    <i class="fas ${item.icon} text-sm"></i>
+                                </div>
+                            </div>
+                            <h4 class="text-sm font-serif font-bold text-[#173e35] mb-1">${item.name}</h4>
+                            <div class="flex flex-wrap gap-1 mb-1.5">
+                                ${item.tags.map(t => `<span class="px-1.5 py-0.5 bg-white border border-[#d4ded5] text-[10px] text-[#5d7068] rounded">${t}</span>`).join('')}
+                            </div>
+                            <p class="text-[11px] text-[#5d7068] leading-relaxed line-clamp-2">${item.desc}</p>
+                        </div>
+                        <div class="pt-2 border-t border-[#d4ded5] flex items-center justify-between text-xs font-bold ${
+                            item.isCustom ? 'text-[#d97706]' : 'text-[#24654d]'
+                        }">
+                            <span>${item.isCustom ? '自由自訂創作' : '選定此向度'}</span>
+                            <i class="fas fa-arrow-right text-[10px]"></i>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function setThemeViewMode(mode) {
+            currentThemeViewMode = mode;
+            const gridEl = document.getElementById('theme-grid-container');
+            const carouselEl = document.getElementById('theme-carousel-container');
+            const btnGrid = document.getElementById('btn-view-grid');
+            const btnCarousel = document.getElementById('btn-view-carousel');
+
+            if (mode === 'grid') {
+                gridEl.classList.remove('hidden');
+                carouselEl.classList.add('hidden');
+                carouselEl.classList.remove('flex');
+                btnGrid.className = "px-2.5 py-1 text-[11px] font-bold rounded-md transition-all bg-[#173e35] text-white shadow-xs";
+                btnCarousel.className = "px-2.5 py-1 text-[11px] font-bold rounded-md transition-all text-[#5d7068] hover:text-[#173e35]";
+            } else {
+                gridEl.classList.add('hidden');
+                carouselEl.classList.remove('hidden');
+                carouselEl.classList.add('flex');
+                btnCarousel.className = "px-2.5 py-1 text-[11px] font-bold rounded-md transition-all bg-[#173e35] text-white shadow-xs";
+                btnGrid.className = "px-2.5 py-1 text-[11px] font-bold rounded-md transition-all text-[#5d7068] hover:text-[#173e35]";
+            }
+        }
+
+        function filterThemes(cat) {
+            currentThemeCategory = cat;
+            document.querySelectorAll('#theme-filter-pills .theme-pill').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.className = "theme-pill px-3 py-1 text-xs font-bold rounded-full transition-all bg-[#173e35] text-white shadow-xs";
+                } else if (btn.dataset.cat === 'custom') {
+                    btn.className = "theme-pill px-3 py-1 text-xs font-bold rounded-full transition-all bg-[#fef3c7] text-[#d97706] hover:bg-[#fde68a] border border-[#f59e0b]/40";
+                } else {
+                    btn.className = "theme-pill px-3 py-1 text-xs font-bold rounded-full transition-all bg-[#eff3e7] text-[#24654d] hover:bg-[#e4edb7]";
+                }
+            });
+            renderThemes();
+        }
+
+        function slideThemes(dir) {
+            const c = document.getElementById('theme-carousel-track');
+            if (!c) return;
+            const card = c.querySelector('div');
+            const cardW = (card ? card.offsetWidth : 210) + 12;
+            c.scrollBy({ left: dir * cardW, behavior: 'smooth' });
+        }
+
+        function onThemeScroll() {}
 
         function selectTheme(themeName, focusDesc) {
             state.theme = themeName;
@@ -1408,7 +1446,7 @@
 
             if (themeName === '學生自訂主題') {
                 badge.innerText = '✨ 自由自訂主題';
-                badge.className = "px-2.5 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-600 text-xs font-bold";
+                badge.className = "px-3 py-1 rounded-full bg-[#fef3c7] text-[#d97706] border border-[#f59e0b]/40 text-xs font-bold";
                 customGroup.classList.remove('hidden');
                 if (customInput) {
                     customInput.value = '';
@@ -1416,54 +1454,11 @@
                 }
             } else {
                 badge.innerText = themeName;
-                badge.className = "px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 text-xs font-bold";
+                badge.className = "px-3 py-1 rounded-full bg-[#eff3e7] text-[#24654d] border border-[#b7cfac] text-xs font-bold";
                 customGroup.classList.add('hidden');
             }
 
             showScreen('screen-crop');
-        }
-
-        function slideThemes(dir) {
-            const c = document.getElementById('theme-carousel');
-            if (!c) return;
-            const card = c.querySelector('div');
-            const cardW = (card ? card.offsetWidth : 260) + 12;
-            c.scrollBy({ left: dir * cardW, behavior: 'smooth' });
-        }
-
-        function onThemeScroll() {
-            const c = document.getElementById('theme-carousel');
-            if (!c) return;
-            const cards = c.children;
-            if (!cards.length) return;
-            const cardW = (cards[0].offsetWidth || 260) + 12;
-            const idx = Math.min(13, Math.max(1, Math.round(c.scrollLeft / cardW) + 1));
-            const currEl = document.getElementById('theme-index-curr');
-            if (currEl) currEl.innerText = idx;
-            updateThemeDots(idx - 1);
-        }
-
-        function updateThemeDots(activeIdx) {
-            const container = document.getElementById('theme-dots');
-            if (!container) return;
-            if (!container.children.length) {
-                for (let i = 0; i < 13; i++) {
-                    const dot = document.createElement('button');
-                    dot.type = "button";
-                    dot.className = "w-2 h-2 rounded-full transition-all " + (i === activeIdx ? (i === 12 ? "bg-amber-400 w-5" : "bg-cyan-400 w-5") : "bg-slate-700");
-                    dot.onclick = () => {
-                        const c = document.getElementById('theme-carousel');
-                        if (!c) return;
-                        const cardW = (c.children[0]?.offsetWidth || 260) + 12;
-                        c.scrollTo({ left: i * cardW, behavior: 'smooth' });
-                    };
-                    container.appendChild(dot);
-                }
-            } else {
-                Array.from(container.children).forEach((dot, i) => {
-                    dot.className = "w-2 h-2 rounded-full transition-all " + (i === activeIdx ? (i === 12 ? "bg-amber-400 w-5" : "bg-cyan-400 w-5") : "bg-slate-700");
-                });
-            }
         }
 
         // ==============================================
@@ -1512,27 +1507,27 @@
             const ctx = c.getContext('2d');
 
             const grad = ctx.createRadialGradient(300, 300, 50, 300, 300, 350);
-            grad.addColorStop(0, '#38bdf8');
-            grad.addColorStop(0.4, '#6366f1');
-            grad.addColorStop(0.8, '#1e1b4b');
-            grad.addColorStop(1, '#090d16');
+            grad.addColorStop(0, '#e4edb7');
+            grad.addColorStop(0.4, '#24654d');
+            grad.addColorStop(0.8, '#173e35');
+            grad.addColorStop(1, '#091512');
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, 600, 600);
 
             ctx.fillStyle = '#ffffff';
             for (let i = 0; i < 40; i++) {
                 ctx.beginPath();
-                ctx.arc((i * 47) % 600, (i * 83) % 600, (i % 3) + 1, 0, Math.PI * 2);
+                ctx.arc((i * 47) % 600, (i * 83) % 600, (i % 3) + 1.2, 0, Math.PI * 2);
                 ctx.fill();
             }
 
-            ctx.strokeStyle = '#f59e0b';
+            ctx.strokeStyle = '#d97706';
             ctx.lineWidth = 4;
             ctx.beginPath();
             ctx.arc(300, 260, 120, 0, Math.PI * 2);
             ctx.stroke();
 
-            ctx.fillStyle = '#0f172a';
+            ctx.fillStyle = '#173e35';
             ctx.beginPath();
             ctx.moveTo(200, 550);
             ctx.lineTo(260, 340);
@@ -1542,7 +1537,7 @@
             ctx.closePath();
             ctx.fill();
 
-            ctx.fillStyle = '#38bdf8';
+            ctx.fillStyle = '#e4edb7';
             ctx.beginPath();
             ctx.arc(285, 335, 6, 0, Math.PI * 2);
             ctx.arc(315, 335, 6, 0, Math.PI * 2);
@@ -1628,7 +1623,6 @@
         // 鎖定構圖並呼叫 AI 評審
         // ==============================================
         async function lockCompositionAndScan() {
-            // 讀取自訂主題與學生自述
             const customInput = document.getElementById('input-custom-theme');
             if (state.theme === '學生自訂主題' || (customInput && customInput.value.trim())) {
                 const customName = customInput.value.trim();
@@ -1711,7 +1705,6 @@
             
             const noteText = studentNote ? `\n【學生自述作品內容與創作理念（他在畫什麼）】：\n「${studentNote}」\n` : '';
 
-            // 超高鑑別度的嚴格評審 Prompt
             const prompt = `你是一位國際級嚴格且公正的美術教育評審。
 請先仔細「檢視並描述」這張圖片中真實出現的內容是什麼（例如：是一個戴帽子的動漫少年？一隻趴著的貓咪？一盤食物？自然風景？還是隨便亂畫的草稿、空白紙或隨手拍照片）。
 
@@ -1745,9 +1738,8 @@
   "advice": "次世代修煉建議(具體修改技巧，45字內)",
   "focusX": 0.5,
   "focusY": 0.45,
-  "palette": ["#1e293b", "#38bdf8", "#818cf8", "#f59e0b", "#ffffff"]
+  "palette": ["#173e35", "#24654d", "#e4edb7", "#d97706", "#ffffff"]
 }`;
-
 
             const payload = {
                 contents: [{
@@ -1762,7 +1754,6 @@
                 }
             };
 
-            // 取得或動態探索可用模型列表
             let candidateModels = [];
             const savedActive = state.activeModel || localStorage.getItem('ART_SCANNER_ACTIVE_MODEL');
             if (savedActive) candidateModels.push(savedActive);
@@ -1815,31 +1806,17 @@
             throw lastErr || new Error("無法取得 Gemini 辨識結果，請檢查 API Key。");
         }
 
-        // 模擬展示引擎 (支援 12 大主題 + 學生自訂原創主題各具風格特色之預設庫)
+        // 模擬展示引擎
         async function simulateExpertRubricAI(theme, studentNote) {
-            await new Promise(r => setTimeout(r, 2000));
+            await new Promise(r => setTimeout(r, 1800));
             
-            const themeMap = {
-                '熱血動漫角色': { title: '熱血霸氣·魂之繪師', desc: '動漫人物神態張力充沛，五官線條俐落，主角眼神具備強烈情感穿透力。' },
-                '奇幻生物與幻獸': { title: '幻獸御者·神話匠心', desc: '神獸羽翼與麟片光澤描摹細膩，展現極高之想像力與空間奇幻感。' },
-                '絕美自然風景': { title: '蒼穹造境·大地宗師', desc: '大地遠近景深開闊，山水林木層次疊加分明，冷暖空氣透視極富美感。' },
-                '未來科幻世界': { title: '賽博霓光·星際造物', desc: '金屬機械光澤與霓虹冷光交織，呈現濃烈之近未來科技世界氛圍。' },
-                'Q版吉祥物設計': { title: '療癒萌境·精靈宗師', desc: '圓潤造形極具親和力，簡約大眼設計在 58mm 胸章上能迅速抓住目光。' },
-                '精緻靜物與美食': { title: '珍饈光澤·靜物泰斗', desc: '食物油潤光感與物體表面質地層次豐富，畫面結構緊湊且誘人垂涎。' },
-                '超酷機械與載具': { title: '極限重裝·鋼鐵巨擘', desc: '工業結構與裝甲接縫秩序分明，透視角度硬朗，展現純粹的重工業美學。' },
-                '傳統國風與水墨': { title: '墨韻丹青·東方大師', desc: '水墨留白恰到好處，線條濃淡乾濕具東方神韻，氣韻生動流轉。' },
-                '復古像素遊戲風': { title: '像素次元·復古巨擘', desc: '點陣像素邊緣清晰，限定色票控制精湛，散發純正 8-Bit 街機情懷。' },
-                '街頭潮流塗鴉 Pop': { title: '潮流先鋒·普普教父', desc: '色塊鮮明對比撞色，街頭字母與線條爆發力強烈，極具青年流行文化感。' },
-                '童話繪本與療癒風': { title: '溫暖童心·造夢巨匠', desc: '手繪蠟筆筆觸溫暖質樸，色調柔和寧靜，散發童話故事般的敘事張力。' },
-                '視覺錯視與幾何抽象': { title: '歐普秘境·幾何大師', desc: '黑白幾何交錯產生動態視覺律動，圖地反轉趣味深厚，幾何張力十足。' }
-            };
-
-            const isCustom = !themeMap[theme];
+            const matched = THEMES_DATA.find(t => t.name === theme);
+            const isCustom = !matched || matched.isCustom;
             const noteSnippet = studentNote ? `，並細膩呼應了自述「${studentNote.slice(0, 18)}${studentNote.length > 18 ? '...' : ''}」之意境` : '';
             const defaultDesc = isCustom 
                 ? `作品精采呈現自訂主題「${theme}」之原創構想${noteSnippet}，構圖重心穩固，極富想像力。`
-                : `${themeMap[theme].desc}${noteSnippet}`;
-            const title = isCustom ? '自由靈魂·造夢宗師' : themeMap[theme].title;
+                : `${matched.desc}${noteSnippet}`;
+            const title = isCustom ? '自由靈魂·造夢宗師' : (theme + '·特級大師');
 
             return {
                 totalScore: 90,
@@ -1853,7 +1830,7 @@
                 advice: `建議強化外輪廓邊界之銳利高光，可使實體金屬胸章印刷呈現更強烈反差感。`,
                 focusX: 0.5,
                 focusY: 0.46,
-                palette: ['#0f172a', '#38bdf8', '#a855f7', '#f59e0b', '#f8fafc']
+                palette: ['#173e35', '#24654d', '#e4edb7', '#d97706', '#f7f5ed']
             };
         }
 
@@ -1886,7 +1863,7 @@
                 const circumference = 251.3;
                 const offset = circumference - (data.totalScore / 100) * circumference;
                 ring.style.strokeDashoffset = offset;
-                ring.style.stroke = data.totalScore >= 85 ? '#f59e0b' : '#06b6d4';
+                ring.style.stroke = data.totalScore >= 85 ? '#d97706' : '#24654d';
 
                 const numEl = document.getElementById('res-score-number');
                 let cur = 0;
@@ -1900,7 +1877,7 @@
                             document.getElementById('action-unlocked').classList.remove('hidden');
                             document.getElementById('action-retry').classList.add('hidden');
                             document.getElementById('res-status-tag').innerText = "特級解鎖成功！";
-                            document.getElementById('res-status-tag').className = "mt-1 text-[11px] font-bold text-amber-400";
+                            document.getElementById('res-status-tag').className = "mt-1 text-xs font-bold text-[#d97706]";
                             fireCyberConfetti();
                             saveToGallery({
                                 id: state.studentId,
@@ -1915,12 +1892,12 @@
                         } else {
                             document.getElementById('action-retry').classList.remove('hidden');
                             document.getElementById('action-unlocked').classList.add('hidden');
-                            document.getElementById('res-status-tag').innerText = "修煉中 (差一步)";
-                            document.getElementById('res-status-tag').className = "mt-1 text-[11px] font-bold text-rose-400";
+                            document.getElementById('res-status-tag').innerText = "修煉中 (需 85 分)";
+                            document.getElementById('res-status-tag').className = "mt-1 text-xs font-bold text-rose-600";
                         }
                     }
                     numEl.innerText = cur;
-                    numEl.style.color = cur >= 85 ? '#fcd34d' : (cur < 60 ? '#f43f5e' : '#ffffff');
+                    numEl.style.color = cur >= 85 ? '#d97706' : (cur < 60 ? '#dc2626' : '#173e35');
                 }, 20);
 
                 animateMetric('score-theme', 'bar-theme', data.themeScore);
@@ -1929,292 +1906,248 @@
                 animateMetric('score-light', 'bar-light', data.lightScore);
                 animateMetric('score-detail', 'bar-detail', data.detailScore);
 
-                renderOverlayCanvas();
-            }, 250);
+                renderAnalysisOverlay(state.overlayMode);
+            }, 200);
         }
 
-        function animateMetric(textId, barId, val) {
+        function animateMetric(valId, barId, score) {
+            document.getElementById(valId).innerText = score;
             const bar = document.getElementById(barId);
-            const text = document.getElementById(textId);
-            bar.style.width = `${val}%`;
-            let cur = 0;
-            const t = setInterval(() => {
-                cur += 2;
-                if (cur >= val) {
-                    cur = val;
-                    clearInterval(t);
-                }
-                text.innerText = cur;
-            }, 18);
+            setTimeout(() => {
+                bar.style.width = `${score}%`;
+            }, 100);
         }
 
         // ==============================================
-        // 視覺化美感疊圖
+        // 視覺化疊圖診斷 Canvas
         // ==============================================
         function switchOverlayMode(mode) {
             state.overlayMode = mode;
             ['thirds', 'focus', 'palette'].forEach(m => {
                 const btn = document.getElementById(`btn-overlay-${m}`);
                 if (m === mode) {
-                    btn.className = "py-1.5 px-1 bg-cyan-950 border border-cyan-700 text-cyan-300 rounded-lg font-bold transition-all text-center";
+                    btn.className = "py-1.5 px-1 bg-[#173e35] text-white rounded-lg font-bold transition-all text-center";
                 } else {
-                    btn.className = "py-1.5 px-1 bg-slate-800 border border-slate-700 text-slate-400 hover:text-white rounded-lg font-bold transition-all text-center";
+                    btn.className = "py-1.5 px-1 bg-white border border-[#d4ded5] text-[#5d7068] hover:text-[#173e35] rounded-lg font-bold transition-all text-center";
                 }
             });
-            renderOverlayCanvas();
+            renderAnalysisOverlay(mode);
         }
 
-        function renderOverlayCanvas() {
+        function renderAnalysisOverlay(mode) {
             const canvas = document.getElementById('analysis-overlay-canvas');
             const ctx = canvas.getContext('2d');
             const img = new Image();
             img.src = state.croppedBase64;
             img.onload = () => {
                 canvas.width = 600;
-                canvas.height = 360;
-
-                ctx.fillStyle = '#090d16';
-                ctx.fillRect(0, 0, 600, 360);
+                canvas.height = 340;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 const size = 300;
-                const ox = (600 - size) / 2;
-                const oy = (360 - size) / 2;
+                const ox = (canvas.width - size) / 2;
+                const oy = (canvas.height - size) / 2;
 
                 ctx.save();
                 ctx.beginPath();
-                ctx.arc(ox + size / 2, oy + size / 2, size / 2, 0, Math.PI * 2);
+                ctx.arc(canvas.width / 2, canvas.height / 2, size / 2, 0, Math.PI * 2);
                 ctx.clip();
                 ctx.drawImage(img, ox, oy, size, size);
                 ctx.restore();
 
-                ctx.strokeStyle = '#38bdf8';
+                ctx.strokeStyle = '#24654d';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.arc(ox + size / 2, oy + size / 2, size / 2, 0, Math.PI * 2);
+                ctx.arc(canvas.width / 2, canvas.height / 2, size / 2, 0, Math.PI * 2);
                 ctx.stroke();
 
-                if (state.overlayMode === 'thirds') {
-                    ctx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
+                if (mode === 'thirds') {
+                    ctx.strokeStyle = '#34d399';
                     ctx.lineWidth = 1.5;
                     ctx.setLineDash([6, 6]);
 
-                    ctx.beginPath();
-                    ctx.moveTo(ox + size * (1 / 3), oy);
-                    ctx.lineTo(ox + size * (1 / 3), oy + size);
-                    ctx.moveTo(ox + size * (2 / 3), oy);
-                    ctx.lineTo(ox + size * (2 / 3), oy + size);
-                    ctx.moveTo(ox, oy + size * (1 / 3));
-                    ctx.lineTo(ox + size, oy + size * (1 / 3));
-                    ctx.moveTo(ox, oy + size * (2 / 3));
-                    ctx.lineTo(ox + size, oy + size * (2 / 3));
-                    ctx.stroke();
+                    const step = size / 3;
+                    for (let i = 1; i <= 2; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(ox + i * step, oy);
+                        ctx.lineTo(ox + i * step, oy + size);
+                        ctx.stroke();
+
+                        ctx.beginPath();
+                        ctx.moveTo(ox, oy + i * step);
+                        ctx.lineTo(ox + size, oy + i * step);
+                        ctx.stroke();
+                    }
                     ctx.setLineDash([]);
 
-                    ctx.fillStyle = '#f59e0b';
-                    [1 / 3, 2 / 3].forEach(gx => {
-                        [1 / 3, 2 / 3].forEach(gy => {
+                    ctx.fillStyle = '#d97706';
+                    for (let i = 1; i <= 2; i++) {
+                        for (let j = 1; j <= 2; j++) {
                             ctx.beginPath();
-                            ctx.arc(ox + size * gx, oy + size * gy, 5, 0, Math.PI * 2);
+                            ctx.arc(ox + i * step, oy + j * step, 5, 0, Math.PI * 2);
                             ctx.fill();
-                        });
-                    });
+                        }
+                    }
+                } else if (mode === 'focus') {
+                    const fx = ox + size * (state.currentResult?.focusX || 0.5);
+                    const fy = oy + size * (state.currentResult?.focusY || 0.46);
 
-                    ctx.fillStyle = '#38bdf8';
-                    ctx.font = '12px Orbitron, sans-serif';
-                    ctx.fillText('RULE OF THIRDS (GOLDEN RATIO)', 18, 28);
-                } else if (state.overlayMode === 'focus') {
-                    const fx = state.currentResult?.focusX || 0.5;
-                    const fy = state.currentResult?.focusY || 0.5;
-                    const targetX = ox + size * fx;
-                    const targetY = oy + size * fy;
-
-                    ctx.strokeStyle = '#f43f5e';
-                    ctx.lineWidth = 2;
+                    const grad = ctx.createRadialGradient(fx, fy, 5, fx, fy, 80);
+                    grad.addColorStop(0, 'rgba(217, 119, 6, 0.7)');
+                    grad.addColorStop(0.5, 'rgba(36, 101, 77, 0.4)');
+                    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                    ctx.fillStyle = grad;
                     ctx.beginPath();
-                    ctx.arc(targetX, targetY, 28, 0, Math.PI * 2);
-                    ctx.stroke();
-
-                    ctx.strokeStyle = '#fb7185';
-                    ctx.beginPath();
-                    ctx.arc(targetX, targetY, 42, 0, Math.PI * 2);
-                    ctx.stroke();
-
-                    ctx.fillStyle = '#f43f5e';
-                    ctx.beginPath();
-                    ctx.arc(targetX, targetY, 4, 0, Math.PI * 2);
+                    ctx.arc(fx, fy, 80, 0, Math.PI * 2);
                     ctx.fill();
 
-                    ctx.strokeStyle = '#f43f5e';
+                    ctx.strokeStyle = '#f59e0b';
+                    ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.moveTo(targetX + 30, targetY - 30);
-                    ctx.lineTo(targetX + 80, targetY - 30);
+                    ctx.arc(fx, fy, 16, 0, Math.PI * 2);
                     ctx.stroke();
-
-                    ctx.fillStyle = '#f43f5e';
-                    ctx.font = 'bold 12px Noto Sans TC, sans-serif';
-                    ctx.fillText('AI 偵測視覺重心', targetX + 85, targetY - 26);
-                } else if (state.overlayMode === 'palette') {
-                    const colors = state.currentResult?.palette || ['#0f172a', '#38bdf8', '#a855f7', '#f59e0b', '#ffffff'];
-                    const boxW = 28;
-                    const boxH = 40;
-                    const startY = oy + size - boxH - 10;
-                    const startX = ox + 15;
-
-                    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-                    ctx.fillRect(startX - 8, startY - 22, (boxW + 6) * colors.length + 10, boxH + 30);
-
-                    ctx.fillStyle = '#38bdf8';
-                    ctx.font = '10px Orbitron, sans-serif';
-                    ctx.fillText('EXTRACTED COLOR PALETTE', startX, startY - 8);
+                } else if (mode === 'palette') {
+                    const colors = state.currentResult?.palette || ['#173e35', '#24654d', '#e4edb7', '#d97706', '#f7f5ed'];
+                    const barW = 38;
+                    const barH = 18;
+                    const startX = (canvas.width - (colors.length * (barW + 8))) / 2;
+                    const py = canvas.height - 35;
 
                     colors.forEach((c, idx) => {
                         ctx.fillStyle = c;
-                        ctx.fillRect(startX + idx * (boxW + 6), startY, boxW, boxH);
-                        ctx.strokeStyle = '#ffffff';
+                        ctx.fillRect(startX + idx * (barW + 8), py, barW, barH);
+                        ctx.strokeStyle = '#d4ded5';
                         ctx.lineWidth = 1;
-                        ctx.strokeRect(startX + idx * (boxW + 6), startY, boxW, boxH);
+                        ctx.strokeRect(startX + idx * (barW + 8), py, barW, barH);
                     });
                 }
             };
         }
 
         // ==============================================
-        // 印刷版型與證書匯出
+        // 實體創客輸出 1：58mm 胸章印刷版型 PNG
         // ==============================================
         function exportBadgePrintTemplate() {
             const canvas = document.getElementById('export-canvas');
-            canvas.width = 1200;
-            canvas.height = 1200;
+            const size = 1200;
+            canvas.width = size;
+            canvas.height = size;
             const ctx = canvas.getContext('2d');
 
             ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, 1200, 1200);
+            ctx.fillRect(0, 0, size, size);
+
+            const cx = size / 2;
+            const cy = size / 2;
+            const liveRadius = 345;
+            const bleedRadius = 410;
 
             const img = new Image();
             img.src = state.croppedBase64;
             img.onload = () => {
-                const cx = 600;
-                const cy = 600;
-                const innerRadius = 380;
-                const outerRadius = 490;
-
                 ctx.save();
                 ctx.beginPath();
-                ctx.arc(cx, cy, outerRadius, 0, Math.PI * 2);
+                ctx.arc(cx, cy, bleedRadius, 0, Math.PI * 2);
                 ctx.clip();
-                ctx.drawImage(img, cx - outerRadius, cy - outerRadius, outerRadius * 2, outerRadius * 2);
+                ctx.drawImage(img, cx - bleedRadius, cy - bleedRadius, bleedRadius * 2, bleedRadius * 2);
                 ctx.restore();
 
-                ctx.save();
-                ctx.beginPath();
-                ctx.arc(cx, cy, innerRadius, 0, Math.PI * 2);
-                ctx.clip();
-                ctx.drawImage(img, cx - innerRadius, cy - innerRadius, innerRadius * 2, innerRadius * 2);
-                ctx.restore();
-
-                ctx.strokeStyle = 'rgba(56, 189, 248, 0.9)';
-                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#d4ded5';
+                ctx.lineWidth = 2;
                 ctx.setLineDash([12, 12]);
                 ctx.beginPath();
-                ctx.arc(cx, cy, innerRadius, 0, Math.PI * 2);
+                ctx.arc(cx, cy, bleedRadius, 0, Math.PI * 2);
                 ctx.stroke();
 
-                ctx.strokeStyle = '#ef4444';
+                ctx.strokeStyle = '#24654d';
                 ctx.lineWidth = 4;
-                ctx.setLineDash([]);
+                ctx.setLineDash([8, 8]);
                 ctx.beginPath();
-                ctx.arc(cx, cy, outerRadius, 0, Math.PI * 2);
+                ctx.arc(cx, cy, liveRadius, 0, Math.PI * 2);
                 ctx.stroke();
+                ctx.setLineDash([]);
 
-                ctx.strokeStyle = '#1e293b';
-                ctx.lineWidth = 3;
-                const markLen = 50;
-                ctx.beginPath();
-                ctx.moveTo(cx, cy - outerRadius - 10); ctx.lineTo(cx, cy - outerRadius - 10 - markLen); ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(cx, cy + outerRadius + 10); ctx.lineTo(cx, cy + outerRadius + 10 + markLen); ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(cx - outerRadius - 10, cy); ctx.lineTo(cx - outerRadius - 10 - markLen, cy); ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(cx + outerRadius + 10, cy); ctx.lineTo(cx + outerRadius + 10 + markLen, cy); ctx.stroke();
+                ctx.strokeStyle = '#173e35';
+                ctx.lineWidth = 2;
+                const markLen = 40;
+                [[cx, 30], [cx, size - 30], [30, cy], [size - 30, cy]].forEach(([x, y]) => {
+                    ctx.beginPath();
+                    ctx.moveTo(x - markLen / 2, y);
+                    ctx.lineTo(x + markLen / 2, y);
+                    ctx.moveTo(x, y - markLen / 2);
+                    ctx.lineTo(x, y + markLen / 2);
+                    ctx.stroke();
+                });
 
-                ctx.fillStyle = '#0f172a';
-                ctx.font = 'bold 22px Noto Sans TC, sans-serif';
-                ctx.fillText(`【實體胸章印刷標準版型 58mm】`, 70, 90);
-                ctx.font = '18px Noto Sans TC, sans-serif';
-                ctx.fillText(`創作者：${state.studentName} (${state.studentId}) ｜ 主題：${state.theme}`, 70, 125);
-                ctx.fillText(`認證稱號：${state.currentResult?.title || ''} ｜ AI 綜合能量評定：${state.currentResult?.totalScore || 90} 分`, 70, 155);
+                ctx.fillStyle = '#173e35';
+                ctx.font = 'bold 24px Noto Serif TC, sans-serif';
+                ctx.fillText(`大溪國中 AI 藝術能量胸章｜創作者：${state.studentName} (${state.studentId})｜主題：${state.theme}`, 100, size - 60);
 
-                ctx.fillStyle = '#64748b';
-                ctx.font = '15px Noto Sans TC, sans-serif';
-                ctx.fillText(`※ 藍色虛線內為正面可視區，紅色實線為金屬包邊裁切線。`, 70, 1140);
-
-                downloadCanvasImage(canvas, `AI胸章印刷檔_${state.studentId}_${state.studentName}.png`);
+                downloadCanvasImage(canvas, `58mm胸章印刷版型_${state.studentId}_${state.studentName}.png`);
             };
         }
 
+        // ==============================================
+        // 實體創客輸出 2：特級能量證書 PNG
+        // ==============================================
         function exportHonorCertificate() {
             const canvas = document.getElementById('export-canvas');
             canvas.width = 1600;
-            canvas.height = 1130;
+            canvas.height = 1000;
             const ctx = canvas.getContext('2d');
 
-            const bgGrad = ctx.createLinearGradient(0, 0, 1600, 1130);
-            bgGrad.addColorStop(0, '#090d16');
-            bgGrad.addColorStop(0.5, '#0f172a');
-            bgGrad.addColorStop(1, '#1e1b4b');
-            ctx.fillStyle = bgGrad;
-            ctx.fillRect(0, 0, 1600, 1130);
+            ctx.fillStyle = '#f7f5ed';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.strokeStyle = '#f59e0b';
-            ctx.lineWidth = 6;
-            ctx.strokeRect(50, 50, 1500, 1030);
+            ctx.strokeStyle = '#24654d';
+            ctx.lineWidth = 14;
+            ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
 
-            ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+            ctx.strokeStyle = '#d97706';
             ctx.lineWidth = 2;
-            ctx.strokeRect(65, 65, 1470, 1000);
+            ctx.strokeRect(55, 55, canvas.width - 110, canvas.height - 110);
 
-            ctx.fillStyle = '#38bdf8';
-            ctx.font = 'bold 24px Orbitron, sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('CERTIFICATE OF ARTISTIC ENERGY & MAKER EXCELLENCE', 800, 140);
+            ctx.fillStyle = '#5d7068';
+            ctx.font = 'bold 20px Georgia, serif';
+            ctx.fillText('DAXI JUNIOR HIGH SCHOOL ・ ART COMPETENCY CERTIFICATE', 800, 135);
 
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '900 46px Noto Sans TC, sans-serif';
-            ctx.fillText('特級繪師·AI 藝術能量認證證書', 800, 205);
+            ctx.fillStyle = '#173e35';
+            ctx.font = '900 44px Noto Serif TC, sans-serif';
+            ctx.fillText('特級創客·AI 藝術能量認證證書', 800, 205);
 
-            ctx.font = '22px Noto Sans TC, sans-serif';
-            ctx.fillStyle = '#cbd5e1';
+            ctx.font = '22px Noto Serif TC, sans-serif';
+            ctx.fillStyle = '#5d7068';
             ctx.fillText(`茲證明學員`, 800, 290);
 
-            ctx.fillStyle = '#f59e0b';
-            ctx.font = '900 38px Noto Sans TC, sans-serif';
+            ctx.fillStyle = '#173e35';
+            ctx.font = '900 38px Noto Serif TC, sans-serif';
             ctx.fillText(`${state.studentName}（${state.studentId}）`, 800, 345);
 
-            ctx.fillStyle = '#e2e8f0';
-            ctx.font = '20px Noto Sans TC, sans-serif';
+            ctx.fillStyle = '#173e35';
+            ctx.font = '20px Noto Serif TC, sans-serif';
             ctx.fillText(`於「AI 藝術能量掃描儀」跨領域美學素養評鑑中，展現卓越之美感構圖與原創技法，`, 800, 405);
             ctx.fillText(`挑戰領域【${state.theme}】，經多模態神經網路深度鑑定，綜合評定高達`, 800, 445);
 
-            ctx.fillStyle = '#fcd34d';
-            ctx.font = '900 54px Orbitron, sans-serif';
-            ctx.fillText(`${state.currentResult?.totalScore || 92} PTS`, 800, 520);
+            ctx.fillStyle = '#d97706';
+            ctx.font = '900 52px Orbitron, sans-serif';
+            ctx.fillText(`${state.currentResult?.totalScore || 90} PTS`, 800, 520);
 
-            ctx.fillStyle = '#38bdf8';
-            ctx.font = 'bold 26px Noto Sans TC, sans-serif';
+            ctx.fillStyle = '#24654d';
+            ctx.font = 'bold 26px Noto Serif TC, sans-serif';
             ctx.fillText(`榮獲官方認證稱號：『${state.currentResult?.title || '特級創作者'}』`, 800, 575);
 
             const img = new Image();
             img.src = state.croppedBase64;
             img.onload = () => {
                 const cx = 800;
-                const cy = 790;
-                const radius = 120;
+                const cy = 780;
+                const radius = 115;
 
                 ctx.save();
                 ctx.beginPath();
-                ctx.arc(cx, cy, radius + 10, 0, Math.PI * 2);
-                ctx.fillStyle = '#f59e0b';
+                ctx.arc(cx, cy, radius + 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#d97706';
                 ctx.fill();
 
                 ctx.beginPath();
@@ -2223,20 +2156,20 @@
                 ctx.drawImage(img, cx - radius, cy - radius, radius * 2, radius * 2);
                 ctx.restore();
 
-                ctx.strokeStyle = '#f59e0b';
+                ctx.strokeStyle = '#d97706';
                 ctx.lineWidth = 3;
                 ctx.beginPath();
-                ctx.arc(cx, cy, radius + 15, 0, Math.PI * 2);
+                ctx.arc(cx, cy, radius + 12, 0, Math.PI * 2);
                 ctx.stroke();
 
                 ctx.textAlign = 'left';
-                ctx.fillStyle = '#64748b';
-                ctx.font = '15px Orbitron, sans-serif';
-                ctx.fillText(`CERTIFICATE ID: AS2-${Date.now().toString(36).toUpperCase()}`, 100, 1030);
+                ctx.fillStyle = '#5d7068';
+                ctx.font = '16px Noto Serif TC, sans-serif';
+                ctx.fillText(`發證單位：桃園市立大溪國中`, 90, 910);
+                ctx.fillText(`發證日期：${new Date().toLocaleDateString('zh-TW')}`, 90, 935);
 
                 ctx.textAlign = 'right';
-                ctx.font = '16px Noto Sans TC, sans-serif';
-                ctx.fillText(`認證核發日期：${new Date().toLocaleDateString('zh-TW')}`, 1500, 1030);
+                ctx.fillText(`多模態視覺鑑別序號：DX-ART-${Math.random().toString(36).substring(2, 9).toUpperCase()}`, 1510, 935);
 
                 downloadCanvasImage(canvas, `AI藝術能量特級證書_${state.studentId}_${state.studentName}.png`);
             };
@@ -2260,25 +2193,25 @@
             grid.innerHTML = '';
             if (list.length === 0) {
                 grid.innerHTML = `
-                    <div class="col-span-full py-16 text-center text-slate-500 text-xs">
-                        <i class="fas fa-box-open text-3xl mb-2 text-slate-600 block"></i>
+                    <div class="col-span-full py-16 text-center text-[#5d7068] text-xs">
+                        <i class="fas fa-box-open text-3xl mb-2 text-[#b7cfac] block"></i>
                         目前尚未有作品達標入榜，快去啟動掃描並挑戰 85 分吧！
                     </div>
                 `;
             } else {
                 list.forEach(item => {
                     const card = document.createElement('div');
-                    card.className = "bg-slate-800/90 border border-slate-700/80 rounded-2xl p-3 flex flex-col items-center text-center shadow-md hover:border-cyan-500 transition-all";
+                    card.className = "bg-[#f7f9f2] border border-[#d4ded5] rounded-2xl p-3 flex flex-col items-center text-center shadow-xs hover:border-[#24654d] transition-all";
                     card.innerHTML = `
-                        <div class="relative w-20 h-20 rounded-full border-2 border-amber-400 overflow-hidden mb-2 shadow-md">
+                        <div class="relative w-20 h-20 rounded-full border-2 border-[#d97706] overflow-hidden mb-2 shadow-xs">
                             <img src="${item.image}" class="w-full h-full object-cover">
                         </div>
-                        <span class="text-xs font-bold text-white truncate max-w-full">${item.name}</span>
-                        <span class="text-[10px] text-cyan-400 truncate max-w-full">${item.title}</span>
-                        ${item.note ? `<p class="text-[9px] text-amber-300/90 truncate max-w-full italic px-1">「${item.note}」</p>` : ''}
-                        <div class="mt-1 flex items-center justify-between w-full text-[10px] text-slate-400 border-t border-slate-700/60 pt-1">
+                        <span class="text-xs font-serif font-bold text-[#173e35] truncate max-w-full">${item.name}</span>
+                        <span class="text-[10px] text-[#24654d] truncate max-w-full">${item.title}</span>
+                        ${item.note ? `<p class="text-[9px] text-[#b45309] truncate max-w-full italic px-1 mt-0.5">「${item.note}」</p>` : ''}
+                        <div class="mt-1 flex items-center justify-between w-full text-[10px] text-[#5d7068] border-t border-[#d4ded5] pt-1">
                             <span class="truncate max-w-[85px]">${item.theme}</span>
-                            <span class="font-tech font-bold text-amber-400">${item.score}分</span>
+                            <span class="font-tech font-bold text-[#d97706]">${item.score}分</span>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -2307,7 +2240,7 @@
         function resetToHome() { showScreen('screen-login'); }
 
         function fireCyberConfetti() {
-            const colors = ['#38bdf8', '#a855f7', '#f59e0b', '#34d399', '#f43f5e'];
+            const colors = ['#24654d', '#173e35', '#d97706', '#84cc16', '#34d399'];
             for (let i = 0; i < 45; i++) {
                 const el = document.createElement('div');
                 el.className = 'confetti-piece';
@@ -2323,7 +2256,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             loadSavedApiKey();
             updateGalleryCount();
-            updateThemeDots(0);
+            renderThemes();
         });
     </script>
 </body>
