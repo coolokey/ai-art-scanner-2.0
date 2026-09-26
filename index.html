@@ -712,11 +712,11 @@
                 <!-- 3. Google Apps Script 後端網址 (GAS URL) -->
                 <div>
                     <label class="block text-[#173e35] font-bold mb-1">
-                        <i class="fas fa-server text-[#7c3aed] mr-1"></i> 獨立 Apps Script 網頁應用程式網址 (選填)
+                        <i class="fas fa-server text-[#7c3aed] mr-1"></i> 獨立 Apps Script 網頁應用程式網址
                     </label>
-                    <input type="text" id="modal-gas-input" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2 text-[#173e35] text-xs focus:outline-none" placeholder="https://script.google.com/macros/s/.../exec">
+                    <input type="text" id="modal-gas-input" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2 text-[#173e35] text-xs focus:outline-none" value="https://script.google.com/macros/s/AKfycbxbx30YSNXTHV0bkbDKEJlQUqASuke-6tgMpDA1DrAb2z-QPSjbsyz9_0s3EJWUsx4w/exec" placeholder="https://script.google.com/macros/s/AKfycbxbx30YSNXTHV0bkbDKEJlQUqASuke-6tgMpDA1DrAb2z-QPSjbsyz9_0s3EJWUsx4w/exec">
                     <p class="text-[10px] text-[#5d7068] mt-1">
-                        ※ 若部署了本專案專屬的 `Code.gs`，填入此處即可實現全自動雲端存檔與 Google 試算表總表登記。
+                        ※ 已直接佈署專屬獨立後端，支援達標作品自動上傳雲端硬碟與登記總表。
                     </p>
                 </div>
 
@@ -788,6 +788,7 @@
         const KEY_STORAGE_NAME = 'ART_SCANNER_API_KEY_V2';
         const GALLERY_STORAGE_NAME = 'ART_SCANNER_GALLERY_V2';
         const DEFAULT_DRIVE_FOLDER_ID = '1tutM_vmGgeqPBepWj2goiW1zmOe9keF0';
+        const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxbx30YSNXTHV0bkbDKEJlQUqASuke-6tgMpDA1DrAb2z-QPSjbsyz9_0s3EJWUsx4w/exec';
 
         const state = {
             studentId: '80105',
@@ -1070,12 +1071,15 @@
         let currentThemeViewMode = 'grid'; // 'grid' (總覽網格) or 'carousel' (橫向輪播)
         let currentThemeCategory = 'all';
 
-        // 讀取已儲存的金鑰與雲端資料夾 ID
+        // 讀取已儲存的金鑰與雲端資料夾 ID 及 GAS URL
         function loadSavedApiKey() {
             const saved = localStorage.getItem(KEY_STORAGE_NAME) || '';
             state.apiKey = saved.trim();
             if (!localStorage.getItem('ART_SCANNER_FOLDER_ID_V2')) {
                 localStorage.setItem('ART_SCANNER_FOLDER_ID_V2', DEFAULT_DRIVE_FOLDER_ID);
+            }
+            if (!localStorage.getItem('ART_SCANNER_GAS_URL_V2')) {
+                localStorage.setItem('ART_SCANNER_GAS_URL_V2', DEFAULT_GAS_URL);
             }
             updateEngineStatusUI();
         }
@@ -1167,7 +1171,7 @@
         function showConfigModalDirectly() {
             document.getElementById('modal-apikey-input').value = state.apiKey;
             document.getElementById('modal-folder-input').value = localStorage.getItem('ART_SCANNER_FOLDER_ID_V2') || DEFAULT_DRIVE_FOLDER_ID;
-            document.getElementById('modal-gas-input').value = localStorage.getItem('ART_SCANNER_GAS_URL_V2') || '';
+            document.getElementById('modal-gas-input').value = localStorage.getItem('ART_SCANNER_GAS_URL_V2') || DEFAULT_GAS_URL;
             document.getElementById('modal-new-pwd-input').value = '';
             document.getElementById('ping-result').classList.add('hidden');
 
@@ -1185,7 +1189,7 @@
         function saveAdminSettings() {
             const key = document.getElementById('modal-apikey-input').value.trim();
             const folder = document.getElementById('modal-folder-input').value.trim() || DEFAULT_DRIVE_FOLDER_ID;
-            const gas = document.getElementById('modal-gas-input').value.trim();
+            const gas = document.getElementById('modal-gas-input').value.trim() || DEFAULT_GAS_URL;
             const newPwd = document.getElementById('modal-new-pwd-input').value.trim();
 
             if (key) {
@@ -1193,9 +1197,7 @@
                 state.apiKey = key;
             }
             localStorage.setItem('ART_SCANNER_FOLDER_ID_V2', folder);
-            if (gas) {
-                localStorage.setItem('ART_SCANNER_GAS_URL_V2', gas);
-            }
+            localStorage.setItem('ART_SCANNER_GAS_URL_V2', gas);
             if (newPwd) {
                 localStorage.setItem('ART_SCANNER_ADMIN_PWD_V2', newPwd);
                 alert("管理密碼已成功更新！請妥善記住新密碼。");
@@ -1210,7 +1212,7 @@
             if (confirm("確定要清除所有金鑰、資料夾與密碼設定，還原為出廠預設嗎？")) {
                 localStorage.removeItem(KEY_STORAGE_NAME);
                 localStorage.setItem('ART_SCANNER_FOLDER_ID_V2', DEFAULT_DRIVE_FOLDER_ID);
-                localStorage.removeItem('ART_SCANNER_GAS_URL_V2');
+                localStorage.setItem('ART_SCANNER_GAS_URL_V2', DEFAULT_GAS_URL);
                 localStorage.removeItem('ART_SCANNER_ADMIN_PWD_V2');
                 sessionStorage.removeItem('ART_SCANNER_AUTH');
                 state.apiKey = '';
@@ -1227,7 +1229,7 @@
             const btn = document.getElementById('btn-cloud-upload');
             const btnText = document.getElementById('cloud-upload-btn-text');
             const statusBox = document.getElementById('cloud-upload-status');
-            const gasUrl = localStorage.getItem('ART_SCANNER_GAS_URL_V2') || '';
+            const gasUrl = localStorage.getItem('ART_SCANNER_GAS_URL_V2') || DEFAULT_GAS_URL;
             const folderId = localStorage.getItem('ART_SCANNER_FOLDER_ID_V2') || DEFAULT_DRIVE_FOLDER_ID;
 
             if (!gasUrl) {
