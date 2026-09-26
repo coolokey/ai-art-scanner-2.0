@@ -703,9 +703,9 @@
                     <label class="block text-[#173e35] font-bold mb-1">
                         <i class="fab fa-google-drive text-[#24654d] mr-1"></i> Google 雲端專屬收件資料夾 ID
                     </label>
-                    <input type="text" id="modal-folder-input" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2 text-[#173e35] font-tech text-xs focus:outline-none" placeholder="例如：1a2b3c4d5e6f... (網址 /folders/ 後段英數)">
+                    <input type="text" id="modal-folder-input" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2 text-[#173e35] font-tech text-xs focus:outline-none" value="1tutM_vmGgeqPBepWj2goiW1zmOe9keF0" placeholder="1tutM_vmGgeqPBepWj2goiW1zmOe9keF0">
                     <p class="text-[10px] text-[#5d7068] mt-1">
-                        ※ 請在 Google Drive 建立一個<strong>全新的專用資料夾</strong>（如「AI藝術胸章成果庫」），完全與之前的自主學習作業分開！
+                        ※ 已預設專屬收件資料夾 ID：<code class="text-[#24654d] font-bold">1tutM_vmGgeqPBepWj2goiW1zmOe9keF0</code>（完全獨立於原自主學習系統）。
                     </p>
                 </div>
 
@@ -787,6 +787,7 @@
     <script>
         const KEY_STORAGE_NAME = 'ART_SCANNER_API_KEY_V2';
         const GALLERY_STORAGE_NAME = 'ART_SCANNER_GALLERY_V2';
+        const DEFAULT_DRIVE_FOLDER_ID = '1tutM_vmGgeqPBepWj2goiW1zmOe9keF0';
 
         const state = {
             studentId: '80105',
@@ -1069,10 +1070,13 @@
         let currentThemeViewMode = 'grid'; // 'grid' (總覽網格) or 'carousel' (橫向輪播)
         let currentThemeCategory = 'all';
 
-        // 讀取已儲存的金鑰
+        // 讀取已儲存的金鑰與雲端資料夾 ID
         function loadSavedApiKey() {
             const saved = localStorage.getItem(KEY_STORAGE_NAME) || '';
             state.apiKey = saved.trim();
+            if (!localStorage.getItem('ART_SCANNER_FOLDER_ID_V2')) {
+                localStorage.setItem('ART_SCANNER_FOLDER_ID_V2', DEFAULT_DRIVE_FOLDER_ID);
+            }
             updateEngineStatusUI();
         }
 
@@ -1162,7 +1166,7 @@
 
         function showConfigModalDirectly() {
             document.getElementById('modal-apikey-input').value = state.apiKey;
-            document.getElementById('modal-folder-input').value = localStorage.getItem('ART_SCANNER_FOLDER_ID_V2') || '';
+            document.getElementById('modal-folder-input').value = localStorage.getItem('ART_SCANNER_FOLDER_ID_V2') || DEFAULT_DRIVE_FOLDER_ID;
             document.getElementById('modal-gas-input').value = localStorage.getItem('ART_SCANNER_GAS_URL_V2') || '';
             document.getElementById('modal-new-pwd-input').value = '';
             document.getElementById('ping-result').classList.add('hidden');
@@ -1180,7 +1184,7 @@
 
         function saveAdminSettings() {
             const key = document.getElementById('modal-apikey-input').value.trim();
-            const folder = document.getElementById('modal-folder-input').value.trim();
+            const folder = document.getElementById('modal-folder-input').value.trim() || DEFAULT_DRIVE_FOLDER_ID;
             const gas = document.getElementById('modal-gas-input').value.trim();
             const newPwd = document.getElementById('modal-new-pwd-input').value.trim();
 
@@ -1188,9 +1192,7 @@
                 localStorage.setItem(KEY_STORAGE_NAME, key);
                 state.apiKey = key;
             }
-            if (folder) {
-                localStorage.setItem('ART_SCANNER_FOLDER_ID_V2', folder);
-            }
+            localStorage.setItem('ART_SCANNER_FOLDER_ID_V2', folder);
             if (gas) {
                 localStorage.setItem('ART_SCANNER_GAS_URL_V2', gas);
             }
@@ -1207,7 +1209,7 @@
         function clearAllSettings() {
             if (confirm("確定要清除所有金鑰、資料夾與密碼設定，還原為出廠預設嗎？")) {
                 localStorage.removeItem(KEY_STORAGE_NAME);
-                localStorage.removeItem('ART_SCANNER_FOLDER_ID_V2');
+                localStorage.setItem('ART_SCANNER_FOLDER_ID_V2', DEFAULT_DRIVE_FOLDER_ID);
                 localStorage.removeItem('ART_SCANNER_GAS_URL_V2');
                 localStorage.removeItem('ART_SCANNER_ADMIN_PWD_V2');
                 sessionStorage.removeItem('ART_SCANNER_AUTH');
@@ -1226,6 +1228,7 @@
             const btnText = document.getElementById('cloud-upload-btn-text');
             const statusBox = document.getElementById('cloud-upload-status');
             const gasUrl = localStorage.getItem('ART_SCANNER_GAS_URL_V2') || '';
+            const folderId = localStorage.getItem('ART_SCANNER_FOLDER_ID_V2') || DEFAULT_DRIVE_FOLDER_ID;
 
             if (!gasUrl) {
                 statusBox.className = "p-3 rounded-xl border bg-[#fffbeb] border-[#fde68a] text-[#92400e] text-xs text-left";
@@ -1251,6 +1254,7 @@
             try {
                 const payload = {
                     action: 'uploadArtwork',
+                    folderId: folderId,
                     studentId: state.studentId,
                     studentName: state.studentName,
                     theme: state.theme,

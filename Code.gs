@@ -10,12 +10,13 @@
  */
 
 var SCRIPT_PROPS_ = PropertiesService.getScriptProperties();
+var DEFAULT_FOLDER_ID_ = '1tutM_vmGgeqPBepWj2goiW1zmOe9keF0';
 
 function doGet(e) {
   return ContentService.createTextOutput(JSON.stringify({
     status: 'online',
     system: 'AI Art Scanner 2.0 Backend',
-    hasFolder: !!SCRIPT_PROPS_.getProperty('FOLDER_ID'),
+    hasFolder: !!(SCRIPT_PROPS_.getProperty('FOLDER_ID') || DEFAULT_FOLDER_ID_),
     hasApiKey: !!SCRIPT_PROPS_.getProperty('GEMINI_API_KEY')
   })).setMimeType(ContentService.MimeType.JSON);
 }
@@ -37,7 +38,7 @@ function doPost(e) {
       return jsonResp_({
         success: true,
         apiKeyMasked: maskKey_(SCRIPT_PROPS_.getProperty('GEMINI_API_KEY') || ''),
-        folderId: SCRIPT_PROPS_.getProperty('FOLDER_ID') || '',
+        folderId: SCRIPT_PROPS_.getProperty('FOLDER_ID') || DEFAULT_FOLDER_ID_,
         activeModel: SCRIPT_PROPS_.getProperty('ACTIVE_MODEL') || 'gemini-1.5-flash'
       });
     }
@@ -146,7 +147,7 @@ function testGeminiConnection_(key) {
  * 將通過 85 分的胸章作品存入 Google Drive 並登記試算表
  */
 function saveArtworkToDrive_(data) {
-  var folderId = SCRIPT_PROPS_.getProperty('FOLDER_ID');
+  var folderId = (data.folderId && data.folderId.trim()) || SCRIPT_PROPS_.getProperty('FOLDER_ID') || DEFAULT_FOLDER_ID_;
   if (!folderId) {
     throw new Error('伺服器端尚未設定 Google 雲端收件資料夾 ID (FOLDER_ID)！請聯絡老師。');
   }
