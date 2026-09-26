@@ -103,18 +103,6 @@
             100% { top: 0%; opacity: 0.2; }
         }
 
-        /* 旋轉準星環 */
-        .reticle-ring {
-            border: 2px dashed rgba(52, 211, 153, 0.6);
-            border-radius: 50%;
-            animation: spinRing 25s linear infinite;
-        }
-
-        @keyframes spinRing {
-            from { transform: translate(-50%, -50%) rotate(0deg); }
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
         /* 碎紙花慶祝特效 */
         .confetti-piece {
             position: fixed;
@@ -351,11 +339,10 @@
                 <img id="crop-image" class="absolute top-0 left-0 hidden cursor-move pointer-events-none select-none" draggable="false">
 
                 <!-- 圓形胸章預覽遮罩 (Outer Dim) -->
-                <div id="crop-circular-mask" class="absolute inset-0 pointer-events-none hidden z-20" style="box-shadow: 0 0 0 9999px rgba(15, 33, 28, 0.88); border-radius: 50%; border: 3px solid #34d399; width: 82%; aspect-ratio: 1/1; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                    <div class="absolute inset-0 reticle-ring opacity-40"></div>
-                    <div class="absolute top-1/2 left-0 right-0 h-[1px] bg-emerald-400/30"></div>
-                    <div class="absolute left-1/2 top-0 bottom-0 w-[1px] bg-emerald-400/30"></div>
-                    <span class="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] font-tech text-emerald-300 bg-slate-950/80 px-1.5 py-0.5 rounded">58mm BADGE</span>
+                <div id="crop-circular-mask" class="absolute inset-0 pointer-events-none hidden z-20" style="box-shadow: 0 0 0 9999px rgba(15, 33, 28, 0.88); border-radius: 50%; border: 3px solid #24654d; width: 82%; aspect-ratio: 1/1; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                    <div class="absolute top-1/2 left-0 right-0 h-[1px] bg-emerald-400/25"></div>
+                    <div class="absolute left-1/2 top-0 bottom-0 w-[1px] bg-emerald-400/25"></div>
+                    <span class="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] font-tech text-emerald-300 bg-slate-950/80 px-2 py-0.5 rounded-full border border-emerald-500/30">58mm BADGE</span>
                 </div>
             </div>
 
