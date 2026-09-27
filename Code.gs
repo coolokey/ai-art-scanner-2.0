@@ -147,58 +147,90 @@ function testGeminiConnection_(key) {
  * 將通過 85 分的胸章作品存入 Google Drive 並登記試算表
  */
 function saveArtworkToDrive_(data) {
-  var folderId = (data.folderId && data.folderId.trim()) || SCRIPT_PROPS_.getProperty('FOLDER_ID') || DEFAULT_FOLDER_ID_;
-  if (!folderId) {
-    throw new Error('伺服器端尚未設定 Google 雲端收件資料夾 ID (FOLDER_ID)！請聯絡老師。');
+  var lock = LockService.getScriptLock();
+  try {
+    // 最多等待 20 秒取得排程鎖定，徹底杜絕高併發重複建立資料夾與試算表
+    lock.waitLock(20000);
+
+    var folderId = (data.folderId && data.folderId.trim()) || SCRIPT_PROPS_.getProperty('FOLDER_ID') || DEFAULT_FOLDER_ID_;
+    if (!folderId) {
+      throw new Error('伺服器端尚未設定 Google 雲端收件資料夾 ID (FOLDER_ID)！請聯絡老師。');
+    }
+
+    var rootFolder = DriveApp.getFolderById(folderId);
+    var studentId = String(data.studentId || '無座號').trim();
+    var studentName = String(data.studentName || '匿名').trim();
+    var theme = String(data.theme || '未分類').trim();
+    var title = String(data.title || '特級繪師').trim();
+    var score = Number(data.totalScore || 0);
+
+    // 依「主題」自動建立子分類資料夾
+    var themeFolder = getOrCreateFolder_(rootFolder, theme);
+
+    // 處理 Base64 圖片轉成二進位 Blob (防呆與容錯)
+    if (!data.imageBase64 || typeof data.imageBase64 !== 'string') {
+      throw new Error('未收到有效的圖片編碼資料 (Base64 Missing)');
+    }
+    var parts = data.imageBase64.match(/^data:(image\/[a-zA-Z0-9\+\-]+);base64,(.+)$/);
+    var mimeType = parts ? parts[1] : 'image/png';
+    var rawBase64 = parts ? parts[2] : data.imageBase64.replace(/^data:image\/\w+;base64,/, '');
+
+    var decodedBytes;
+    try {
+      decodedBytes = Utilities.base64Decode(rawBase64);
+    } catch (e) {
+      throw new Error('Base64 圖片解碼失敗，資料可能已損毀');
+    }
+
+    var timeStr = Utilities.formatDate(new Date(), 'GMT+8', 'yyyyMMdd_HHmmss');
+    // 清理 Windows 系統禁用檔名字元
+    var cleanId = studentId.replace(/[\\/:*?"<>|\r\n]/g, '_');
+    var cleanName = studentName.replace(/[\\/:*?"<>|\r\n]/g, '_');
+    var fileName = cleanId + '_' + cleanName + '_' + score + '分_' + timeStr + '.png';
+    
+    var blob = Utilities.newBlob(decodedBytes, mimeType, fileName);
+    var savedFile = themeFolder.createFile(blob);
+    savedFile.setDescription('AI 藝術能量掃描儀成果作品 - ' + studentName + ' (' + studentId + ') ｜ 稱號：' + title + ' ｜ 總分：' + score);
+
+    // 登記至 Google 試算表 (含公式注入防禦)
+    var sheet = getOrCreateArtSheet_(rootFolder);
+    var fileUrl = savedFile.getUrl();
+    sheet.appendRow([
+      new Date(),
+      sanitizeCell_(studentId),
+      sanitizeCell_(studentName),
+      sanitizeCell_(theme),
+      sanitizeCell_(data.studentNote || ''),
+      score,
+      sanitizeCell_(title),
+      Number(data.themeScore || 0),
+      Number(data.compScore || 0),
+      Number(data.colorScore || 0),
+      Number(data.lightScore || 0),
+      Number(data.detailScore || 0),
+      sanitizeCell_(data.feedback || ''),
+      sanitizeCell_(data.advice || ''),
+      fileUrl
+    ]);
+
+    return {
+      fileId: savedFile.getId(),
+      fileName: fileName,
+      fileUrl: fileUrl,
+      timestamp: new Date().toISOString()
+    };
+  } finally {
+    lock.releaseLock();
   }
+}
 
-  var rootFolder = DriveApp.getFolderById(folderId);
-  var studentId = String(data.studentId || '無座號').trim();
-  var studentName = String(data.studentName || '匿名').trim();
-  var theme = String(data.theme || '未分類').trim();
-  var title = String(data.title || '特級繪師').trim();
-  var score = Number(data.totalScore || 0);
-
-  // 依「主題」自動建立子分類資料夾
-  var themeFolder = getOrCreateFolder_(rootFolder, theme);
-
-  // 處理 Base64 圖片轉成二進位 Blob
-  var base64Str = data.imageBase64.replace(/^data:image\/\w+;base64,/, '');
-  var decodedBytes = Utilities.base64Decode(base64Str);
-  var timeStr = Utilities.formatDate(new Date(), 'GMT+8', 'yyyyMMdd_HHmmss');
-  var fileName = studentId + '_' + studentName + '_' + score + '分_' + timeStr + '.png';
-  
-  var blob = Utilities.newBlob(decodedBytes, 'image/png', fileName);
-  var savedFile = themeFolder.createFile(blob);
-  savedFile.setDescription('AI 藝術能量掃描儀成果作品 - ' + studentName + ' (' + studentId + ') ｜ 稱號：' + title + ' ｜ 總分：' + score);
-
-  // 登記至 Google 試算表
-  var sheet = getOrCreateArtSheet_(rootFolder);
-  var fileUrl = savedFile.getUrl();
-  sheet.appendRow([
-    new Date(),
-    studentId,
-    studentName,
-    theme,
-    data.studentNote || '',
-    score,
-    title,
-    data.themeScore || 0,
-    data.compScore || 0,
-    data.colorScore || 0,
-    data.lightScore || 0,
-    data.detailScore || 0,
-    data.feedback || '',
-    data.advice || '',
-    fileUrl
-  ]);
-
-  return {
-    fileId: savedFile.getId(),
-    fileName: fileName,
-    fileUrl: fileUrl,
-    timestamp: new Date().toISOString()
-  };
+function sanitizeCell_(val) {
+  var str = String(val == null ? '' : val);
+  // 若開頭為試算表公式特殊符號，強制前綴單引號防止 Formula Injection
+  if (/^[\=\+\-\@\t\r]/.test(str)) {
+    return "'" + str;
+  }
+  return str;
 }
 
 function getOrCreateFolder_(parent, name) {
@@ -229,3 +261,4 @@ function getOrCreateArtSheet_(rootFolder) {
   }
   return ss.getActiveSheet();
 }
+

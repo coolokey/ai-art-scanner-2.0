@@ -327,12 +327,19 @@
 
                     <div class="flex items-center space-x-2 my-1.5 text-[11px] text-[#5d7068]">
                         <span class="w-6 h-[1px] bg-[#d4ded5]"></span>
-                        <span>或使用示範作品</span>
+                        <span>評審快速示範通道</span>
                         <span class="w-6 h-[1px] bg-[#d4ded5]"></span>
                     </div>
-                    <button type="button" onclick="loadSampleImage()" class="text-xs text-[#d97706] hover:underline font-bold">
-                        <i class="fas fa-sparkles mr-1"></i> 一鍵載入示範作品
-                    </button>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-1.5 w-full">
+                        <button type="button" onclick="loadSampleImage('pass')" class="px-3 py-1.5 bg-[#eff3e7] hover:bg-[#e4edb7] text-[#24654d] border border-[#b7cfac] rounded-lg text-xs font-bold transition-all shadow-2xs flex items-center justify-center space-x-1">
+                            <i class="fas fa-sparkles text-[#d97706]"></i>
+                            <span>示範：高分精熟 (93分)</span>
+                        </button>
+                        <button type="button" onclick="loadSampleImage('offtopic')" class="px-3 py-1.5 bg-[#fff0ea] hover:bg-[#fed7aa] text-[#c2410c] border border-[#fdba74] rounded-lg text-xs font-bold transition-all shadow-2xs flex items-center justify-center space-x-1">
+                            <i class="fas fa-triangle-exclamation text-[#ea580c]"></i>
+                            <span>示範：空白抓包 (25分)</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 待裁切圖片元件 -->
@@ -483,8 +490,13 @@
             <!-- 五維美育素養指標條 -->
             <div class="bg-[#f7f9f2] border border-[#d4ded5] rounded-2xl p-4 space-y-2.5">
                 <div class="flex items-center justify-between text-xs font-bold text-[#173e35] border-b border-[#d4ded5] pb-1.5">
-                    <span><i class="fas fa-chart-radar mr-1.5 text-[#24654d]"></i> 五維美育素養指標</span>
+                    <span><i class="fas fa-chart-radar mr-1.5 text-[#24654d]"></i> 五維美育素養指標 (蛛網雷達診斷)</span>
                     <span class="text-[10px] text-[#5d7068]">108課綱藝術涵養評估</span>
+                </div>
+
+                <!-- 真正幾何五角蛛網雷達圖 -->
+                <div class="flex items-center justify-center py-1">
+                    <canvas id="metric-radar-canvas" class="max-w-[260px] h-auto"></canvas>
                 </div>
 
                 <!-- 指標 1 -->
@@ -1182,6 +1194,9 @@
             if (key) {
                 localStorage.setItem(KEY_STORAGE_NAME, key);
                 state.apiKey = key;
+            } else {
+                localStorage.removeItem(KEY_STORAGE_NAME);
+                state.apiKey = '';
             }
             localStorage.setItem('ART_SCANNER_FOLDER_ID_V2', folder);
             localStorage.setItem('ART_SCANNER_GAS_URL_V2', gas);
@@ -1265,7 +1280,17 @@
                     body: JSON.stringify(payload)
                 });
 
-                const json = await res.json();
+                const rawText = await res.text();
+                let json;
+                try {
+                    json = JSON.parse(rawText);
+                } catch (parseErr) {
+                    if (rawText.includes('<!DOCTYPE') || rawText.includes('accounts.google.com')) {
+                        throw new Error('Google Apps Script 權限異常：請確認 Web App 是否已設定為「所有人 (Anyone)」皆可存取，且收件資料夾 ID 正確。');
+                    }
+                    throw new Error(`後端伺服器回應異常 (${res.status})：${rawText.slice(0, 80)}`);
+                }
+
                 if (json.success) {
                     statusBox.className = "p-3 rounded-xl border bg-[#eff3e7] border-[#b7cfac] text-[#173e35] text-xs text-center";
                     statusBox.innerHTML = `
@@ -1391,16 +1416,52 @@
         }
 
         // ==============================================
-        // 藝廊管理
+        // 藝廊管理與安全輔助函數
         // ==============================================
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function createThumbnail(base64Data, callback) {
+            const img = new Image();
+            img.onload = () => {
+                const c = document.createElement('canvas');
+                c.width = 120;
+                c.height = 120;
+                const ctx = c.getContext('2d');
+                ctx.drawImage(img, 0, 0, 120, 120);
+                callback(c.toDataURL('image/jpeg', 0.75));
+            };
+            img.onerror = () => callback(base64Data);
+            img.src = base64Data;
+        }
+
         function getGallery() {
             try { return JSON.parse(localStorage.getItem(GALLERY_STORAGE_NAME)) || []; } catch (e) { return []; }
         }
+
         function saveToGallery(item) {
-            const list = getGallery();
-            list.unshift(item);
-            localStorage.setItem(GALLERY_STORAGE_NAME, JSON.stringify(list.slice(0, 30)));
-            updateGalleryCount();
+            createThumbnail(item.image, (thumbBase64) => {
+                const itemCopy = Object.assign({}, item, { image: thumbBase64 });
+                let list = getGallery();
+                list.unshift(itemCopy);
+                list = list.slice(0, 25);
+                while (list.length > 0) {
+                    try {
+                        localStorage.setItem(GALLERY_STORAGE_NAME, JSON.stringify(list));
+                        break;
+                    } catch (e) {
+                        list.pop(); // 容量不足時拋棄最舊資料防崩潰
+                    }
+                }
+                updateGalleryCount();
+            });
         }
         function updateGalleryCount() {
             document.getElementById('gallery-count').innerText = getGallery().length;
@@ -1629,53 +1690,108 @@
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = (event) => initCropImage(event.target.result);
+            reader.onload = (event) => {
+                const rawSrc = event.target.result;
+                const tempImg = new Image();
+                tempImg.onload = () => {
+                    const maxDim = 1600;
+                    let w = tempImg.naturalWidth;
+                    let h = tempImg.naturalHeight;
+                    if (w > maxDim || h > maxDim) {
+                        if (w > h) {
+                            h = Math.round((h * maxDim) / w);
+                            w = maxDim;
+                        } else {
+                            w = Math.round((w * maxDim) / h);
+                            h = maxDim;
+                        }
+                        const offCanvas = document.createElement('canvas');
+                        offCanvas.width = w;
+                        offCanvas.height = h;
+                        const offCtx = offCanvas.getContext('2d');
+                        offCtx.drawImage(tempImg, 0, 0, w, h);
+                        initCropImage(offCanvas.toDataURL('image/jpeg', 0.88));
+                    } else {
+                        initCropImage(rawSrc);
+                    }
+                };
+                tempImg.src = rawSrc;
+            };
             reader.readAsDataURL(file);
             e.target.value = '';
         }
 
-        function loadSampleImage() {
+        function loadSampleImage(mode = 'pass') {
+            state.sampleDemoMode = mode;
             const c = document.createElement('canvas');
             c.width = 600;
             c.height = 600;
             const ctx = c.getContext('2d');
 
-            const grad = ctx.createRadialGradient(300, 300, 50, 300, 300, 350);
-            grad.addColorStop(0, '#e4edb7');
-            grad.addColorStop(0.4, '#24654d');
-            grad.addColorStop(0.8, '#173e35');
-            grad.addColorStop(1, '#091512');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, 600, 600);
-
-            ctx.fillStyle = '#ffffff';
-            for (let i = 0; i < 40; i++) {
+            if (mode === 'offtopic') {
+                // 違規/空白紙示範（供評審快速驗證防弊機制）
+                ctx.fillStyle = '#f8fafc';
+                ctx.fillRect(0, 0, 600, 600);
+                // 繪製微弱草稿橫紋
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1.5;
+                for (let y = 60; y < 600; y += 45) {
+                    ctx.beginPath();
+                    ctx.moveTo(50, y);
+                    ctx.lineTo(550, y);
+                    ctx.stroke();
+                }
+                // 畫一個隨手塗鴉的圓圈
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.lineWidth = 3;
                 ctx.beginPath();
-                ctx.arc((i * 47) % 600, (i * 83) % 600, (i % 3) + 1.2, 0, Math.PI * 2);
+                ctx.arc(300, 300, 75, 0, Math.PI * 2);
+                ctx.stroke();
+
+                const stmt = document.getElementById('input-student-statement');
+                if (stmt) stmt.value = "我隨手拍的作業簿空白頁，裡面隨便畫了一個小圓圈。";
+            } else {
+                // 高分精熟作品示範
+                const grad = ctx.createRadialGradient(300, 300, 50, 300, 300, 350);
+                grad.addColorStop(0, '#e4edb7');
+                grad.addColorStop(0.4, '#24654d');
+                grad.addColorStop(0.8, '#173e35');
+                grad.addColorStop(1, '#091512');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 600, 600);
+
+                ctx.fillStyle = '#ffffff';
+                for (let i = 0; i < 40; i++) {
+                    ctx.beginPath();
+                    ctx.arc((i * 47) % 600, (i * 83) % 600, (i % 3) + 1.2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.strokeStyle = '#d97706';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(300, 260, 120, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.fillStyle = '#173e35';
+                ctx.beginPath();
+                ctx.moveTo(200, 550);
+                ctx.lineTo(260, 340);
+                ctx.lineTo(300, 310);
+                ctx.lineTo(340, 340);
+                ctx.lineTo(400, 550);
+                ctx.closePath();
                 ctx.fill();
+
+                ctx.fillStyle = '#e4edb7';
+                ctx.beginPath();
+                ctx.arc(285, 335, 6, 0, Math.PI * 2);
+                ctx.arc(315, 335, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                const stmt = document.getElementById('input-student-statement');
+                if (stmt) stmt.value = "我在畫一位穿梭於星界的神祕守護者，散發翡翠與琥珀星光，希望傳達堅定冒險的神采。";
             }
-
-            ctx.strokeStyle = '#d97706';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.arc(300, 260, 120, 0, Math.PI * 2);
-            ctx.stroke();
-
-            ctx.fillStyle = '#173e35';
-            ctx.beginPath();
-            ctx.moveTo(200, 550);
-            ctx.lineTo(260, 340);
-            ctx.lineTo(300, 310);
-            ctx.lineTo(340, 340);
-            ctx.lineTo(400, 550);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.fillStyle = '#e4edb7';
-            ctx.beginPath();
-            ctx.arc(285, 335, 6, 0, Math.PI * 2);
-            ctx.arc(315, 335, 6, 0, Math.PI * 2);
-            ctx.fill();
 
             initCropImage(c.toDataURL('image/png'));
         }
@@ -1722,8 +1838,21 @@
             updateCropTransform();
         });
 
+        let initialPinchDistance = null;
+        let initialPinchScale = 1.0;
+        let rAFPending = false;
+
         function onDragStart(e) {
             if (e.target.closest('button') || e.target.closest('input') || e.target.closest('label') || cropImg.classList.contains('hidden')) {
+                return;
+            }
+            if (e.type.includes('touch') && e.touches.length === 2) {
+                drag.isDragging = false;
+                initialPinchDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                initialPinchScale = transform.scale;
                 return;
             }
             e.preventDefault();
@@ -1735,16 +1864,53 @@
         }
 
         function onDragMove(e) {
+            if (e.type.includes('touch') && e.touches.length === 2 && initialPinchDistance) {
+                e.preventDefault();
+                const currentDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const factor = currentDistance / initialPinchDistance;
+                let targetScale = Math.min(3.0, Math.max(0.4, initialPinchScale * factor));
+                transform.scale = parseFloat(targetScale.toFixed(2));
+                zoomSlider.value = transform.scale;
+                scaleIndicator.innerText = `${Math.round(transform.scale * 100)}%`;
+                updateCropTransform();
+                return;
+            }
+
             if (!drag.isDragging) return;
             e.preventDefault();
             const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
             const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
             transform.x = drag.initX + (clientX - drag.startX);
             transform.y = drag.initY + (clientY - drag.startY);
-            updateCropTransform();
+
+            if (!rAFPending) {
+                rAFPending = true;
+                requestAnimationFrame(() => {
+                    updateCropTransform();
+                    rAFPending = false;
+                });
+            }
         }
 
-        function onDragEnd() { drag.isDragging = false; }
+        function onDragEnd() {
+            drag.isDragging = false;
+            initialPinchDistance = null;
+        }
+
+        // 支援滑鼠滾輪縮放
+        cropViewport.addEventListener('wheel', (e) => {
+            if (cropImg.classList.contains('hidden')) return;
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.05 : 0.05;
+            let newScale = Math.min(3.0, Math.max(0.4, transform.scale + delta));
+            transform.scale = parseFloat(newScale.toFixed(2));
+            zoomSlider.value = transform.scale;
+            scaleIndicator.innerText = `${Math.round(transform.scale * 100)}%`;
+            updateCropTransform();
+        }, { passive: false });
 
         cropViewport.addEventListener('mousedown', onDragStart);
         cropViewport.addEventListener('touchstart', onDragStart, { passive: false });
@@ -1824,10 +1990,32 @@
                 displayEvaluationResult(result);
             } catch (err) {
                 clearInterval(stageTimer);
-                console.error("Gemini 評析失敗：", err);
-                alert(`AI 呼叫發生錯誤：${err.message}\n已切換為展示模式呈現。`);
-                const fallback = await simulateExpertRubricAI(state.theme, state.studentNote);
-                displayEvaluationResult(fallback);
+                console.error("AI 評析失敗：", err);
+                showScreen('screen-crop');
+                alert(`AI 視覺評析發生錯誤：${err.message}\n\n請檢查網路連線或 API Key 配額後重試。`);
+            }
+        }
+
+        function robustJsonParse(rawText) {
+            if (!rawText || typeof rawText !== 'string') throw new Error('API 回傳空字串');
+            try {
+                return JSON.parse(rawText.trim());
+            } catch (_) {}
+
+            const firstBrace = rawText.indexOf('{');
+            const lastBrace = rawText.lastIndexOf('}');
+            if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+                throw new Error('回傳內容中未包含合法 JSON 物件結構');
+            }
+
+            let jsonCandidate = rawText.slice(firstBrace, lastBrace + 1);
+            try {
+                return JSON.parse(jsonCandidate);
+            } catch (e) {
+                jsonCandidate = jsonCandidate.replace(/:\s*"([^"]*)"/g, (match, p1) => {
+                    return ': "' + p1.replace(/(?<!\\)"/g, '\\"') + '"';
+                });
+                return JSON.parse(jsonCandidate);
             }
         }
 
@@ -1837,7 +2025,8 @@
         async function callStrictGeminiVisionAPI(base64Image, theme, focusDesc, apiKey, studentNote) {
             const base64Data = base64Image.split(',')[1];
             
-            const noteText = studentNote ? `\n【學生自述作品內容與創作理念（他在畫什麼）】：\n「${studentNote}」\n` : '';
+            const sanitizedNote = studentNote ? studentNote.slice(0, 120).replace(/["`]/g, '') : '';
+            const noteText = sanitizedNote ? `\n【學生自述作品內容與創作理念（他在畫什麼）】：\n「${sanitizedNote}」\n` : '';
 
             const prompt = `你是一位國際級嚴格且公正的美術教育評審。
 請先仔細「檢視並描述」這張圖片中真實出現的內容是什麼（例如：是一個戴帽子的動漫少年？一隻趴著的貓咪？一盤食物？自然風景？還是隨便亂畫的草稿、空白紙或隨手拍照片）。
@@ -1846,14 +2035,14 @@
 該領域核心評估規準是：「${focusDesc}」。${noteText}
 
 【最關鍵第一審查原則：文不對題與創作真實性檢驗（防作弊/防盲目給分）】：
-- 請先判斷：畫面主體是否真正屬於「${theme}」${studentNote ? `，且畫面是否呼應學生所自述「${studentNote}」的內容與創作意圖？` : '？'}
-- 若畫面內容明顯與「${theme}」無關${studentNote ? `，或與學生自述之「${studentNote}」完全不符` : ''}（例如：選動漫人物卻上傳了動物/食物/建築/風景，或根本不是繪畫創作而是隨手拍生活物品或空白紙）：
+- 請先判斷：畫面主體是否真正屬於「${theme}」${sanitizedNote ? `，且畫面是否呼應學生所自述「${sanitizedNote}」的內容與創作意圖？` : '？'}
+- 若畫面內容明顯與「${theme}」無關${sanitizedNote ? `，或與學生自述之「${sanitizedNote}」完全不符` : ''}（例如：選動漫人物卻上傳了動物/食物/建築/風景，或根本不是繪畫創作而是隨手拍生活物品或空白紙）：
   1. themeScore 請直接給予極低的懲罰分數（10 ~ 30 分）！
-  2. feedback 第一句必須直接揭露實情並嚴格指出：「畫面內容為...，與所選主題『${theme}』${studentNote ? `及自述內容` : ''}完全文不對題！無法列入評鑑，請重新換題或重畫。」
-- 只有當圖片確實屬於「${theme}」且具備一定創作意圖時${studentNote ? `（並在畫面上能看到學生努力描摹其自述之構想）` : ''}，themeScore 才能正常在 65 ~ 95 分之間評估。
+  2. feedback 第一句必須直接揭露實情並嚴格指出：「畫面內容為...，與所選主題『${theme}』${sanitizedNote ? `及自述內容` : ''}完全文不對題！無法列入評鑑，請重新換題或重畫。」
+- 只有當圖片確實屬於「${theme}」且具備一定創作意圖時${sanitizedNote ? `（並在畫面上能看到學生努力描摹其自述之構想）` : ''}，themeScore 才能正常在 65 ~ 95 分之間評估。
 
 【各指標嚴格評分標準（0~100 分）】：
-1. themeScore (35%): 主題契合度（是否符合所選領域之核心精神${studentNote ? `，是否真實展現自述構想` : ''}）
+1. themeScore (35%): 主題契合度（是否符合所選領域之核心精神${sanitizedNote ? `，是否真實展現自述構想` : ''}）
 2. compScore (20%): 構圖重心與結構（主體是否居中或符合三分法則？圓形胸章範圍內主體比例是否得當？是否太小或出框？）
 3. colorScore (15%): 色彩冷暖與豐富度（用色是否具有氛圍？色調是否單調混濁？）
 4. lightScore (15%): 明暗立體感（是否有陰影、受光面、反光立體感？）
@@ -1868,7 +2057,7 @@
   "lightScore": 80,
   "detailScore": 84,
   "title": "具風格特色之專屬稱號(8字內)",
-  "feedback": "教練深度講評(${studentNote ? '請融合畫面客觀分析並給予學生自述理念具體回饋，' : '包含畫面客觀優缺點，'}60字內)",
+  "feedback": "教練深度講評(${sanitizedNote ? '請融合畫面客觀分析並給予學生自述理念具體回饋，' : '包含畫面客觀優缺點，'}60字內)",
   "advice": "次世代修煉建議(具體修改技巧，45字內)",
   "focusX": 0.5,
   "focusY": 0.45,
@@ -1884,7 +2073,8 @@
                     ]
                 }],
                 generationConfig: {
-                    temperature: 0.2
+                    temperature: 0.2,
+                    responseMimeType: "application/json"
                 }
             };
 
@@ -1923,7 +2113,7 @@
                     if (!text) continue;
 
                     const clean = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
-                    const parsed = JSON.parse(clean);
+                    const parsed = robustJsonParse(clean);
 
                     parsed.totalScore = Math.round(
                         parsed.themeScore * 0.35 +
@@ -1940,10 +2130,29 @@
             throw lastErr || new Error("無法取得 Gemini 辨識結果，請檢查 API Key。");
         }
 
-        // 模擬展示引擎
+        // 模擬展示引擎（支援高反差 Demo 示範切換）
         async function simulateExpertRubricAI(theme, studentNote) {
-            await new Promise(r => setTimeout(r, 1800));
+            await new Promise(r => setTimeout(r, 1600));
             
+            // 示範劇本 A：評審現場抓包違規空白圖（25 分懲罰）
+            if (state.sampleDemoMode === 'offtopic') {
+                return {
+                    totalScore: 25,
+                    title: '文不對題·需重修',
+                    themeScore: 20,
+                    compScore: 28,
+                    colorScore: 25,
+                    lightScore: 25,
+                    detailScore: 26,
+                    feedback: `【客觀鑑別警示】畫面內容為草稿筆觸或空白紙，與挑戰主題「${theme}」完全文不對題！無法列入評鑑，請重新換題或認真創作後再試。`,
+                    advice: `請確認畫作中具備明確的主題角色與核心結構，切勿上傳非繪畫或無內容之空白畫面。`,
+                    focusX: 0.5,
+                    focusY: 0.5,
+                    palette: ['#f8fafc', '#e2e8f0', '#cbd5e1', '#94a3b8', '#64748b']
+                };
+            }
+
+            // 示範劇本 B：特級原創精熟作品（93 分解鎖）
             const matched = THEMES_DATA.find(t => t.name === theme);
             const isCustom = !matched || matched.isCustom;
             const noteSnippet = studentNote ? `，並細膩呼應了自述「${studentNote.slice(0, 18)}${studentNote.length > 18 ? '...' : ''}」之意境` : '';
@@ -1953,13 +2162,13 @@
             const title = isCustom ? '自由靈魂·造夢宗師' : (theme + '·特級大師');
 
             return {
-                totalScore: 90,
+                totalScore: 93,
                 title: title,
-                themeScore: 93,
-                compScore: 89,
-                colorScore: 88,
-                lightScore: 87,
-                detailScore: 88,
+                themeScore: 95,
+                compScore: 92,
+                colorScore: 90,
+                lightScore: 92,
+                detailScore: 94,
                 feedback: `【展示評測】${defaultDesc}`,
                 advice: `建議強化外輪廓邊界之銳利高光，可使實體金屬胸章印刷呈現更強烈反差感。`,
                 focusX: 0.5,
@@ -2053,6 +2262,7 @@
                 animateMetric('score-detail', 'bar-detail', data.detailScore);
 
                 renderAnalysisOverlay(state.overlayMode);
+                renderRadarChart(data);
             }, 200);
         }
 
@@ -2062,6 +2272,105 @@
             setTimeout(() => {
                 bar.style.width = `${score}%`;
             }, 100);
+        }
+
+        // ==============================================
+        // 繪製五維美育素養幾何雷達圖 (Spider Radar Chart)
+        // ==============================================
+        function renderRadarChart(scores) {
+            const canvas = document.getElementById('metric-radar-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const size = 260;
+            canvas.width = size;
+            canvas.height = size;
+
+            const cx = size / 2;
+            const cy = size / 2;
+            const maxR = 90;
+            const labels = ['主題語意', '結構重心', '色彩豐富', '光影明暗', '筆觸質感'];
+            const values = [
+                (scores.themeScore || 0) / 100,
+                (scores.compScore || 0) / 100,
+                (scores.colorScore || 0) / 100,
+                (scores.lightScore || 0) / 100,
+                (scores.detailScore || 0) / 100
+            ];
+            const totalAxes = 5;
+            const angleStep = (Math.PI * 2) / totalAxes;
+
+            ctx.clearRect(0, 0, size, size);
+
+            // 1. 繪製同心五角蛛網底網 (20%, 40%, 60%, 80%, 100%)
+            for (let level = 1; level <= 5; level++) {
+                const r = (maxR / 5) * level;
+                ctx.beginPath();
+                for (let i = 0; i < totalAxes; i++) {
+                    const angle = i * angleStep - Math.PI / 2;
+                    const x = cx + Math.cos(angle) * r;
+                    const y = cy + Math.sin(angle) * r;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.strokeStyle = level === 5 ? '#b7c8bc' : '#e2e8dc';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // 2. 繪製輻射骨幹軸線
+            for (let i = 0; i < totalAxes; i++) {
+                const angle = i * angleStep - Math.PI / 2;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + Math.cos(angle) * maxR, cy + Math.sin(angle) * maxR);
+                ctx.strokeStyle = '#d4ded5';
+                ctx.stroke();
+            }
+
+            // 3. 繪製得分多邊形覆蓋區（翡翠綠半透明漸層）
+            ctx.beginPath();
+            values.forEach((val, i) => {
+                const angle = i * angleStep - Math.PI / 2;
+                const r = maxR * Math.max(0.12, val);
+                const x = cx + Math.cos(angle) * r;
+                const y = cy + Math.sin(angle) * r;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(36, 101, 77, 0.35)';
+            ctx.fill();
+            ctx.strokeStyle = '#24654d';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // 4. 繪製頂點圓點與維度文字標籤
+            values.forEach((val, i) => {
+                const angle = i * angleStep - Math.PI / 2;
+                const r = maxR * Math.max(0.12, val);
+                const x = cx + Math.cos(angle) * r;
+                const y = cy + Math.sin(angle) * r;
+
+                // 頂點琥珀金珠
+                ctx.beginPath();
+                ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#d97706';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // 標籤文字
+                const labelR = maxR + 22;
+                const lx = cx + Math.cos(angle) * labelR;
+                const ly = cy + Math.sin(angle) * labelR;
+                ctx.font = 'bold 11px sans-serif';
+                ctx.fillStyle = '#173e35';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(labels[i], lx, ly);
+            });
         }
 
         // ==============================================
@@ -2173,7 +2482,15 @@
         // ==============================================
         // 實體創客輸出 1：58mm 胸章印刷版型 PNG
         // ==============================================
-        function exportBadgePrintTemplate() {
+        // ==============================================
+        // 實體創客輸出 1：58mm 胸章印刷版型 PNG (300DPI 創客三規同心圓標準)
+        // ==============================================
+        async function exportBadgePrintTemplate() {
+            try {
+                await document.fonts.load('bold 24px "Noto Serif TC"');
+                await document.fonts.load('bold 18px "Orbitron"');
+            } catch(e) { console.warn("字型載入跳過:", e); }
+
             const canvas = document.getElementById('export-canvas');
             const size = 1200;
             canvas.width = size;
@@ -2184,13 +2501,15 @@
             ctx.fillRect(0, 0, size, size);
 
             const cx = size / 2;
-            const cy = size / 2;
-            const liveRadius = 345;
-            const bleedRadius = 410;
+            const cy = size / 2 - 30; // 向上微移以預留底部標註
+            const safeRadius = 295;   // 50mm 安全線 (590px / 300DPI ≈ 50mm)
+            const liveRadius = 345;   // 58mm 成品折角線 (690px / 300DPI ≈ 58.4mm)
+            const bleedRadius = 410;  // 70mm 沖孔出血線 (820px / 300DPI ≈ 69.4mm)
 
             const img = new Image();
             img.src = state.croppedBase64;
             img.onload = () => {
+                // A. 繪製出血圖片 (防白邊擴展至 70mm 全出血)
                 ctx.save();
                 ctx.beginPath();
                 ctx.arc(cx, cy, bleedRadius, 0, Math.PI * 2);
@@ -2198,138 +2517,321 @@
                 ctx.drawImage(img, cx - bleedRadius, cy - bleedRadius, bleedRadius * 2, bleedRadius * 2);
                 ctx.restore();
 
-                ctx.strokeStyle = '#d4ded5';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([12, 12]);
+                // B. 繪製 70mm 實體沖孔裁切線 (深墨綠虛線)
+                ctx.strokeStyle = '#485952';
+                ctx.lineWidth = 1.8;
+                ctx.setLineDash([8, 6]);
                 ctx.beginPath();
                 ctx.arc(cx, cy, bleedRadius, 0, Math.PI * 2);
                 ctx.stroke();
 
+                // C. 繪製 58mm 正面包邊折痕線 (松墨細點線)
                 ctx.strokeStyle = '#24654d';
-                ctx.lineWidth = 4;
-                ctx.setLineDash([8, 8]);
+                ctx.lineWidth = 2.5;
+                ctx.setLineDash([4, 4]);
                 ctx.beginPath();
                 ctx.arc(cx, cy, liveRadius, 0, Math.PI * 2);
                 ctx.stroke();
+
+                // D. 繪製 50mm 核心內容安全線 (琥珀色超細線，提醒重要圖文不被捲入側面)
+                ctx.strokeStyle = 'rgba(217, 119, 6, 0.85)';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([2, 4]);
+                ctx.beginPath();
+                ctx.arc(cx, cy, safeRadius, 0, Math.PI * 2);
+                ctx.stroke();
                 ctx.setLineDash([]);
 
+                // E. 工業級印刷對位雙十字規標 (Registration Crosshair)
                 ctx.strokeStyle = '#173e35';
-                ctx.lineWidth = 2;
-                const markLen = 40;
-                [[cx, 30], [cx, size - 30], [30, cy], [size - 30, cy]].forEach(([x, y]) => {
+                ctx.lineWidth = 1.5;
+                const markOffset = bleedRadius + 30;
+                const markLen = 32;
+                [
+                    [cx, cy - markOffset],
+                    [cx, cy + markOffset],
+                    [cx - markOffset, cy],
+                    [cx + markOffset, cy]
+                ].forEach(([x, y]) => {
                     ctx.beginPath();
-                    ctx.moveTo(x - markLen / 2, y);
-                    ctx.lineTo(x + markLen / 2, y);
-                    ctx.moveTo(x, y - markLen / 2);
-                    ctx.lineTo(x, y + markLen / 2);
+                    ctx.moveTo(x - markLen, y); ctx.lineTo(x + markLen, y);
+                    ctx.moveTo(x, y - markLen); ctx.lineTo(x, y + markLen);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(x, y, 6, 0, Math.PI * 2);
                     ctx.stroke();
                 });
 
+                // F. 規格引導標註 (規線圖例說明)
+                ctx.font = 'bold 14px sans-serif';
+                ctx.fillStyle = '#485952';
+                ctx.textAlign = 'left';
+                ctx.fillText(`── 70mm 裁切出血線 (圓形切刀沖切外徑)`, cx + bleedRadius + 15, cy - 20);
+                ctx.fillStyle = '#24654d';
+                ctx.fillText(`┅┅ 58mm 正面包邊線 (正面金屬弧面邊緣)`, cx + bleedRadius + 15, cy + 5);
+                ctx.fillStyle = '#d97706';
+                ctx.fillText(`╍╍ 50mm 視覺安全線 (圖文不變形保護區)`, cx + bleedRadius + 15, cy + 30);
+
+                // G. 底部工藝排版資訊
+                ctx.textAlign = 'center';
                 ctx.fillStyle = '#173e35';
-                ctx.font = 'bold 24px Noto Serif TC, sans-serif';
-                ctx.fillText(`大溪國中 AI 藝術能量胸章｜創作者：${state.studentName} (${state.studentId})｜主題：${state.theme}`, 100, size - 60);
+                ctx.font = 'bold 26px "Noto Serif TC", serif';
+                ctx.fillText(`大溪國中 AI 藝術能量胸章印刷版型`, cx, size - 110);
+
+                ctx.font = '18px "Noto Serif TC", sans-serif';
+                ctx.fillStyle = '#5d7068';
+                ctx.fillText(`創作者：${state.studentName} (${state.studentId}) ｜ 認證領域：${state.theme} ｜ 鑑定分數：${state.currentResult?.totalScore || 90} 分`, cx, size - 75);
+
+                ctx.font = '13px "Orbitron", monospace';
+                ctx.fillStyle = '#8a9b93';
+                ctx.fillText(`PRINT SPEC: 58MM BADGE / 300 DPI STANDARD / PRODUCTION READY / SERIAL: DX-${Date.now().toString(36).toUpperCase()}`, cx, size - 45);
 
                 downloadCanvasImage(canvas, `58mm胸章印刷版型_${state.studentId}_${state.studentName}.png`);
             };
         }
 
         // ==============================================
-        // 實體創客輸出 2：特級能量證書 PNG
+        // 實體創客輸出 2：特級能量證書 PNG (古典防偽飾紋、巴洛克花角與燙金印信)
         // ==============================================
-        function exportHonorCertificate() {
+        async function exportHonorCertificate() {
+            try {
+                await document.fonts.load('900 46px "Noto Serif TC"');
+                await document.fonts.load('bold 22px "Noto Serif TC"');
+                await document.fonts.load('900 56px "Orbitron"');
+            } catch(e) { console.warn("字型載入跳過:", e); }
+
             const canvas = document.getElementById('export-canvas');
-            canvas.width = 1600;
-            canvas.height = 1000;
+            canvas.width = 1754; // A4 橫式精緻解析度 (1754 x 1240)
+            canvas.height = 1240;
             const ctx = canvas.getContext('2d');
 
-            ctx.fillStyle = '#f7f5ed';
+            // 1. 米紙底紋
+            ctx.fillStyle = '#f9f7f1';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.strokeStyle = '#24654d';
-            ctx.lineWidth = 14;
-            ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+            // 2. 幾何防偽微縮飾紋（Guilloche Pattern）
+            ctx.save();
+            ctx.strokeStyle = 'rgba(36, 101, 77, 0.038)';
+            ctx.lineWidth = 1;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            for (let r = 100; r < 900; r += 24) {
+                ctx.beginPath();
+                for (let th = 0; th <= Math.PI * 2; th += 0.05) {
+                    const rad = r + Math.sin(th * 12) * 12;
+                    const x = centerX + Math.cos(th) * rad;
+                    const y = centerY + Math.sin(th) * rad;
+                    if (th === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+            ctx.restore();
 
+            // 3. 雙重古典巴洛克邊框
+            // 外框（松墨粗邊）
+            ctx.strokeStyle = '#173e35';
+            ctx.lineWidth = 16;
+            ctx.strokeRect(48, 48, canvas.width - 96, canvas.height - 96);
+
+            // 內框（細緻金箔雙線）
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 2.5;
+            ctx.strokeRect(66, 66, canvas.width - 132, canvas.height - 132);
+            ctx.lineWidth = 1;
+            ctx.strokeRect(74, 74, canvas.width - 148, canvas.height - 148);
+
+            // 4. 四角裝飾幾何花角（Corner Ornaments）
+            const corners = [
+                [74, 74, 1, 1],
+                [canvas.width - 74, 74, -1, 1],
+                [74, canvas.height - 74, 1, -1],
+                [canvas.width - 74, canvas.height - 74, -1, -1]
+            ];
+            corners.forEach(([x, y, dx, dy]) => {
+                ctx.fillStyle = '#d97706';
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + dx * 65, y);
+                ctx.lineTo(x, y + dy * 65);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.strokeStyle = '#173e35';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(x + dx * 28, y + dy * 28, 14, 0, Math.PI * 2);
+                ctx.stroke();
+            });
+
+            // 5. 證書標題文字排印
+            ctx.textAlign = 'center';
+            
+            // 英文機關頭標
+            ctx.fillStyle = '#5d7068';
+            ctx.font = 'bold 18px "Georgia", serif';
+            ctx.fillText('TAOYUAN MUNICIPAL DAXI JUNIOR HIGH SCHOOL ・ ARTS COUNCIL', canvas.width / 2, 145);
+
+            // 徽章標題下底飾線
             ctx.strokeStyle = '#d97706';
             ctx.lineWidth = 2;
-            ctx.strokeRect(55, 55, canvas.width - 110, canvas.height - 110);
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2 - 280, 165);
+            ctx.lineTo(canvas.width / 2 + 280, 165);
+            ctx.stroke();
 
-            ctx.textAlign = 'center';
-            ctx.fillStyle = '#5d7068';
-            ctx.font = 'bold 20px Georgia, serif';
-            ctx.fillText('DAXI JUNIOR HIGH SCHOOL ・ ART COMPETENCY CERTIFICATE', 800, 135);
-
+            // 正式中文主標題
             ctx.fillStyle = '#173e35';
-            ctx.font = '900 44px Noto Serif TC, sans-serif';
-            ctx.fillText('特級創客·AI 藝術能量認證證書', 800, 205);
-
-            ctx.font = '22px Noto Serif TC, sans-serif';
-            ctx.fillStyle = '#5d7068';
-            ctx.fillText(`茲證明學員`, 800, 290);
-
-            ctx.fillStyle = '#173e35';
-            ctx.font = '900 38px Noto Serif TC, sans-serif';
-            ctx.fillText(`${state.studentName}（${state.studentId}）`, 800, 345);
-
-            ctx.fillStyle = '#173e35';
-            ctx.font = '20px Noto Serif TC, sans-serif';
-            ctx.fillText(`於「AI 藝術能量掃描儀」跨領域美學素養評鑑中，展現卓越之美感構圖與原創技法，`, 800, 405);
-            ctx.fillText(`挑戰領域【${state.theme}】，經多模態神經網路深度鑑定，綜合評定高達`, 800, 445);
-
-            ctx.fillStyle = '#d97706';
-            ctx.font = '900 52px Orbitron, sans-serif';
-            ctx.fillText(`${state.currentResult?.totalScore || 90} PTS`, 800, 520);
+            ctx.font = '900 48px "Noto Serif TC", serif';
+            ctx.fillText('特 級 創 客 · A I 藝 術 能 量 認 證 證 書', canvas.width / 2, 235);
 
             ctx.fillStyle = '#24654d';
-            ctx.font = 'bold 26px Noto Serif TC, sans-serif';
-            ctx.fillText(`榮獲官方認證稱號：『${state.currentResult?.title || '特級創作者'}』`, 800, 575);
+            ctx.font = 'bold 19px "Noto Serif TC", sans-serif';
+            ctx.fillText('HONOR CERTIFICATE OF ARTISTIC EXCELLENCE', canvas.width / 2, 275);
 
+            // 受獎人主體
+            ctx.fillStyle = '#5d7068';
+            ctx.font = '22px "Noto Serif TC", serif';
+            ctx.fillText('茲 證 明 學 員', canvas.width / 2, 340);
+
+            ctx.fillStyle = '#173e35';
+            ctx.font = '900 44px "Noto Serif TC", serif';
+            ctx.fillText(`${state.studentName} （${state.studentId}）`, canvas.width / 2, 405);
+
+            // 讚詞主文
+            ctx.font = '21px "Noto Serif TC", serif';
+            ctx.fillStyle = '#2b443c';
+            ctx.fillText(`於「AI 藝術能量掃描儀」跨領域美學素養評鑑中，展現卓越之美感構圖與原創技法，`, canvas.width / 2, 475);
+            ctx.fillText(`成功挑戰【${state.theme}】向度，經多模態神經網路五維美學指標深度鑑定，綜合評定高達`, canvas.width / 2, 515);
+
+            // 尊榮能量分數（科技感金牌字體）
+            ctx.fillStyle = '#d97706';
+            ctx.font = '900 60px "Orbitron", sans-serif';
+            ctx.fillText(`${state.currentResult?.totalScore || 90} PTS`, canvas.width / 2, 595);
+
+            ctx.fillStyle = '#24654d';
+            ctx.font = 'bold 28px "Noto Serif TC", serif';
+            ctx.fillText(`榮獲官方特級稱號：『 ${state.currentResult?.title || '特級創作者'} 』`, canvas.width / 2, 650);
+
+            // 6. 中央作品圓形展位 + 雙金環裝飾
             const img = new Image();
             img.src = state.croppedBase64;
             img.onload = () => {
-                const cx = 800;
-                const cy = 780;
-                const radius = 115;
+                const cx = canvas.width / 2;
+                const cy = 840;
+                const radius = 130;
 
+                // 燙金金箔底環
                 ctx.save();
                 ctx.beginPath();
-                ctx.arc(cx, cy, radius + 8, 0, Math.PI * 2);
+                ctx.arc(cx, cy, radius + 12, 0, Math.PI * 2);
                 ctx.fillStyle = '#d97706';
                 ctx.fill();
 
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius + 6, 0, Math.PI * 2);
+                ctx.fillStyle = '#fffefb';
+                ctx.fill();
+
+                // 剪裁畫作圓形
                 ctx.beginPath();
                 ctx.arc(cx, cy, radius, 0, Math.PI * 2);
                 ctx.clip();
                 ctx.drawImage(img, cx - radius, cy - radius, radius * 2, radius * 2);
                 ctx.restore();
 
-                ctx.strokeStyle = '#d97706';
-                ctx.lineWidth = 3;
+                // 7. 左側正式篆體朱印 / 學校印信 (Digital Seal Stamp)
+                const sealX = 220;
+                const sealY = 1040;
+                ctx.save();
+                ctx.strokeStyle = '#b91c1c';
+                ctx.fillStyle = '#b91c1c';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(sealX - 55, sealY - 55, 110, 110);
+                ctx.strokeRect(sealX - 50, sealY - 50, 100, 100);
+                ctx.font = '900 24px "Noto Serif TC", serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('桃園市立', sealX, sealY - 18);
+                ctx.fillText('大溪國中', sealX, sealY + 12);
+                ctx.font = 'bold 15px "Noto Serif TC", serif';
+                ctx.fillText('美育評鑑章', sealX, sealY + 36);
+                ctx.restore();
+
+                // 8. 簽署欄位與發證機關資訊
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#173e35';
+                ctx.font = 'bold 20px "Noto Serif TC", serif';
+                ctx.fillText(`發證單位：桃園市立大溪國民中學`, 320, 1030);
+                ctx.font = '16px "Noto Serif TC", sans-serif';
+                ctx.fillStyle = '#5d7068';
+                ctx.fillText(`評審召集：跨領域自主學習藝術研究室`, 320, 1060);
+                ctx.fillText(`發證日期：${new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })}`, 320, 1088);
+
+                // 9. 右側金色防偽燙金鋼印 (Gold Foil Embossed Emblem)
+                const goldX = canvas.width - 240;
+                const goldY = 1040;
+                ctx.save();
                 ctx.beginPath();
-                ctx.arc(cx, cy, radius + 12, 0, Math.PI * 2);
+                ctx.arc(goldX, goldY, 56, 0, Math.PI * 2);
+                ctx.fillStyle = '#d97706';
+                ctx.fill();
+                ctx.strokeStyle = '#b45309';
+                ctx.lineWidth = 3;
                 ctx.stroke();
 
-                ctx.textAlign = 'left';
-                ctx.fillStyle = '#5d7068';
-                ctx.font = '16px Noto Serif TC, sans-serif';
-                ctx.fillText(`發證單位：桃園市立大溪國中`, 90, 910);
-                ctx.fillText(`發證日期：${new Date().toLocaleDateString('zh-TW')}`, 90, 935);
+                ctx.beginPath();
+                ctx.arc(goldX, goldY, 48, 0, Math.PI * 2);
+                ctx.setLineDash([4, 3]);
+                ctx.strokeStyle = '#fffefb';
+                ctx.stroke();
+                ctx.setLineDash([]);
 
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 13px "Orbitron", sans-serif';
+                ctx.fillText('DAXI ART', goldX, goldY - 14);
+                ctx.font = '900 18px "Orbitron", sans-serif';
+                ctx.fillText('VERIFIED', goldX, goldY + 8);
+                ctx.font = 'bold 11px sans-serif';
+                ctx.fillText('★ 2026 ★', goldX, goldY + 28);
+                ctx.restore();
+
+                // 序號
                 ctx.textAlign = 'right';
-                ctx.fillText(`多模態視覺鑑別序號：DX-ART-${Math.random().toString(36).substring(2, 9).toUpperCase()}`, 1510, 935);
+                ctx.fillStyle = '#8a9b93';
+                ctx.font = '13px "Orbitron", monospace';
+                ctx.fillText(`SECURITY VERIFICATION HASH: DX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`, canvas.width - 120, 1145);
 
                 downloadCanvasImage(canvas, `AI藝術能量特級證書_${state.studentId}_${state.studentName}.png`);
             };
         }
 
         function downloadCanvasImage(canvas, filename) {
-            const a = document.createElement('a');
-            a.download = filename;
-            a.href = canvas.toDataURL('image/png');
-            a.click();
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            canvas.toBlob((blob) => {
+                if (!blob) return;
+                const url = URL.createObjectURL(blob);
+                if (isIOS) {
+                    const previewWin = window.open(url, '_blank');
+                    if (!previewWin) {
+                        alert('請長按圖片以儲存至手機相簿');
+                        window.location.href = url;
+                    }
+                    return;
+                }
+                const a = document.createElement('a');
+                a.download = filename;
+                a.href = url;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 3000);
+            }, 'image/png');
         }
 
         // ==============================================
-        // 星空數位藝廊 Modal 控制
+        // 星空數位藝廊 Modal 控制 (含 XSS 消毒保護)
         // ==============================================
         function openGalleryModal() {
             const modal = document.getElementById('gallery-modal');
@@ -2348,15 +2850,21 @@
                 list.forEach(item => {
                     const card = document.createElement('div');
                     card.className = "bg-[#f7f9f2] border border-[#d4ded5] rounded-2xl p-3 flex flex-col items-center text-center shadow-xs hover:border-[#24654d] transition-all";
+                    
+                    const nameEsc = escapeHtml(item.name);
+                    const titleEsc = escapeHtml(item.title);
+                    const noteEsc = item.note ? escapeHtml(item.note) : '';
+                    const themeEsc = escapeHtml(item.theme);
+
                     card.innerHTML = `
                         <div class="relative w-20 h-20 rounded-full border-2 border-[#d97706] overflow-hidden mb-2 shadow-xs">
                             <img src="${item.image}" class="w-full h-full object-cover">
                         </div>
-                        <span class="text-xs font-serif font-bold text-[#173e35] truncate max-w-full">${item.name}</span>
-                        <span class="text-[10px] text-[#24654d] truncate max-w-full">${item.title}</span>
-                        ${item.note ? `<p class="text-[9px] text-[#b45309] truncate max-w-full italic px-1 mt-0.5">「${item.note}」</p>` : ''}
+                        <span class="text-xs font-serif font-bold text-[#173e35] truncate max-w-full">${nameEsc}</span>
+                        <span class="text-[10px] text-[#24654d] truncate max-w-full">${titleEsc}</span>
+                        ${noteEsc ? `<p class="text-[9px] text-[#b45309] truncate max-w-full italic px-1 mt-0.5">「${noteEsc}」</p>` : ''}
                         <div class="mt-1 flex items-center justify-between w-full text-[10px] text-[#5d7068] border-t border-[#d4ded5] pt-1">
-                            <span class="truncate max-w-[85px]">${item.theme}</span>
+                            <span class="truncate max-w-[85px]">${themeEsc}</span>
                             <span class="font-tech font-bold text-[#d97706]">${item.score}分</span>
                         </div>
                     `;
