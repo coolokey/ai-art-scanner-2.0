@@ -14,9 +14,9 @@ test('cloud archive requires a teacher-reviewed, non-demo result', () => {
   assert.match(page, /isDemo:\s*false/);
   assert.match(page, /classroomToken/);
 });
-test('server requires configured properties rather than a published Drive folder ID', () => {
+test('server keeps the Drive folder private and provides the requested initial admin password', () => {
   const code = fs.readFileSync(require('node:path').join(__dirname, '..', 'Code.gs'), 'utf8');
   assert.doesNotMatch(code, /DEFAULT_FOLDER_ID_/);
   assert.match(code, /getProperty\('FOLDER_ID'\)/);
-  assert.match(code, /stored\.length < 16/);
+  assert.match(code, /DEFAULT_ADMIN_PASSWORD_ = 'admin888'/);
 });
