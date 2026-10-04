@@ -19,4 +19,5 @@ test('server keeps the Drive folder private and provides the requested initial a
   assert.doesNotMatch(code, /DEFAULT_FOLDER_ID_/);
   assert.match(code, /getProperty\('FOLDER_ID'\)/);
   assert.match(code, /DEFAULT_ADMIN_PASSWORD_ = 'admin888'/);
+  assert.doesNotMatch(page, /預設 admin888/);
 });
