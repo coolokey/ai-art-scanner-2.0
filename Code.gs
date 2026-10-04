@@ -1,29 +1,35 @@
 /**
- * AI 藝術能量掃描儀 2.0 - 專屬後端 Google Apps Script
+ * AI 藝術能量掃描儀 2.0 - 專屬後端 Google Apps Script (安全強化與競賽高可用一體化版本)
  * 
  * 核心職責：
  * 1. 管理密碼保護：僅管理者可檢視與設定 Gemini API Key 及 Google 雲端收件資料夾。
- * 2. 成果作品雲端存檔：學生作品評分達標 (85+) 後，自動將胸章圖檔存入專屬 Google Drive 資料夾。
- * 3. 自動化成果試算表：即時將學生資料、分數、稱號、評語及檔案連結記錄於 Google Sheet。
- * 
- * 注意：本專案為全新獨立後端，請建立全新 Google Apps Script 專案部署，勿覆蓋舊有系統。
+ * 2. 伺服器端 AI 多模態代理 (Backend Vision Proxy)：API 金鑰 100% 保存在 Google 伺服器端，不暴露於瀏覽器。
+ * 3. 學生作品評量與防弊 (Zero-shot Verification)：客觀比對畫作與主題，杜絕空白或文不對題盲目給分。
+ * 4. 成果作品雲端存檔與總表登記：自動建立主題資料夾、58mm 胸章圖檔存檔、Google 試算表寫入 (含並發鎖定與公式防禦)。
  */
 
 var SCRIPT_PROPS_ = PropertiesService.getScriptProperties();
 var DEFAULT_ADMIN_PASSWORD_ = 'admin888';
+var DEFAULT_FOLDER_ID_ = '1tutM_vmGgeqPBepWj2goiW1zmOe9keF0';
 
 function doGet(e) {
+  var folderId = SCRIPT_PROPS_.getProperty('FOLDER_ID') || DEFAULT_FOLDER_ID_;
+  var hasApiKey = !!SCRIPT_PROPS_.getProperty('GEMINI_API_KEY');
   return ContentService.createTextOutput(JSON.stringify({
     status: 'online',
-    system: 'AI Art Scanner 2.0 Backend',
-    hasFolder: !!SCRIPT_PROPS_.getProperty('FOLDER_ID'),
-    hasApiKey: !!SCRIPT_PROPS_.getProperty('GEMINI_API_KEY')
+    system: 'AI Art Scanner 2.0 Backend (Production)',
+    hasFolder: !!folderId,
+    hasApiKey: hasApiKey,
+    activeModel: SCRIPT_PROPS_.getProperty('ACTIVE_MODEL') || 'gemini-1.5-flash'
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
-function legacyPost_(e) {
+function doPost(e) {
   try {
-    var payload = JSON.parse(e.postData.contents || '{}');
+    if (!e || !e.postData || !e.postData.contents) {
+      throw new Error('未收到有效的請求資料 (Empty Body)');
+    }
+    var payload = JSON.parse(e.postData.contents);
     var action = payload.action;
 
     // 1. 管理密碼驗證
@@ -38,7 +44,8 @@ function legacyPost_(e) {
       return jsonResp_({
         success: true,
         hasApiKey: !!SCRIPT_PROPS_.getProperty('GEMINI_API_KEY'),
-        folderId: SCRIPT_PROPS_.getProperty('FOLDER_ID') || '',
+        apiKeyMasked: maskKey_(SCRIPT_PROPS_.getProperty('GEMINI_API_KEY') || ''),
+        folderId: SCRIPT_PROPS_.getProperty('FOLDER_ID') || DEFAULT_FOLDER_ID_,
         activeModel: SCRIPT_PROPS_.getProperty('ACTIVE_MODEL') || 'gemini-1.5-flash'
       });
     }
@@ -55,22 +62,28 @@ function legacyPost_(e) {
       if (payload.newPassword && payload.newPassword.trim()) {
         SCRIPT_PROPS_.setProperty('ADMIN_PASSWORD', payload.newPassword.trim());
       }
-      if (payload.activeModel) {
+      if (payload.activeModel && payload.activeModel.trim()) {
         SCRIPT_PROPS_.setProperty('ACTIVE_MODEL', payload.activeModel.trim());
       }
-      return jsonResp_({ success: true, message: '設定已成功儲存！' });
+      return jsonResp_({ success: true, message: '設定已成功儲存於伺服器端！' });
     }
 
     // 4. 測試 Gemini 連線（自動探索模型）
     if (action === 'testGemini') {
       verifyAdmin_(payload.password);
-      var key = SCRIPT_PROPS_.getProperty('GEMINI_API_KEY');
+      var key = payload.apiKey || SCRIPT_PROPS_.getProperty('GEMINI_API_KEY');
       if (!key) throw new Error('尚未設定 Gemini API Key');
       var testResult = testGeminiConnection_(key);
       return jsonResp_(testResult);
     }
 
-    // 5. 學生作品達標後上傳至 Google 雲端硬碟
+    // 5. 學生/評審畫作多模態 AI 評析 (Backend Vision Proxy)
+    if (action === 'analyzeArtwork') {
+      var result = analyzeArtworkOnBackend_(payload);
+      return jsonResp_({ success: true, result: result });
+    }
+
+    // 6. 學生作品達標後上傳至 Google 雲端硬碟並登記試算表
     if (action === 'uploadArtwork') {
       var uploadResult = saveArtworkToDrive_(payload);
       return jsonResp_({ success: true, data: uploadResult });
@@ -126,7 +139,6 @@ function testGeminiConnection_(key) {
                valid[0];
   var modelName = chosen.name.replace(/^models\//, '');
 
-  // 進行 Ping
   var pingUrl = 'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent?key=' + key;
   var pingResp = UrlFetchApp.fetch(pingUrl, {
     method: 'post',
@@ -144,7 +156,102 @@ function testGeminiConnection_(key) {
 }
 
 /**
- * 將通過 85 分的胸章作品存入 Google Drive 並登記試算表
+ * 伺服器端執行嚴格客觀的多模態 AI 藝術評審
+ */
+function analyzeArtworkOnBackend_(payload) {
+  var key = SCRIPT_PROPS_.getProperty('GEMINI_API_KEY');
+  var model = SCRIPT_PROPS_.getProperty('ACTIVE_MODEL') || 'gemini-1.5-flash';
+  if (!key) {
+    throw new Error('伺服器尚未配置 Gemini API Key，請老師由管理設定進行綁定。');
+  }
+
+  var rawBase64 = String(payload.imageBase64 || '');
+  if (!rawBase64) throw new Error('未提供畫作圖片資料');
+  var cleanBase64 = rawBase64.replace(/^data:image\/\w+;base64,/, '');
+
+  var theme = String(payload.theme || '自由創作').trim();
+  var focusDesc = String(payload.focusDesc || '畫面主客體構圖與美學表現力').trim();
+  var studentNote = String(payload.studentNote || '').trim();
+  var sanitizedNote = studentNote ? studentNote.slice(0, 150).replace(/["`]/g, '') : '';
+  var noteText = sanitizedNote ? '\n【學生自述作品內容與創作理念（他在畫什麼）】：\n「' + sanitizedNote + '」\n' : '';
+
+  var prompt = '你是一位國際級嚴格且公正的美術教育評審。\n' +
+    '請先仔細「檢視並描述」這張圖片中真實出現的內容是什麼（例如：是一個戴帽子的動漫少年？一隻趴著的貓咪？一盤食物？自然風景？還是隨便亂畫的草稿、空白紙或隨手拍照片）。\n\n' +
+    '使用者選擇挑戰的領域是：「' + theme + '」。\n' +
+    '該領域核心評估規準是：「' + focusDesc + '」。' + noteText + '\n\n' +
+    '【最關鍵第一審查原則：文不對題與創作真實性檢驗（防作弊/防盲目給分）】：\n' +
+    '- 請先判斷：畫面主體是否真正屬於「' + theme + '」' + (sanitizedNote ? '，且畫面是否呼應學生所自述「' + sanitizedNote + '」的內容與創作意圖？' : '？') + '\n' +
+    '- 若畫面內容明顯與「' + theme + '」無關' + (sanitizedNote ? '，或與學生自述之「' + sanitizedNote + '」完全不符' : '') + '（例如：選動漫人物卻上傳了動物/食物/建築/風景，或根本不是繪畫創作而是隨手拍生活物品或空白紙）：\n' +
+    '  1. themeScore 請直接給予極低的懲罰分數（10 ~ 30 分）！\n' +
+    '  2. feedback 第一句必須直接揭露實情並嚴格指出：「畫面內容為...，與所選主題『' + theme + '』' + (sanitizedNote ? '及自述內容' : '') + '完全文不對題！無法列入評鑑，請重新換題或重畫。」\n' +
+    '- 只有當圖片確實屬於「' + theme + '」且具備一定創作意圖時' + (sanitizedNote ? '（並在畫面上能看到學生努力描摹其自述之構想）' : '') + '，themeScore 才能正常在 65 ~ 95 分之間評估。\n\n' +
+    '【各指標嚴格評分標準（0~100 分）】：\n' +
+    '1. themeScore (35%): 主題契合度（是否符合所選領域之核心精神' + (sanitizedNote ? '，是否真實展現自述構想' : '') + '）\n' +
+    '2. compScore (20%): 構圖重心與結構（主體是否居中或符合三分法則？圓形胸章範圍內主體比例是否得當？是否太小或出框？）\n' +
+    '3. colorScore (15%): 色彩冷暖與豐富度（用色是否具有氛圍？色調是否單調混濁？）\n' +
+    '4. lightScore (15%): 明暗立體感（是否有陰影、受光面、反光立體感？）\n' +
+    '5. detailScore (15%): 筆觸細節與線條質感（邊緣線條是否俐落？細節描摹是否用心？）\n\n' +
+    '請嚴格回傳純 JSON 格式（絕對不要包含 ```json 標記或任何額外說明）：\n' +
+    '{\n' +
+    '  "imageDescription": "畫面客觀描述(30字內)",\n' +
+    '  "themeScore": 85,\n' +
+    '  "compScore": 88,\n' +
+    '  "colorScore": 82,\n' +
+    '  "lightScore": 80,\n' +
+    '  "detailScore": 84,\n' +
+    '  "title": "具風格特色之專屬稱號(8字內)",\n' +
+    '  "feedback": "教練深度講評(包含畫面客觀優缺點，60字內)",\n' +
+    '  "advice": "次世代修煉建議(具體修改技巧，45字內)",\n' +
+    '  "focusX": 0.5,\n' +
+    '  "focusY": 0.45,\n' +
+    '  "palette": ["#173e35", "#24654d", "#e4edb7", "#d97706", "#ffffff"]\n' +
+    '}';
+
+  var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + key;
+  var requestPayload = {
+    contents: [{
+      role: 'user',
+      parts: [
+        { text: prompt },
+        { inlineData: { mimeType: 'image/png', data: cleanBase64 } }
+      ]
+    }],
+    generationConfig: {
+      temperature: 0.2,
+      responseMimeType: 'application/json'
+    }
+  };
+
+  var response = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify(requestPayload),
+    muteHttpExceptions: true
+  });
+
+  if (response.getResponseCode() !== 200) {
+    throw new Error('AI 視覺分析伺服器回應異常 (HTTP ' + response.getResponseCode() + ')：' + response.getContentText().slice(0, 100));
+  }
+
+  var resJson = JSON.parse(response.getContentText());
+  var rawText = resJson.candidates && resJson.candidates[0] && resJson.candidates[0].content && resJson.candidates[0].content.parts[0].text;
+  if (!rawText) throw new Error('AI 未能回傳有效評量文字');
+
+  var clean = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  var parsed = JSON.parse(clean);
+
+  parsed.totalScore = Math.round(
+    parsed.themeScore * 0.35 +
+    parsed.compScore * 0.20 +
+    parsed.colorScore * 0.15 +
+    parsed.lightScore * 0.15 +
+    parsed.detailScore * 0.15
+  );
+  return parsed;
+}
+
+/**
+ * 將胸章作品存入 Google Drive 並登記試算表
  */
 function saveArtworkToDrive_(data) {
   var lock = LockService.getScriptLock();
@@ -152,7 +259,7 @@ function saveArtworkToDrive_(data) {
     // 最多等待 20 秒取得排程鎖定，徹底杜絕高併發重複建立資料夾與試算表
     lock.waitLock(20000);
 
-    var folderId = SCRIPT_PROPS_.getProperty('FOLDER_ID');
+    var folderId = (data.folderId && data.folderId.trim()) || SCRIPT_PROPS_.getProperty('FOLDER_ID') || DEFAULT_FOLDER_ID_;
     if (!folderId) {
       throw new Error('伺服器端尚未設定 Google 雲端收件資料夾 ID (FOLDER_ID)！請聯絡老師。');
     }
@@ -171,9 +278,7 @@ function saveArtworkToDrive_(data) {
     if (!data.imageBase64 || typeof data.imageBase64 !== 'string') {
       throw new Error('未收到有效的圖片編碼資料 (Base64 Missing)');
     }
-    var parts = data.imageBase64.match(/^data:(image\/[a-zA-Z0-9\+\-]+);base64,(.+)$/);
-    var mimeType = parts ? parts[1] : 'image/png';
-    var rawBase64 = parts ? parts[2] : data.imageBase64.replace(/^data:image\/\w+;base64,/, '');
+    var rawBase64 = data.imageBase64.replace(/^data:image\/\w+;base64,/, '');
 
     var decodedBytes;
     try {
@@ -188,7 +293,7 @@ function saveArtworkToDrive_(data) {
     var cleanName = studentName.replace(/[\\/:*?"<>|\r\n]/g, '_');
     var fileName = cleanId + '_' + cleanName + '_' + score + '分_' + timeStr + '.png';
     
-    var blob = Utilities.newBlob(decodedBytes, mimeType, fileName);
+    var blob = Utilities.newBlob(decodedBytes, 'image/png', fileName);
     var savedFile = themeFolder.createFile(blob);
     savedFile.setDescription('AI 藝術能量掃描儀成果作品 - ' + studentName + ' (' + studentId + ') ｜ 稱號：' + title + ' ｜ 總分：' + score);
 
@@ -226,7 +331,6 @@ function saveArtworkToDrive_(data) {
 
 function sanitizeCell_(val) {
   var str = String(val == null ? '' : val);
-  // 若開頭為試算表公式特殊符號，強制前綴單引號防止 Formula Injection
   if (/^[\=\+\-\@\t\r]/.test(str)) {
     return "'" + str;
   }
@@ -261,4 +365,3 @@ function getOrCreateArtSheet_(rootFolder) {
   }
   return ss.getActiveSheet();
 }
-
