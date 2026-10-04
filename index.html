@@ -138,7 +138,7 @@
             <!-- 引擎狀態燈號（點擊可開啟設定） -->
             <button onclick="openConfigModal()" class="flex items-center space-x-1.5 bg-[#eff3e7] hover:bg-[#e4edb7] border border-[#b7cfac] px-3 py-1.5 rounded-full transition-all group shadow-xs">
                 <span id="engine-status-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                <span id="engine-status-text" class="font-bold text-[#24654d] text-[11px]">展示模式 (設定 Key)</span>
+                <span id="engine-status-text" class="font-bold text-[#24654d] text-[11px]">展示模式（教師設定）</span>
                 <i class="fas fa-sliders text-[#5d7068] group-hover:text-[#173e35] text-[10px] ml-0.5"></i>
             </button>
 
@@ -165,7 +165,7 @@
                     把你的創作靈感，<br><em>化為專屬實體胸章。</em>
                 </h1>
                 <p class="text-xs sm:text-sm text-[#5d7068] max-w-md mx-auto leading-relaxed">
-                    以 108 課綱美感素養為指引，結合多模態神經網路分析構圖、色彩與意境，達標 85 分即刻解鎖 58mm 胸章印刷版型與認證證書。
+                    以 108 課綱美感素養為指引，結合多模態技術提供構圖、色彩與意境的形成性回饋；製作與存檔均須教師確認。
                 </p>
             </div>
 
@@ -193,7 +193,7 @@
                             <i class="fas fa-microchip mr-1.5 text-[#24654d]"></i> AI 視覺評審引擎狀態
                         </span>
                         <button onclick="openConfigModal()" class="text-[11px] text-[#24654d] hover:underline font-bold flex items-center">
-                            <i class="fas fa-sliders mr-1"></i> 設定 API Key
+                            <i class="fas fa-sliders mr-1"></i> 教師設定
                         </button>
                     </div>
 
@@ -616,7 +616,7 @@
                 <!-- 未達標重試區 -->
                 <div id="action-retry" class="hidden space-y-2">
                     <p class="text-center text-xs text-[#5d7068]">
-                        差一點點就解鎖實體胸章資格（需 85 分），請參考建議修煉後再挑戰！
+                        請參考回饋調整作品，完成後可請教師確認下一步製作建議。
                     </p>
                     <button onclick="retryScan()" class="w-full py-3 bg-[#173e35] hover:bg-[#24654d] text-white font-bold rounded-xl text-xs transition-all active:scale-95 flex items-center justify-center space-x-2">
                         <i class="fas fa-rotate-left"></i>
@@ -644,7 +644,7 @@
                     <i class="fas fa-shield-halved text-xl"></i>
                 </div>
                 <h3 class="text-base font-serif font-bold text-[#173e35]">管理權限驗證</h3>
-                <p class="text-xs text-[#5d7068]">僅教師與系統管理者可設定 API Key 與雲端空間</p>
+                <p class="text-xs text-[#5d7068]">僅教師與系統管理者可設定 AI 與雲端空間</p>
             </div>
 
             <div>
@@ -764,7 +764,7 @@
                     </div>
                     <div>
                         <h3 class="text-base font-serif font-bold text-[#173e35]">星空數位藝廊 ╳ 班級胸章榮譽榜</h3>
-                        <p class="text-[10px] text-[#5d7068]">匯集通過 AI 嚴選認證的 85+ 特級原創胸章作品</p>
+                        <p class="text-[10px] text-[#5d7068]">匯集經教師確認、可作為學習參考的作品紀錄</p>
                     </div>
                 </div>
                 <button onclick="closeGalleryModal()" class="w-8 h-8 rounded-full bg-[#f7f9f2] text-[#5d7068] hover:text-[#173e35] flex items-center justify-center">
@@ -1115,7 +1115,7 @@
                 `;
             } else {
                 dot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
-                text.innerText = "展示模式 (設定 Key)";
+                text.innerText = "展示模式（教師設定）";
                 text.className = "font-bold text-[#b45309] text-[11px]";
 
                 descBox.className = "p-2.5 rounded-lg border bg-[#fffbeb] border-[#fde68a] text-[#92400e] text-xs leading-relaxed";
@@ -1262,7 +1262,7 @@
                     studentName: state.studentName,
                     theme: state.theme,
                     studentNote: state.studentNote || '',
-                    title: state.currentResult?.title || '特級繪師',
+                    title: state.currentResult?.title || '創作學習紀錄',
                     totalScore: state.currentResult?.totalScore || 0,
                     themeScore: state.currentResult?.themeScore || 0,
                     compScore: state.currentResult?.compScore || 0,
@@ -2587,7 +2587,7 @@
         }
 
         // ==============================================
-        // 實體創客輸出 2：特級能量證書 PNG (古典防偽飾紋、巴洛克花角與燙金印信)
+        // 實體創客輸出 2：創作學習紀錄 PNG
         // ==============================================
         async function exportHonorCertificate() {
             try {
@@ -2708,7 +2708,7 @@
 
             ctx.fillStyle = '#24654d';
             ctx.font = 'bold 28px "Noto Serif TC", serif';
-            ctx.fillText(`榮獲官方特級稱號：『 ${state.currentResult?.title || '特級創作者'} 』`, canvas.width / 2, 650);
+            ctx.fillText(`本次回饋稱號：『 ${state.currentResult?.title || '創作學習紀錄'} 』`, canvas.width / 2, 650);
 
             // 6. 中央作品圓形展位 + 雙金環裝飾
             const img = new Image();
@@ -2799,7 +2799,7 @@
                 ctx.font = '13px "Orbitron", monospace';
                 ctx.fillText(`SECURITY VERIFICATION HASH: DX-${Math.random().toString(36).substring(2, 10).toUpperCase()}`, canvas.width - 120, 1145);
 
-                downloadCanvasImage(canvas, `AI藝術能量特級證書_${state.studentId}_${state.studentName}.png`);
+                downloadCanvasImage(canvas, `AI藝術能量學習紀錄_${state.studentId}_${state.studentName}.png`);
             };
         }
 
@@ -2839,7 +2839,7 @@
                 grid.innerHTML = `
                     <div class="col-span-full py-16 text-center text-[#5d7068] text-xs">
                         <i class="fas fa-box-open text-3xl mb-2 text-[#b7cfac] block"></i>
-                        目前尚未有作品達標入榜，快去啟動掃描並挑戰 85 分吧！
+                        目前尚未有教師確認的作品紀錄，完成作品後可請教師協助確認。
                     </div>
                 `;
             } else {
