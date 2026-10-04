@@ -20,7 +20,7 @@ function doGet(e) {
     system: 'AI Art Scanner 2.0 Backend (Production)',
     hasFolder: !!folderId,
     hasApiKey: hasApiKey,
-    activeModel: SCRIPT_PROPS_.getProperty('ACTIVE_MODEL') || 'gemini-1.5-flash'
+    activeModel: SCRIPT_PROPS_.getProperty('ACTIVE_MODEL') || 'gemini-2.5-flash'
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -46,7 +46,7 @@ function doPost(e) {
         hasApiKey: !!SCRIPT_PROPS_.getProperty('GEMINI_API_KEY'),
         apiKeyMasked: maskKey_(SCRIPT_PROPS_.getProperty('GEMINI_API_KEY') || ''),
         folderId: SCRIPT_PROPS_.getProperty('FOLDER_ID') || DEFAULT_FOLDER_ID_,
-        activeModel: SCRIPT_PROPS_.getProperty('ACTIVE_MODEL') || 'gemini-1.5-flash'
+        activeModel: SCRIPT_PROPS_.getProperty('ACTIVE_MODEL') || 'gemini-2.5-flash'
       });
     }
 
@@ -54,7 +54,11 @@ function doPost(e) {
     if (action === 'saveSettings') {
       verifyAdmin_(payload.password);
       if (payload.apiKey && payload.apiKey.trim()) {
-        SCRIPT_PROPS_.setProperty('GEMINI_API_KEY', payload.apiKey.trim());
+        var keyToSave = payload.apiKey.trim();
+        SCRIPT_PROPS_.setProperty('GEMINI_API_KEY', keyToSave);
+        try {
+          testGeminiConnection_(keyToSave);
+        } catch (_) {}
       }
       if (payload.folderId !== undefined) {
         SCRIPT_PROPS_.setProperty('FOLDER_ID', payload.folderId.trim());
@@ -160,7 +164,7 @@ function testGeminiConnection_(key) {
  */
 function analyzeArtworkOnBackend_(payload) {
   var key = SCRIPT_PROPS_.getProperty('GEMINI_API_KEY');
-  var model = SCRIPT_PROPS_.getProperty('ACTIVE_MODEL') || 'gemini-1.5-flash';
+  var model = SCRIPT_PROPS_.getProperty('ACTIVE_MODEL') || 'gemini-2.5-flash';
   if (!key) {
     throw new Error('伺服器尚未配置 Gemini API Key，請老師由管理設定進行綁定。');
   }
@@ -207,7 +211,6 @@ function analyzeArtworkOnBackend_(payload) {
     '  "palette": ["#173e35", "#24654d", "#e4edb7", "#d97706", "#ffffff"]\n' +
     '}';
 
-  var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + key;
   var requestPayload = {
     contents: [{
       role: 'user',
@@ -222,15 +225,34 @@ function analyzeArtworkOnBackend_(payload) {
     }
   };
 
-  var response = UrlFetchApp.fetch(url, {
-    method: 'post',
-    contentType: 'application/json',
-    payload: JSON.stringify(requestPayload),
-    muteHttpExceptions: true
-  });
+  var candidateModels = [model, 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  var tried = {};
+  var lastErr = null;
+  var response = null;
 
-  if (response.getResponseCode() !== 200) {
-    throw new Error('AI 視覺分析伺服器回應異常 (HTTP ' + response.getResponseCode() + ')：' + response.getContentText().slice(0, 100));
+  for (var i = 0; i < candidateModels.length; i++) {
+    var curModel = candidateModels[i];
+    if (tried[curModel]) continue;
+    tried[curModel] = true;
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + curModel + ':generateContent?key=' + key;
+    response = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify(requestPayload),
+      muteHttpExceptions: true
+    });
+    if (response.getResponseCode() === 200) {
+      if (curModel !== model) {
+        SCRIPT_PROPS_.setProperty('ACTIVE_MODEL', curModel);
+      }
+      break;
+    } else {
+      lastErr = new Error('AI 視覺分析伺服器回應異常 (' + curModel + ' HTTP ' + response.getResponseCode() + ')：' + response.getContentText().slice(0, 100));
+    }
+  }
+
+  if (!response || response.getResponseCode() !== 200) {
+    throw (lastErr || new Error('AI 視覺分析服務無法連線'));
   }
 
   var resJson = JSON.parse(response.getContentText());
