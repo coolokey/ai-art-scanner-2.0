@@ -10,18 +10,17 @@
  */
 
 var SCRIPT_PROPS_ = PropertiesService.getScriptProperties();
-var DEFAULT_FOLDER_ID_ = '1tutM_vmGgeqPBepWj2goiW1zmOe9keF0';
 
 function doGet(e) {
   return ContentService.createTextOutput(JSON.stringify({
     status: 'online',
     system: 'AI Art Scanner 2.0 Backend',
-    hasFolder: !!(SCRIPT_PROPS_.getProperty('FOLDER_ID') || DEFAULT_FOLDER_ID_),
+    hasFolder: !!SCRIPT_PROPS_.getProperty('FOLDER_ID'),
     hasApiKey: !!SCRIPT_PROPS_.getProperty('GEMINI_API_KEY')
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
-function doPost(e) {
+function legacyPost_(e) {
   try {
     var payload = JSON.parse(e.postData.contents || '{}');
     var action = payload.action;
@@ -37,8 +36,8 @@ function doPost(e) {
       verifyAdmin_(payload.password);
       return jsonResp_({
         success: true,
-        apiKeyMasked: maskKey_(SCRIPT_PROPS_.getProperty('GEMINI_API_KEY') || ''),
-        folderId: SCRIPT_PROPS_.getProperty('FOLDER_ID') || DEFAULT_FOLDER_ID_,
+        hasApiKey: !!SCRIPT_PROPS_.getProperty('GEMINI_API_KEY'),
+        folderId: SCRIPT_PROPS_.getProperty('FOLDER_ID') || '',
         activeModel: SCRIPT_PROPS_.getProperty('ACTIVE_MODEL') || 'gemini-1.5-flash'
       });
     }
@@ -64,7 +63,7 @@ function doPost(e) {
     // 4. 測試 Gemini 連線（自動探索模型）
     if (action === 'testGemini') {
       verifyAdmin_(payload.password);
-      var key = payload.apiKey || SCRIPT_PROPS_.getProperty('GEMINI_API_KEY');
+      var key = SCRIPT_PROPS_.getProperty('GEMINI_API_KEY');
       if (!key) throw new Error('尚未設定 Gemini API Key');
       var testResult = testGeminiConnection_(key);
       return jsonResp_(testResult);
@@ -89,7 +88,8 @@ function jsonResp_(obj) {
 }
 
 function checkAdminPassword_(pwd) {
-  var stored = SCRIPT_PROPS_.getProperty('ADMIN_PASSWORD') || 'admin888';
+  var stored = SCRIPT_PROPS_.getProperty('ADMIN_PASSWORD');
+  if (!stored || stored.length < 16) return false;
   return String(pwd || '').trim() === stored;
 }
 
@@ -152,7 +152,7 @@ function saveArtworkToDrive_(data) {
     // 最多等待 20 秒取得排程鎖定，徹底杜絕高併發重複建立資料夾與試算表
     lock.waitLock(20000);
 
-    var folderId = (data.folderId && data.folderId.trim()) || SCRIPT_PROPS_.getProperty('FOLDER_ID') || DEFAULT_FOLDER_ID_;
+    var folderId = SCRIPT_PROPS_.getProperty('FOLDER_ID');
     if (!folderId) {
       throw new Error('伺服器端尚未設定 Google 雲端收件資料夾 ID (FOLDER_ID)！請聯絡老師。');
     }

@@ -390,6 +390,10 @@
                     </label>
                     <textarea id="input-student-statement" rows="2" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg p-2.5 text-xs text-[#173e35] placeholder-[#5d7068]/60 focus:outline-none resize-none leading-relaxed" placeholder="例如：我在畫一隻背著探險裝備的太空狐狸，正在觀察水晶洞窟。我想呈現神祕探索與明暗對比氛圍..."></textarea>
                 </div>
+                <label class="flex items-start gap-2 text-[11px] text-[#173e35] leading-relaxed cursor-pointer">
+                    <input id="image-consent" type="checkbox" class="mt-0.5 accent-[#24654d]">
+                    <span>我確認圖片不含姓名、學號、人像或其他個人資料，並同意在教師開啟課堂授權時，將作品圖片與創作自述交由校方設定的 AI 產生形成性回饋。</span>
+                </label>
             </div>
 
             <!-- 送交 AI 鑑定按鈕 -->
@@ -438,7 +442,7 @@
             <div class="flex items-center justify-between bg-[#f7f9f2] border border-[#d4ded5] rounded-2xl p-4 shadow-xs">
                 <!-- 稱號與圓形胸章預覽 -->
                 <div class="flex flex-col items-center w-1/2 pr-2 border-r border-[#d4ded5]">
-                    <span class="text-[10px] text-[#5d7068] font-bold uppercase tracking-wider mb-0.5">榮獲官方認證稱號</span>
+                    <span class="text-[10px] text-[#5d7068] font-bold uppercase tracking-wider mb-0.5">本次回饋稱號</span>
                     <h3 id="res-artist-title" class="text-base font-serif font-bold text-[#173e35] text-center leading-tight mb-2">
                         星界光之大師
                     </h3>
@@ -586,13 +590,13 @@
                 <div id="action-unlocked" class="hidden space-y-2">
                     <div class="text-center bg-[#edf5e7] border border-[#b7cfac] py-2 rounded-xl text-[#24654d] font-bold text-xs flex items-center justify-center space-x-1.5">
                         <i class="fas fa-trophy text-[#d97706]"></i>
-                        <span>恭喜解鎖「實體胸章製作」與「雲端存檔」資格！</span>
+                        <span>完成本次作品回饋，可供教師確認後製作與存檔。</span>
                     </div>
 
                     <!-- ☁️ 雲端存檔按鈕 -->
                     <button id="btn-cloud-upload" onclick="uploadArtworkToCloud()" class="w-full py-3 bg-[#d97706] hover:bg-[#b45309] text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-2">
                         <i class="fas fa-cloud-arrow-up text-sm"></i>
-                        <span id="cloud-upload-btn-text">上傳成果至 Google 雲端空間 (獨立專屬資料夾)</span>
+                            <span id="cloud-upload-btn-text">教師確認後存入 Google 雲端空間</span>
                     </button>
 
                     <div id="cloud-upload-status" class="hidden p-2.5 rounded-xl border text-xs leading-relaxed text-center"></div>
@@ -604,7 +608,7 @@
                         </button>
                         <button onclick="exportHonorCertificate()" class="py-3 bg-[#24654d] hover:bg-[#144333] text-white font-bold rounded-xl text-xs shadow-xs transition-all active:scale-95 flex items-center justify-center space-x-1.5">
                             <i class="fas fa-certificate"></i>
-                            <span>生成特級證書</span>
+                            <span>生成學習紀錄</span>
                         </button>
                     </div>
                 </div>
@@ -689,7 +693,7 @@
                     </label>
                     <input type="password" id="modal-apikey-input" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2 text-[#173e35] font-tech text-xs focus:outline-none" placeholder="AIzaSy...">
                     <div class="flex items-center justify-between mt-1">
-                        <p class="text-[10px] text-[#5d7068]">儲存後本機安全加密保存，學生開啟即用。</p>
+                        <p class="text-[10px] text-[#5d7068]">金鑰只會儲存在伺服器端，不會留在學生裝置。</p>
                         <button onclick="testApiKeyPing()" id="btn-test-ping" class="text-[11px] text-[#d97706] hover:underline font-bold flex items-center">
                             <i class="fas fa-bolt mr-1"></i>測試連線 (Ping)
                         </button>
@@ -702,9 +706,9 @@
                     <label class="block text-[#173e35] font-bold mb-1">
                         <i class="fab fa-google-drive text-[#24654d] mr-1"></i> Google 雲端專屬收件資料夾 ID
                     </label>
-                    <input type="text" id="modal-folder-input" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2 text-[#173e35] font-tech text-xs focus:outline-none" value="1tutM_vmGgeqPBepWj2goiW1zmOe9keF0" placeholder="1tutM_vmGgeqPBepWj2goiW1zmOe9keF0">
+                    <input type="text" id="modal-folder-input" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2 text-[#173e35] font-tech text-xs focus:outline-none" placeholder="Google Drive 資料夾 ID">
                     <p class="text-[10px] text-[#5d7068] mt-1">
-                        ※ 已預設專屬收件資料夾 ID：<code class="text-[#24654d] font-bold">1tutM_vmGgeqPBepWj2goiW1zmOe9keF0</code>（完全獨立於原自主學習系統）。
+                        資料夾 ID 僅保存在 Apps Script 的指令碼屬性，不會公開在網站原始碼。
                     </p>
                 </div>
 
@@ -724,7 +728,7 @@
                     <label class="block text-[#173e35] font-bold mb-1">
                         <i class="fas fa-lock text-rose-600 mr-1"></i> 變更管理密碼
                     </label>
-                    <input type="password" id="modal-new-pwd-input" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2 text-[#173e35] text-xs focus:outline-none" placeholder="若不修改請留空 (預設為 admin888)">
+                    <input type="password" id="modal-new-pwd-input" class="w-full bg-white border border-[#b7c8bc] focus:border-[#24654d] rounded-lg px-3.5 py-2 text-[#173e35] text-xs focus:outline-none" placeholder="若不修改請留空；至少 16 字元">
                 </div>
 
                 <!-- 儲存按鈕 -->
@@ -734,6 +738,9 @@
                         <span>儲存所有管理設定並立即生效</span>
                     </button>
                 </div>
+                <button onclick="startClassroomSession()" class="w-full py-2.5 border border-[#24654d] text-[#24654d] rounded-xl font-bold text-xs transition-all">
+                    啟動 30 分鐘課堂 AI 回饋
+                </button>
 
                 <div class="border-t border-[#d4ded5] pt-2 flex items-center justify-between text-[11px] text-[#5d7068]">
                     <button onclick="clearAllSettings()" class="text-rose-600 hover:underline">
@@ -784,15 +791,14 @@
     <!-- 核心 JavaScript 引擎 -->
     <!-- ============================================== -->
     <script>
-        const KEY_STORAGE_NAME = 'ART_SCANNER_API_KEY_V2';
         const GALLERY_STORAGE_NAME = 'ART_SCANNER_GALLERY_V2';
-        const DEFAULT_DRIVE_FOLDER_ID = '1tutM_vmGgeqPBepWj2goiW1zmOe9keF0';
         const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxbx30YSNXTHV0bkbDKEJlQUqASuke-6tgMpDA1DrAb2z-QPSjbsyz9_0s3EJWUsx4w/exec';
 
         const state = {
             studentId: '80105',
             studentName: '大溪小達文西',
-            apiKey: '',
+            classroomToken: '',
+            adminPassword: '',
             theme: '熱血動漫角色',
             themeFocus: '動漫風格人物、眼神神態張力、動態肢體線條與輪廓',
             croppedBase64: '',
@@ -1070,16 +1076,20 @@
         let currentThemeViewMode = 'grid'; // 'grid' (總覽網格) or 'carousel' (橫向輪播)
         let currentThemeCategory = 'all';
 
-        // 讀取已儲存的金鑰與雲端資料夾 ID 及 GAS URL
+        async function postBackend(payload) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 25000);
+            try {
+                const response = await fetch(DEFAULT_GAS_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload), signal:controller.signal});
+                const result = JSON.parse(await response.text());
+                if (!result.success) throw new Error(result.error || result.message || '伺服器未完成要求');
+                return result;
+            } finally { clearTimeout(timer); }
+        }
+
+        // 清除舊版瀏覽器保存的機密；金鑰與資料夾只由後端 Script Properties 保存。
         function loadSavedApiKey() {
-            const saved = localStorage.getItem(KEY_STORAGE_NAME) || '';
-            state.apiKey = saved.trim();
-            if (!localStorage.getItem('ART_SCANNER_FOLDER_ID_V2')) {
-                localStorage.setItem('ART_SCANNER_FOLDER_ID_V2', DEFAULT_DRIVE_FOLDER_ID);
-            }
-            if (!localStorage.getItem('ART_SCANNER_GAS_URL_V2')) {
-                localStorage.setItem('ART_SCANNER_GAS_URL_V2', DEFAULT_GAS_URL);
-            }
+            Object.keys(localStorage).filter(k => k.startsWith('ART_SCANNER_') && k !== GALLERY_STORAGE_NAME).forEach(k => localStorage.removeItem(k));
             updateEngineStatusUI();
         }
 
@@ -1088,7 +1098,7 @@
             const text = document.getElementById('engine-status-text');
             const descBox = document.getElementById('engine-desc-box');
 
-            if (state.apiKey) {
+            if (state.classroomToken) {
                 dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-ping";
                 text.innerText = "Gemini 多模態引擎就緒";
                 text.className = "font-bold text-[#24654d] text-[11px]";
@@ -1097,10 +1107,10 @@
                 descBox.innerHTML = `
                     <div class="flex items-center space-x-1.5 font-bold mb-0.5 text-[#24654d]">
                         <i class="fas fa-circle-check"></i>
-                        <span>真實 AI 視覺辨識啟動中</span>
+                        <span>教師授權的 AI 形成性回饋已啟動</span>
                     </div>
                     <p class="text-[11px] text-[#5d7068]">
-                        已綁定專屬 Gemini API 金鑰。系統將透過多模態神經網路深度掃描畫面的主客結構、色彩調和度與主題契合度，提供客觀具鑑別度的專業美感講評。
+                        圖片會由伺服器端處理，金鑰不會存於此裝置。回饋僅供教師與學生討論，不作為資格或獎懲判定。
                     </p>
                 `;
             } else {
@@ -1112,10 +1122,10 @@
                 descBox.innerHTML = `
                     <div class="flex items-center space-x-1.5 font-bold mb-0.5 text-[#b45309]">
                         <i class="fas fa-circle-exclamation"></i>
-                        <span>評審與教學展示模擬通道</span>
+                        <span>展示模式／尚未取得教師課堂授權</span>
                     </div>
                     <p class="text-[11px] text-[#78350f]">
-                        尚未設定 API Key，系統現正使用展示通道供即時體驗。建議點擊右上角「<strong class="underline cursor-pointer" onclick="openConfigModal()">設定 API Key</strong>」綁定金鑰，即可開啟 100% 精準的真實 AI 視覺審查！
+                        現在顯示固定範例，不會上傳圖片或呼叫 AI。教師可由右上角後台建立限時課堂授權；系統不會自動移除圖片中的個資。
                     </p>
                 `;
             }
@@ -1147,16 +1157,15 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        function submitAdminPassword() {
+        async function submitAdminPassword() {
             const entered = document.getElementById('input-admin-password').value.trim();
-            const stored = localStorage.getItem('ART_SCANNER_ADMIN_PWD_V2') || 'admin888';
             const err = document.getElementById('password-error');
-
-            if (entered === stored) {
-                sessionStorage.setItem('ART_SCANNER_AUTH', 'true');
+            try {
+                await postBackend({action:'verifyAdmin', password:entered});
+                state.adminPassword = entered;
                 closePasswordModal();
-                showConfigModalDirectly();
-            } else {
+                await showConfigModalDirectly();
+            } catch (_) {
                 err.classList.remove('hidden');
             }
         }
@@ -1167,10 +1176,11 @@
             }
         });
 
-        function showConfigModalDirectly() {
-            document.getElementById('modal-apikey-input').value = state.apiKey;
-            document.getElementById('modal-folder-input').value = localStorage.getItem('ART_SCANNER_FOLDER_ID_V2') || DEFAULT_DRIVE_FOLDER_ID;
-            document.getElementById('modal-gas-input').value = localStorage.getItem('ART_SCANNER_GAS_URL_V2') || DEFAULT_GAS_URL;
+        async function showConfigModalDirectly() {
+            const settings = await postBackend({action:'getSettings', password:state.adminPassword});
+            document.getElementById('modal-apikey-input').value = '';
+            document.getElementById('modal-folder-input').value = settings.folderId || '';
+            document.getElementById('modal-gas-input').value = DEFAULT_GAS_URL;
             document.getElementById('modal-new-pwd-input').value = '';
             document.getElementById('ping-result').classList.add('hidden');
 
@@ -1185,43 +1195,31 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        function saveAdminSettings() {
+        async function saveAdminSettings() {
             const key = document.getElementById('modal-apikey-input').value.trim();
-            const folder = document.getElementById('modal-folder-input').value.trim() || DEFAULT_DRIVE_FOLDER_ID;
-            const gas = document.getElementById('modal-gas-input').value.trim() || DEFAULT_GAS_URL;
+            const folder = document.getElementById('modal-folder-input').value.trim();
             const newPwd = document.getElementById('modal-new-pwd-input').value.trim();
+            try {
+                await postBackend({action:'saveSettings', password:state.adminPassword, apiKey:key, folderId:folder, newPassword:newPwd});
+                if (newPwd) state.adminPassword = newPwd;
+                updateEngineStatusUI();
+                closeConfigModal();
+                alert('設定已儲存於伺服器端。API 金鑰未留存在瀏覽器。');
+            } catch (err) { alert('儲存失敗：' + err.message); }
+        }
 
-            if (key) {
-                localStorage.setItem(KEY_STORAGE_NAME, key);
-                state.apiKey = key;
-            } else {
-                localStorage.removeItem(KEY_STORAGE_NAME);
-                state.apiKey = '';
-            }
-            localStorage.setItem('ART_SCANNER_FOLDER_ID_V2', folder);
-            localStorage.setItem('ART_SCANNER_GAS_URL_V2', gas);
-            if (newPwd) {
-                localStorage.setItem('ART_SCANNER_ADMIN_PWD_V2', newPwd);
-                alert("管理密碼已成功更新！請妥善記住新密碼。");
-            }
-
-            updateEngineStatusUI();
-            closeConfigModal();
-            alert("所有管理設定已成功儲存並立即套用！");
+        async function startClassroomSession() {
+            try {
+                const response = await postBackend({action:'createSession', password:state.adminPassword});
+                state.classroomToken = response.token;
+                updateEngineStatusUI();
+                closeConfigModal();
+                alert('已啟動 30 分鐘課堂 AI 回饋。未勾選圖片同意的學生仍只會看到展示範例。');
+            } catch (err) { alert('無法啟動課堂授權：' + err.message); }
         }
 
         function clearAllSettings() {
-            if (confirm("確定要清除所有金鑰、資料夾與密碼設定，還原為出廠預設嗎？")) {
-                localStorage.removeItem(KEY_STORAGE_NAME);
-                localStorage.setItem('ART_SCANNER_FOLDER_ID_V2', DEFAULT_DRIVE_FOLDER_ID);
-                localStorage.setItem('ART_SCANNER_GAS_URL_V2', DEFAULT_GAS_URL);
-                localStorage.removeItem('ART_SCANNER_ADMIN_PWD_V2');
-                sessionStorage.removeItem('ART_SCANNER_AUTH');
-                state.apiKey = '';
-                updateEngineStatusUI();
-                closeConfigModal();
-                alert("已還原為出廠預設設定！");
-            }
+            alert('為避免誤刪伺服器設定，此功能已停用。請由系統部署者在 Apps Script 的指令碼屬性進行管理。');
         }
 
         // ==============================================
@@ -1231,15 +1229,12 @@
             const btn = document.getElementById('btn-cloud-upload');
             const btnText = document.getElementById('cloud-upload-btn-text');
             const statusBox = document.getElementById('cloud-upload-status');
-            const gasUrl = localStorage.getItem('ART_SCANNER_GAS_URL_V2') || DEFAULT_GAS_URL;
-            const folderId = localStorage.getItem('ART_SCANNER_FOLDER_ID_V2') || DEFAULT_DRIVE_FOLDER_ID;
-
-            if (!gasUrl) {
+            if (!state.classroomToken || !state.adminPassword || state.currentResult?.isDemo !== false) {
                 statusBox.className = "p-3 rounded-xl border bg-[#fffbeb] border-[#fde68a] text-[#92400e] text-xs text-left";
                 statusBox.innerHTML = `
                     <div class="font-bold text-[#b45309] mb-1"><i class="fas fa-info-circle mr-1"></i> 尚未配置雲端後端網址</div>
                     <p class="text-[11px] text-[#78350f] mb-2">
-                        請老師點擊右上角「⚙️ 系統設定」，輸入管理密碼解鎖後，填入專屬的 <strong>Google Apps Script 網頁應用程式網址</strong> 與 <strong>Google 雲端收件資料夾 ID</strong>，即可一鍵上傳！
+                        僅限教師檢視過的真實 AI 回饋存檔。展示模式結果不可上傳，請由教師先建立課堂授權並確認作品。
                     </p>
                     <div class="text-right">
                         <button onclick="openConfigModal()" class="px-2.5 py-1 bg-[#d97706] text-white font-bold rounded-lg text-[11px]">前往設定</button>
@@ -1258,7 +1253,11 @@
             try {
                 const payload = {
                     action: 'uploadArtwork',
-                    folderId: folderId,
+                    token: state.classroomToken,
+                    password: state.adminPassword,
+                    uploadConsent: true,
+                    teacherReviewed: true,
+                    isDemo: false,
                     studentId: state.studentId,
                     studentName: state.studentName,
                     theme: state.theme,
@@ -1275,21 +1274,7 @@
                     imageBase64: state.croppedBase64
                 };
 
-                const res = await fetch(gasUrl, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-
-                const rawText = await res.text();
-                let json;
-                try {
-                    json = JSON.parse(rawText);
-                } catch (parseErr) {
-                    if (rawText.includes('<!DOCTYPE') || rawText.includes('accounts.google.com')) {
-                        throw new Error('Google Apps Script 權限異常：請確認 Web App 是否已設定為「所有人 (Anyone)」皆可存取，且收件資料夾 ID 正確。');
-                    }
-                    throw new Error(`後端伺服器回應異常 (${res.status})：${rawText.slice(0, 80)}`);
-                }
+                const json = await postBackend(payload);
 
                 if (json.success) {
                     statusBox.className = "p-3 rounded-xl border bg-[#eff3e7] border-[#b7cfac] text-[#173e35] text-xs text-center";
@@ -1959,9 +1944,10 @@
             document.getElementById('scan-preview-img').src = state.croppedBase64;
             showScreen('screen-loading');
 
+            const consent = document.getElementById('image-consent')?.checked === true;
             const tag = document.getElementById('loading-model-tag');
-            if (state.apiKey) {
-                tag.innerHTML = '<i class="fas fa-atom mr-1.5"></i> Google Gemini Multimodal Live';
+            if (state.classroomToken && consent) {
+                tag.innerHTML = '<i class="fas fa-atom mr-1.5"></i> Teacher-authorized AI feedback';
             } else {
                 tag.innerHTML = '<i class="fas fa-flask mr-1.5"></i> Showcase Simulation Engine';
             }
@@ -1981,10 +1967,19 @@
 
             try {
                 let result;
-                if (state.apiKey) {
-                    result = await callStrictGeminiVisionAPI(state.croppedBase64, state.theme, state.themeFocus, state.apiKey, state.studentNote);
+                if (state.classroomToken && consent) {
+                    const response = await postBackend({
+                        action: 'analyzeArtwork',
+                        token: state.classroomToken,
+                        imageConsent: true,
+                        imageBase64: state.croppedBase64,
+                        theme: state.theme,
+                        studentNote: state.studentNote
+                    });
+                    result = response.result;
                 } else {
                     result = await simulateExpertRubricAI(state.theme, state.studentNote);
+                    result.isDemo = true;
                 }
                 clearInterval(stageTimer);
                 displayEvaluationResult(result);
@@ -2231,23 +2226,24 @@
                         if (data.totalScore >= 85) {
                             document.getElementById('action-unlocked').classList.remove('hidden');
                             document.getElementById('action-retry').classList.add('hidden');
-                            document.getElementById('res-status-tag').innerText = "特級解鎖成功！";
+                            document.getElementById('res-status-tag').innerText = data.isDemo ? "展示範例，非正式結果" : "形成性回饋完成，待教師確認";
                             document.getElementById('res-status-tag').className = "mt-1 text-xs font-bold text-[#d97706]";
-                            fireCyberConfetti();
-                            saveToGallery({
-                                id: state.studentId,
-                                name: state.studentName,
-                                theme: state.theme,
-                                title: data.title,
-                                score: data.totalScore,
-                                image: state.croppedBase64,
-                                note: state.studentNote || '',
-                                date: new Date().toLocaleDateString('zh-TW')
-                            });
+                            if (!data.isDemo) {
+                                saveToGallery({
+                                    id: state.studentId,
+                                    name: state.studentName,
+                                    theme: state.theme,
+                                    title: data.title,
+                                    score: data.totalScore,
+                                    image: state.croppedBase64,
+                                    note: state.studentNote || '',
+                                    date: new Date().toLocaleDateString('zh-TW')
+                                });
+                            }
                         } else {
                             document.getElementById('action-retry').classList.remove('hidden');
                             document.getElementById('action-unlocked').classList.add('hidden');
-                            document.getElementById('res-status-tag').innerText = "修煉中 (需 85 分)";
+                            document.getElementById('res-status-tag').innerText = "可依建議調整作品後再試";
                             document.getElementById('res-status-tag').className = "mt-1 text-xs font-bold text-rose-600";
                         }
                     }
